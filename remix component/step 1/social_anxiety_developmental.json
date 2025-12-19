@@ -1,0 +1,256 @@
+{
+  "id": "social-anxiety-developmental",
+  "name": "Social Anxiety Disorder - Developmental Pathway",
+  "disorder_type": "Social_Anxiety",
+  "description": "Models how Social Anxiety Disorder develops from combination of temperamental behavioral inhibition, critical parenting, peer rejection, and reinforcing avoidance patterns. Demonstrates progression from shy temperament to clinical disorder.",
+  
+  "clinical_rationale": "Social Anxiety Disorder typically develops from interaction of: (1) genetic temperament (behavioral inhibition - inherited shy/anxious tendency), (2) environmental factors during development (critical/overprotective parenting, peer rejection, social failures), and (3) cognitive patterns (negative self-evaluation, fear of judgment). Research shows: Children with behavioral inhibition have 4x risk of developing anxiety disorders (Clauss & Blackford, 2012). Critical life stage is ages 10-15 when peer evaluation becomes central to self-concept. Without intervention, avoidance behaviors maintain and intensify anxiety through negative reinforcement cycle (Rapee & Heimberg, 1997). This template shows realistic developmental trajectory: temperament + environment + avoidance = disorder.",
+  
+  "baseline_age": 5,
+  "baseline_gender": "female",
+  "baseline_background": "Born with behaviorally inhibited temperament - naturally shy, cautious around new people and situations. Parents are loving but somewhat anxious themselves.",
+  
+  "baseline_personality": {
+    "openness": 0.50,
+    "conscientiousness": 0.65,
+    "extraversion": 0.30,
+    "agreeableness": 0.75,
+    "neuroticism": 0.60
+  },
+  
+  "baseline_attachment_style": "secure",
+  
+  "predefined_experiences": [
+    {
+      "age": 5,
+      "category": "temperament",
+      "valence": "neutral",
+      "intensity": "mild",
+      "description": "Naturally shy child - clings to parent in new situations, takes long time to warm up to unfamiliar people, quiet in preschool. Not pathological, just temperamental behavioral inhibition. Parents accommodate shyness by avoiding social situations.",
+      "clinical_note": "Baseline behavioral inhibition (BI) is temperamental, not learned. About 15% of children born with BI. At age 5, this is NOT disorder - just personality variation. However, BI is risk factor if environment doesn't support gradual exposure and parents over-accommodate avoidance. Key: Shy temperament + environmental factors = potential disorder."
+    },
+    {
+      "age": 7,
+      "category": "family",
+      "valence": "negative",
+      "intensity": "moderate",
+      "description": "Parents, though well-meaning, frequently criticize social performance: 'Why didn't you say hi to Mrs. Johnson?' 'You need to speak up more.' 'Stop being so shy.' Comparisons to more outgoing sibling. Child internalizes: 'Something is wrong with me.'",
+      "clinical_note": "Parenting style amplifies temperamental anxiety. Critical messages about social performance create shame about shyness. Child learns: being shy = being defective. Well-intentioned pushing ('just say hi!') without support creates performance pressure without skills. Age 6-11 (middle childhood) is when self-concept forming - repeated messages shape identity: 'I am socially defective.'"
+    },
+    {
+      "age": 9,
+      "category": "peer",
+      "valence": "negative",
+      "intensity": "severe",
+      "description": "Gives class presentation. Hands shake, voice trembles, mind goes blank. Classmates laugh. Teacher says 'speak up, we can't hear you.' Runs out of classroom crying. Peers label her 'weird.' Bullying begins - called 'freak' and excluded from groups.",
+      "clinical_note": "First major public failure crystallizes fear. This is traumatic for child with social anxiety - worst fear (judgment, humiliation) realized. Peer rejection compounds shame. Age 9 is critical: peer relationships become central to self-concept. Bullying + exclusion reinforce negative self-view and intensify fear of evaluation. This is often turning point from shyness to clinical anxiety."
+    },
+    {
+      "age": 11,
+      "category": "avoidance",
+      "valence": "negative",
+      "intensity": "moderate",
+      "description": "Begins avoiding any situation with potential evaluation. Refuses to raise hand in class, eats lunch alone, fakes illness to skip school on presentation days. Parents allow accommodations. Avoidance provides immediate relief but maintains anxiety long-term.",
+      "clinical_note": "Avoidance is negative reinforcement cycle: Anxiety → Avoid situation → Immediate relief → Anxiety strengthens. Each avoidance confirms: 'I can't handle social situations.' Never learns: anxiety peaks then decreases, situations are manageable. Age 11-15 is when peer interaction skills develop - avoidance prevents skill building. This is mechanism maintaining anxiety: avoidance prevents corrective experiences."
+    },
+    {
+      "age": 13,
+      "category": "cognitive",
+      "valence": "negative",
+      "intensity": "moderate",
+      "description": "Catastrophizes about social situations: 'Everyone will think I'm stupid,' 'I'll embarrass myself and never recover.' Replays social interactions obsessively, analyzing mistakes. Self-monitoring in social situations - hyperaware of blushing, trembling, sweating. Believes others notice and judge these signs.",
+      "clinical_note": "Cognitive patterns of Social Anxiety Disorder solidify: (1) catastrophic predictions, (2) post-event rumination, (3) self-focused attention during interaction, (4) overestimation of negative evaluation likelihood. Adolescence (12-18) is peak risk period - social evaluation central to development. These cognitive patterns maintain anxiety even without external events."
+    },
+    {
+      "age": 14,
+      "category": "physical",
+      "valence": "negative",
+      "intensity": "moderate",
+      "description": "Physical anxiety symptoms intensify: heart racing before social events, nausea, trembling hands, blushing, sweating. Fears others will notice symptoms and think something is wrong. This fear of visible anxiety creates additional layer of anxiety (anxiety about anxiety).",
+      "clinical_note": "Physical symptoms become fear cue themselves. Meta-anxiety: anxious about appearing anxious. This is vicious cycle: anxiety → physical symptoms → fear of symptoms being noticed → more anxiety → more symptoms. Self-consciousness and self-monitoring worsen symptoms. Without intervention, this cycle self-perpetuates."
+    },
+    {
+      "age": 15,
+      "category": "impairment",
+      "valence": "negative",
+      "intensity": "severe",
+      "description": "Social anxiety severely impairs functioning. Refuses to attend school dances, birthday parties, group activities. Turns down social invitations (but desperately wants friends). Asks to switch out of classes requiring presentations. Grades suffer because won't ask questions or participate. Isolated and lonely.",
+      "clinical_note": "Functional impairment - hallmark of disorder vs normal shyness. Anxiety interferes with developmental tasks: forming friendships, romantic relationships, academic participation. Wants social connection but fear prevents it - creates painful internal conflict. Age 15 without treatment: patterns crystallizing, avoidance entrenched. Critical intervention point before young adulthood."
+    },
+    {
+      "age": 17,
+      "category": "depression",
+      "valence": "negative",
+      "intensity": "moderate",
+      "description": "Develops depression secondary to chronic social isolation and perceived failure. Thinks: 'Everyone else can make friends except me,' 'I'll always be alone,' 'Something is fundamentally broken in me.' Low self-esteem, hopelessness about future. Still intensely fears social situations.",
+      "clinical_note": "Comorbid depression develops (very common with Social Anxiety - 50% comorbidity rate). Depression is consequence of years of isolation, perceived inadequacy, and avoidance of valued activities. Hopelessness about change because anxiety feels permanent. Combined anxiety + depression creates additional impairment, increases treatment complexity."
+    }
+  ],
+  
+  "predefined_interventions": [
+    {
+      "age": 16,
+      "therapy_type": "CBT",
+      "duration": "6_months",
+      "intensity": "weekly",
+      "rationale": "CBT is gold standard for Social Anxiety Disorder with strongest evidence base. Components: (1) Cognitive restructuring - challenge catastrophic thoughts and overestimation of negative evaluation, (2) Exposure hierarchy - gradual facing of feared situations starting with least anxiety-provoking, (3) Attention training - shift focus from self-monitoring to task/conversation. CBT for SAD shows 60-75% response rate. Best before avoidance fully entrenched."
+    },
+    {
+      "age": 10,
+      "therapy_type": "CBT",
+      "duration": "3_months",
+      "intensity": "weekly",
+      "rationale": "Early intervention after age 9 public failure. Child-adapted CBT teaches: coping with anxiety, challenging negative thoughts, gradual exposure. Parent training component to reduce critical messages and stop accommodation of avoidance. Early intervention has excellent prognosis - prevents disorder from developing. Research shows early CBT can prevent anxiety disorders in at-risk children."
+    },
+    {
+      "age": 17,
+      "therapy_type": "group_therapy",
+      "duration": "6_months",
+      "intensity": "weekly",
+      "rationale": "Group CBT specifically for social anxiety. Provides: (1) exposure in vivo (being in group IS exposure), (2) peer support and normalization, (3) practice social skills with others who understand, (4) observation of others facing fears successfully. Group format particularly effective for SAD - meta-analysis shows equal or superior outcomes to individual CBT."
+    }
+  ],
+  
+  "expected_outcomes": {
+    "age_18_untreated": {
+      "personality": {
+        "openness": 0.40,
+        "conscientiousness": 0.60,
+        "extraversion": 0.15,
+        "agreeableness": 0.75,
+        "neuroticism": 0.80
+      },
+      "symptoms": [
+        "intense_fear_of_social_evaluation",
+        "avoidance_of_social_situations",
+        "fear_of_public_speaking",
+        "difficulty_making_friends",
+        "fear_of_eating_in_front_of_others",
+        "anticipatory_anxiety",
+        "post_event_rumination",
+        "physical_anxiety_symptoms",
+        "depression",
+        "low_self_esteem",
+        "social_isolation"
+      ],
+      "symptom_severity": {
+        "fear_of_evaluation": 9,
+        "avoidance": 9,
+        "anticipatory_anxiety": 8,
+        "physical_symptoms": 8,
+        "depression": 7,
+        "self_esteem": 3
+      },
+      "dsm_criteria_met": 6,
+      "note": "Meets full DSM-5 criteria for Social Anxiety Disorder (marked fear of social situations, fear of negative evaluation, avoidance, 6+ months duration, significant impairment). Without treatment: likely continues into adulthood affecting relationships, career, quality of life. Natural history without treatment: chronic course with waxing/waning but rarely full remission. May develop substance abuse (self-medication), agoraphobia (progressive restriction), severe depression."
+    },
+    
+    "age_18_with_cbt_at_16": {
+      "personality": {
+        "openness": 0.50,
+        "conscientiousness": 0.65,
+        "extraversion": 0.35,
+        "agreeableness": 0.75,
+        "neuroticism": 0.55
+      },
+      "symptoms": [
+        "mild_social_anxiety_in_specific_situations",
+        "manageable_with_coping_skills",
+        "occasional_avoidance",
+        "improved_self_esteem",
+        "minimal_depression",
+        "functional_social_relationships"
+      ],
+      "symptom_severity": {
+        "fear_of_evaluation": 4,
+        "avoidance": 3,
+        "anticipatory_anxiety": 4,
+        "physical_symptoms": 3,
+        "depression": 2,
+        "self_esteem": 7
+      },
+      "dsm_criteria_met": 2,
+      "note": "CBT significantly reduces symptoms: 60-70% improvement. No longer meets diagnostic criteria but retains some social anxiety (common - complete elimination rare). Can attend social events, participate in class, make friends. Still prefers small groups over large crowds (personality preference vs avoidance). Uses CBT skills (cognitive restructuring, graded exposure) to manage residual anxiety. Functioning good, quality of life much improved."
+    },
+    
+    "age_18_with_early_cbt_at_10": {
+      "personality": {
+        "openness": 0.55,
+        "conscientiousness": 0.65,
+        "extraversion": 0.45,
+        "agreeableness": 0.75,
+        "neuroticism": 0.50
+      },
+      "symptoms": [
+        "mild_shyness",
+        "occasional_social_nervousness",
+        "good_coping_skills",
+        "healthy_self_esteem",
+        "no_avoidance",
+        "satisfying_relationships"
+      ],
+      "symptom_severity": {
+        "fear_of_evaluation": 2,
+        "avoidance": 0,
+        "anticipatory_anxiety": 2,
+        "physical_symptoms": 1,
+        "depression": 0,
+        "self_esteem": 8
+      },
+      "dsm_criteria_met": 0,
+      "note": "Early intervention prevented disorder development. Still has shy temperament (genetic) but no clinical anxiety. Learned: anxiety is manageable, social situations get easier with practice, negative thoughts can be challenged. No avoidance pattern developed. Retains introverted preference but can engage socially when desired. This demonstrates power of early intervention - preventing disorder is more effective than treating established disorder."
+    }
+  },
+  
+  "citations": [
+    "Clauss, J. A., & Blackford, J. U. (2012). Behavioral inhibition and risk for developing social anxiety disorder: A meta-analytic study. Journal of the American Academy of Child & Adolescent Psychiatry, 51(10), 1066-1075.",
+    "Rapee, R. M., & Heimberg, R. G. (1997). A cognitive-behavioral model of anxiety in social phobia. Behaviour Research and Therapy, 35(8), 741-756.",
+    "Clark, D. M., & Wells, A. (1995). A cognitive model of social phobia. In R. G. Heimberg et al. (Eds.), Social phobia: Diagnosis, assessment, and treatment (pp. 69-93). Guilford Press.",
+    "Hofmann, S. G., & Otto, M. W. (2008). Cognitive behavioral therapy for social anxiety disorder: Evidence-based and disorder-specific treatment techniques. Routledge.",
+    "Kendall, P. C., et al. (2004). Child anxiety treatment: Outcomes in adolescence and impact on substance use and depression at 7.4-year follow-up. Journal of Consulting and Clinical Psychology, 72(2), 276-287."
+  ],
+  
+  "remix_suggestions": [
+    {
+      "title": "Early CBT After First Public Failure",
+      "changes": [
+        "Add CBT intervention at age 10 (right after age 9 presentation disaster)",
+        "Keep all other experiences through age 10",
+        "See if early intervention prevents avoidance pattern"
+      ],
+      "hypothesis": "Immediate intervention after traumatic social event could prevent generalization of fear and development of avoidance. Teaching coping skills before pattern entrenches has better prognosis. May prevent progression from situational anxiety to generalized social anxiety disorder."
+    },
+    {
+      "title": "Supportive Parenting Instead of Critical",
+      "changes": [
+        "Modify age 7 experience: 'Parents educated about behavioral inhibition. Learn to support gradual exposure without criticism. Validate feelings while encouraging brave behavior.'",
+        "Keep all other peer experiences"
+      ],
+      "hypothesis": "Parenting style significantly impacts outcome for behaviorally inhibited children. Supportive (vs critical) parenting provides secure base for facing fears. Validation + encouragement (without pressure) helps child develop: 'I'm okay, anxiety is manageable.' May still develop some social anxiety but less severe, less shame, better self-concept."
+    },
+    {
+      "title": "Remove Peer Bullying at Age 9",
+      "changes": [
+        "Modify age 9: 'Gives nervous presentation. Teacher is supportive, helps through it. Classmates kind. Learns: imperfect performance is okay.'",
+        "Keep temperament and parenting experiences"
+      ],
+      "hypothesis": "Test if peer rejection/bullying is necessary for disorder vs just temperament + critical parenting. Without humiliation/bullying, might develop milder social anxiety or none. Bullying often crystallizes fear - without it, may learn to cope with natural shyness."
+    },
+    {
+      "title": "Add Social Skills Training at Age 12",
+      "changes": [
+        "Add positive experience at age 12: 'Joins social skills group at school. Learns conversation skills, how to join groups, reading social cues. Practices in safe environment.'",
+        "Keep anxiety but add skills"
+      ],
+      "hypothesis": "Social anxiety often includes skills deficits (due to avoidance preventing practice). Skills training might: reduce anxiety through competence, provide exposure, build confidence. However, skills alone without anxiety treatment may not be sufficient - need both exposure and skill building."
+    },
+    {
+      "title": "Group Therapy Instead of Individual CBT",
+      "changes": [
+        "Replace individual CBT at 16 with group CBT",
+        "Keep all experiences"
+      ],
+      "hypothesis": "Group CBT may be more effective for social anxiety than individual. Provides: in vivo exposure, peer support, observational learning, normalization. Meta-analyses suggest equal or superior outcomes for SAD. Test if group format enhances treatment effect."
+    }
+  ]
+}

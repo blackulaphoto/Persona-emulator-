@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./venv/Scripts/python.exe -m uvicorn:*)",
+      "Bash(curl:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm install:*)",
+      "Bash(npx next dev:*)",
+      "Bash(node node_modules/next/dist/bin/next dev:*)",
+      "Bash(python -c \"from app.core.config import settings; print(''OpenAI Key:'', settings.openai_api_key[:20] + ''...'')\")",
+      "Bash(./venv/Scripts/python.exe:*)",
+      "Bash(taskkill:*)",
+      "Bash(find:*)",
+      "Bash(timeout:*)",
+      "Bash(exit 0)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

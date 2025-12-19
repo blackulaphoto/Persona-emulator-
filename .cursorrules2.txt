@@ -1,0 +1,61 @@
+## Architecture
+- Backend: Python 3.12, FastAPI, SQLAlchemy, OpenAI API
+- Frontend: Next.js 14, React 18, TypeScript, Tailwind CSS
+- Database: PostgreSQL (production), SQLite (dev)
+
+## Key Directories
+- backend/app/api/routes/ - API endpoints
+- backend/app/models/ - Database models
+- backend/app/services/ - Business logic
+- frontend/app/ - Next.js pages
+- frontend/lib/ - Frontend utilities
+
+## Rules
+1. Always run tests after backend changes: `cd backend && pytest tests/`
+2. Check TypeScript after frontend changes: `cd frontend && npm run build`
+3. When adding API endpoints:
+   - Add route in backend/app/api/routes/
+   - Add method in frontend/lib/api.ts
+   - Update types if needed
+4. Database changes require: `python scripts/init_db.py` (dev)
+5. NEVER commit secrets (OpenAI keys, etc.)
+
+## Common Commands
+- Start backend: `cd backend && uvicorn app.main:app --reload --port 8000`
+- Start frontend: `cd frontend && npm run dev`
+- Run tests: `cd backend && pytest tests/ -v`
+- Docker: `docker-compose up`
+
+## Known Issues Fixed
+✅ Chat route now at /api/v1/personas/{id}/chat (was at root)
+✅ CORS configurable via ALLOWED_ORIGINS env var
+✅ Database no longer auto-creates on startup
+```
+
+Save this as `.cursorrules` in your project root.
+
+### Step 3: First Instructions to Give Cursor
+
+Open Cursor chat (`Cmd/Ctrl + L`) and paste this:
+```
+I have a Persona Evolution Simulator project that simulates psychological 
+development. It's a FastAPI backend + Next.js frontend.
+
+Current state:
+- All code is written
+- 41 backend tests passing
+- Production hardening applied (Docker, CI/CD, security fixes)
+
+I need you to help me:
+1. Get it running locally (backend + frontend)
+2. Test that all features work
+3. Fix any issues that come up
+
+Start by:
+1. Reading the README.md to understand the project
+2. Checking if dependencies are installed
+3. Helping me start the backend server
+4. Then helping me start the frontend
+
+Let's begin. What should I do first?
+```

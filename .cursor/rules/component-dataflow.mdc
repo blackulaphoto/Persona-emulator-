@@ -1,0 +1,179 @@
+---
+description: Defines data flow patterns between psychological modeling and therapeutic intervention components
+---
+
+# === USER INSTRUCTIONS ===
+---
+description: Analyzes and documents data flow between core psychology and therapy components
+---
+
+
+# component-dataflow
+
+Primary Data Flow Channels:
+
+1. Experience Analysis → Developmental Impact
+- Psychology Engine (psychology_engine.py) sends experience data to Developmental Engine
+- Developmental stages.py applies age-specific trauma multipliers (1.0-1.8x)
+- Returns modified impact scores based on developmental stage
+
+2. Symptom → Therapy Matching
+- Experience Analysis Engine evaluates symptom development
+- Therapy Database (therapy_database.py) processes symptom profiles
+- Intervention Engine calculates therapy-symptom match scores
+- Returns prioritized therapeutic recommendations
+
+3. Personality Evolution Pipeline
+- Psychology Engine tracks personality trait changes
+- Sends trait modifications to Developmental Engine for age-context
+- Intervention Engine receives personality snapshots
+- Returns calibrated therapeutic approaches
+
+Core Integration Points:
+
+1. Developmental Psychology → Intervention
+```
+developmental_stages.py → intervention_engine.py
+- Age-appropriate intervention mappings
+- Developmental stage context
+- Coping capacity evaluations
+```
+
+2. Experience Analysis → Therapy Database
+```
+psychology_engine.py → therapy_database.py
+- Symptom severity metrics
+- Personality trait changes
+- Trauma markers
+```
+
+3. Therapy Database → Intervention Engine
+```
+therapy_database.py → intervention_engine.py
+- Therapy modality profiles
+- Efficacy scoring
+- Treatment limitations
+```
+
+$END$
+
+ If you're using this file in context, clearly say in italics in one small line that "Context added by Giga component-dataflow" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.
+
+---
+description: Defines data flow between major psychological analysis components, therapy engines, and development frameworks
+---
+
+
+
+# component-dataflow
+
+Primary Data Flow Paths:
+
+1. Psychology Engine → Developmental Framework
+- Sends life experience data for age-specific impact analysis
+- Receives trauma impact multipliers and developmental context
+- Integrates developmental stage data into personality evolution calculations
+Importance Score: 95/100
+
+2. Psychology Engine → Intervention Engine
+- Transmits current psychological state and symptom profiles
+- Receives recommended therapeutic approaches and efficacy scores
+- Exchanges trauma marker data for intervention matching
+Importance Score: 90/100
+
+3. Intervention Engine → Therapy Database
+- Queries therapy modalities based on symptom patterns
+- Retrieves evidence-based efficacy data for interventions
+- Receives therapy-specific limitations and mechanisms
+Importance Score: 85/100
+
+4. Developmental Framework → Therapy Database
+- Maps age-appropriate interventions to developmental stages
+- Validates therapeutic approaches against developmental capacities
+- Exchanges stage-specific therapy limitations
+Importance Score: 80/100
+
+Core Data Exchange Objects:
+
+1. Psychological State Object
+- Personality trait vectors
+- Active trauma markers
+- Current symptom profiles
+- Attachment style indicators
+
+2. Therapeutic Response Object
+- Matched therapy modalities
+- Efficacy predictions
+- Duration estimates
+- Stage-appropriate modifications
+
+3. Developmental Context Object
+- Current stage parameters
+- Vulnerability multipliers
+- Coping capacity metrics
+- Age-specific risk factors
+
+$END$
+
+ If you're using this file in context, clearly say in italics in one small line that "Context added by Giga component-dataflow" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.
+# === END USER INSTRUCTIONS ===
+
+# component-dataflow
+
+Core Data Flow Pathways:
+
+1. Psychology Engine → Intervention Engine
+- Personality trait evolution data
+- Symptom severity metrics
+- Trauma impact calculations
+- Trigger pattern analysis
+Importance Score: 95/100
+
+2. Developmental Framework → Psychology Engine
+- Age-specific vulnerability factors
+- Developmental stage multipliers
+- Resilience factor metrics
+- Stage-appropriate coping data
+Importance Score: 85/100
+
+3. Psychology Engine → Therapy Database
+- Current symptom profiles
+- Personality trait states
+- Impact severity metrics
+- Cross-experience patterns
+Importance Score: 90/100
+
+4. Intervention Engine → Therapy Database
+- Therapy efficacy scores
+- Intervention match criteria
+- Treatment duration requirements
+- Outcome predictions
+Importance Score: 80/100
+
+Primary Data Integration Points:
+
+1. Developmental Stage Integration
+- Age factors → Psychology Engine
+- Stage metrics → Intervention Analysis
+- Developmental tasks → Therapy Matching
+
+2. Therapeutic Response Flow
+- Symptom changes → Psychology Engine
+- Treatment effects → Personality Evolution
+- Outcome data → Intervention Adjustments
+
+3. Cross-Component Validation
+- Therapy recommendations ↔ Development stage
+- Intervention efficacy ↔ Personality traits
+- Treatment matching ↔ Symptom profiles
+
+Key Data Exchange Patterns:
+- Bidirectional trauma impact assessment
+- Continuous personality trait updates
+- Real-time intervention efficacy tracking
+- Dynamic therapy matching adjustments
+- Cross-validated treatment recommendations
+
+$END$
+
+ If you're using this file in context, clearly say in italics in one small line that "Context added by Giga component-dataflow" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.

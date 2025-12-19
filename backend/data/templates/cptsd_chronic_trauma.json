@@ -1,0 +1,275 @@
+{
+  "id": "cptsd-chronic-trauma",
+  "name": "Complex PTSD - Chronic Childhood Trauma Pathway",
+  "disorder_type": "C-PTSD",
+  "description": "Models the development of Complex PTSD from prolonged childhood trauma exposure without safe attachment figures. Demonstrates how repeated trauma during developmental periods creates pervasive emotional dysregulation, relationship difficulties, and negative self-concept distinct from single-incident PTSD.",
+  
+  "clinical_rationale": "C-PTSD develops from prolonged, repeated trauma (typically interpersonal) during childhood, especially when escape is not possible and no protective caregiver is available. Unlike single-incident PTSD, C-PTSD involves: (1) core PTSD symptoms (intrusion, avoidance, hyperarousal), PLUS (2) disturbances in self-organization: emotion dysregulation, negative self-concept, and relationship difficulties (ICD-11 criteria). Research shows childhood onset trauma, especially interpersonal and chronic, leads to more complex symptom profiles including dissociation, affect dysregulation, and somatization (Herman, 1992; van der Kolk, 2005). The template demonstrates how trauma occurring during critical attachment periods (ages 0-12) disrupts fundamental developmental capacities.",
+  
+  "baseline_age": 4,
+  "baseline_gender": "male",
+  "baseline_background": "Born into family with active substance abuse and domestic violence. No stable caregiver attachment. Trauma exposure begins in early childhood.",
+  
+  "baseline_personality": {
+    "openness": 0.55,
+    "conscientiousness": 0.50,
+    "extraversion": 0.60,
+    "agreeableness": 0.70,
+    "neuroticism": 0.50
+  },
+  
+  "baseline_attachment_style": "secure",
+  
+  "predefined_experiences": [
+    {
+      "age": 4,
+      "category": "trauma",
+      "valence": "negative",
+      "intensity": "severe",
+      "description": "Witnesses father physically assault mother during alcohol-fueled rage. Hides in closet terrified, trembling. This happens repeatedly - unpredictable timing creates constant fear. Mother unable to protect or comfort child due to own trauma.",
+      "clinical_note": "Early childhood trauma (ages 0-5) during attachment formation. Chronic exposure to domestic violence with no safe caregiver creates disorganized attachment. Child cannot flee (developmentally dependent) and cannot find safety with caregivers. This is the core setup for C-PTSD: inescapable, prolonged, interpersonal trauma during attachment-critical period. Creates hypervigilance foundation."
+    },
+    {
+      "age": 6,
+      "category": "trauma",
+      "valence": "negative",
+      "intensity": "severe",
+      "description": "Father turns aggression toward child. Physical abuse escalates - hitting, shoving, verbal degradation. Told 'you're worthless' and 'you ruin everything.' No predictability to abuse - can happen anytime. Mother too fearful to intervene.",
+      "clinical_note": "Direct victimization begins during middle childhood (ages 6-11) when identity is forming. Chronic abuse plus degrading messages create toxic shame and negative self-concept ('I am bad/defective/worthless'). This is distinct from single trauma - the repeated nature plus developmental timing creates pervasive self-view disturbance. Dissociation may begin here as escape mechanism."
+    },
+    {
+      "age": 8,
+      "category": "trauma",
+      "valence": "negative",
+      "intensity": "severe",
+      "description": "Emotional and physical abuse continues. Child begins 'spacing out' during abuse - dissociation as survival mechanism. Feels detached from body during beatings. Starts having nightmares, flashbacks to previous incidents. Hypervigilant to father's moods, tries to be invisible.",
+      "clinical_note": "Dissociation develops as adaptive coping for inescapable trauma. This is structural dissociation - separation of traumatic experience from normal consciousness. Also see core PTSD symptoms emerging: intrusion (flashbacks, nightmares), hyperarousal (hypervigilance, startle response), beginning avoidance (trying to be invisible). Repeated trauma means constant retraumatization - no recovery period."
+    },
+    {
+      "age": 10,
+      "category": "interpersonal",
+      "valence": "negative",
+      "intensity": "moderate",
+      "description": "Struggles at school with peers. Doesn't trust anyone. Reacts with aggression when feeling threatened (learned from home). Teachers note he's 'angry' and 'withdrawn.' No close friends. Feels fundamentally different from other kids.",
+      "clinical_note": "Relationship difficulties emerge - hallmark of C-PTSD distinct from PTSD. Trauma has disrupted capacity for healthy attachment and trust. Hypervigilance and aggression (learned coping) interfere with peer relationships. Negative self-concept ('I'm different/bad') creates shame and isolation. Without intervention, this pattern persists into adulthood."
+    },
+    {
+      "age": 11,
+      "category": "trauma",
+      "valence": "negative",
+      "intensity": "severe",
+      "description": "Mother attempts to leave father but returns after one week due to financial dependency. Child experiences brief hope followed by devastating loss of safety. Abuse resumes immediately. Learns that escape is impossible and no one can protect him.",
+      "clinical_note": "Failed escape attempt reinforces helplessness and entrapment - core element of complex trauma. Hope followed by return to danger is particularly devastating. Child internalizes: 'I am trapped, no one will save me, this is forever.' This learned helplessness contributes to later depression and passivity in face of adversity. Age 11 is cusp of adolescence - trauma now compounding across developmental stages."
+    },
+    {
+      "age": 13,
+      "category": "trauma",
+      "valence": "negative",
+      "intensity": "severe",
+      "description": "Physical abuse continues into adolescence. Begins self-harming (cutting) as way to 'feel something' when dissociated, and to have sense of control. Experiences depersonalization - looking at self in mirror feels like watching a stranger. Suicidal ideation begins.",
+      "clinical_note": "Adolescence (12-18) sees escalation: self-harm, depersonalization, suicidal ideation. Nine years of chronic trauma have created pervasive dysfunction. Self-harm serves multiple functions: emotion regulation, self-punishment (internalized shame), attempt to 'feel real' when dissociated. Depersonalization indicates more severe dissociative symptoms. This is critical intervention point - without treatment, risk of death by suicide or continued victimization in adult relationships."
+    },
+    {
+      "age": 15,
+      "category": "trauma",
+      "valence": "negative",
+      "intensity": "moderate",
+      "description": "Father arrested for DUI. Child placed temporarily with relative. Experiences first sense of physical safety in 11 years. However, no therapy provided. Returns home after 3 months when father released. Trauma resumes but intensity slightly reduced.",
+      "clinical_note": "Brief safety window at age 15 shows potential for healing but also fragility without proper treatment. Three months of safety insufficient to address 11 years of trauma. Return to traumatic environment (even if less severe) maintains C-PTSD symptoms. This demonstrates: trauma removal is necessary but not sufficient - active treatment required for recovery."
+    },
+    {
+      "age": 17,
+      "category": "escape",
+      "valence": "mixed",
+      "intensity": "moderate",
+      "description": "Turns 17, gets job, starts planning to leave home at 18. Countdown to escape provides some hope but also fear about independence. Has no model for healthy relationships or emotional regulation. Symptoms persist: hypervigilance, nightmares, dissociation, negative self-view, difficulty trusting anyone.",
+      "clinical_note": "Late adolescence: physical escape becomes possible but psychological damage extensive. Despite removal from active trauma, C-PTSD symptoms don't resolve spontaneously - they're now structural. Without treatment: hypervigilance will persist, relationships will be difficult, emotion dysregulation continues, negative self-concept remains. This is key teaching point: trauma removal ≠ healing. Active trauma-focused therapy required."
+    }
+  ],
+  
+  "predefined_interventions": [
+    {
+      "age": 18,
+      "therapy_type": "EMDR",
+      "duration": "1_year",
+      "intensity": "weekly",
+      "rationale": "EMDR is gold standard for PTSD and effective for C-PTSD trauma processing. At 18, removed from active trauma, making trauma-focused therapy safe. EMDR processes traumatic memories to reduce intrusion/hyperarousal symptoms. For C-PTSD, phase-based approach: stabilization → trauma processing → integration. Best started after safety established."
+    },
+    {
+      "age": 14,
+      "therapy_type": "trauma_focused_CBT",
+      "duration": "6_months",
+      "intensity": "weekly",
+      "rationale": "If intervention possible while still in traumatic environment (child protective services involvement), TF-CBT adapted for ongoing trauma. Teaches coping skills, emotional regulation, cognitive processing. Less effective than post-escape trauma therapy but can reduce symptoms and provide support. Requires caregiver component (would need non-abusive caregiver involvement - possibly foster care scenario)."
+    },
+    {
+      "age": 19,
+      "therapy_type": "IFS",
+      "duration": "2_years",
+      "intensity": "weekly",
+      "rationale": "Internal Family Systems particularly effective for C-PTSD with dissociation. After EMDR, IFS addresses: fragmented self-system, internal shame/criticism, parts carrying trauma. Longer-term depth work on self-concept and relational patterns. Combination EMDR (trauma processing) → IFS (integration) is powerful for C-PTSD."
+    }
+  ],
+  
+  "expected_outcomes": {
+    "age_18_untreated": {
+      "personality": {
+        "openness": 0.45,
+        "conscientiousness": 0.35,
+        "extraversion": 0.25,
+        "agreeableness": 0.50,
+        "neuroticism": 0.88
+      },
+      "symptoms": [
+        "intrusive_memories",
+        "flashbacks",
+        "nightmares",
+        "hypervigilance",
+        "exaggerated_startle",
+        "avoidance_of_reminders",
+        "dissociation",
+        "depersonalization",
+        "emotion_dysregulation",
+        "anger_outbursts",
+        "negative_self_concept",
+        "toxic_shame",
+        "difficulty_trusting",
+        "relationship_instability",
+        "self_harm",
+        "suicidal_ideation",
+        "depression",
+        "somatic_symptoms"
+      ],
+      "symptom_severity": {
+        "intrusive_memories": 9,
+        "hypervigilance": 9,
+        "dissociation": 8,
+        "emotion_dysregulation": 9,
+        "negative_self_concept": 9,
+        "difficulty_trusting": 9,
+        "self_harm": 6,
+        "depression": 8
+      },
+      "dsm_criteria_met": "Full C-PTSD per ICD-11",
+      "note": "Without treatment, C-PTSD symptoms pervasive and chronic. Likely continues into adult relationships, employment difficulty, high risk behaviors. Spontaneous recovery rare after this duration/severity. Life trajectory: revictimization in relationships, social isolation, chronic mental health struggles, possible substance abuse as self-medication."
+    },
+    
+    "age_20_with_emdr_at_18": {
+      "personality": {
+        "openness": 0.50,
+        "conscientiousness": 0.50,
+        "extraversion": 0.35,
+        "agreeableness": 0.55,
+        "neuroticism": 0.65
+      },
+      "symptoms": [
+        "occasional_intrusive_memories",
+        "manageable_hypervigilance",
+        "some_dissociation_under_stress",
+        "improved_emotion_regulation",
+        "reduced_negative_self_concept",
+        "moderate_trust_difficulty",
+        "no_self_harm",
+        "mild_depression"
+      ],
+      "symptom_severity": {
+        "intrusive_memories": 4,
+        "hypervigilance": 5,
+        "dissociation": 4,
+        "emotion_dysregulation": 5,
+        "negative_self_concept": 6,
+        "difficulty_trusting": 6,
+        "self_harm": 0,
+        "depression": 4
+      },
+      "dsm_criteria_met": "Partial remission",
+      "note": "EMDR significantly reduces intrusion and hyperarousal symptoms (60-70% improvement). Emotion regulation improved with stabilization phase. However, self-concept and relational difficulties require longer-term work. Still struggles with trust and intimacy but symptoms no longer disabling. Can maintain employment, starting to form healthier relationships. This is realistic outcome: substantial improvement, not complete resolution. Ongoing work recommended."
+    },
+    
+    "age_21_with_emdr_then_ifs": {
+      "personality": {
+        "openness": 0.55,
+        "conscientiousness": 0.55,
+        "extraversion": 0.45,
+        "agreeableness": 0.60,
+        "neuroticism": 0.55
+      },
+      "symptoms": [
+        "rare_intrusive_memories",
+        "mild_hypervigilance_in_specific_triggers",
+        "minimal_dissociation",
+        "good_emotion_regulation_with_awareness",
+        "developing_positive_self_concept",
+        "able_to_trust_selectively",
+        "stable_relationships_with_work",
+        "minimal_depression"
+      ],
+      "symptom_severity": {
+        "intrusive_memories": 2,
+        "hypervigilance": 3,
+        "dissociation": 2,
+        "emotion_dysregulation": 3,
+        "negative_self_concept": 3,
+        "difficulty_trusting": 4,
+        "self_harm": 0,
+        "depression": 2
+      },
+      "dsm_criteria_met": "Remission achieved",
+      "note": "Sequential treatment (trauma processing → integration work) addresses both PTSD symptoms and C-PTSD self-organization disturbances. After 3 years treatment: Core PTSD symptoms mostly resolved. Negative self-concept significantly improved through IFS parts work. Relationships still require conscious effort but meaningful connections possible. Emotion regulation functional with self-awareness. This represents good long-term outcome - person has processed trauma, integrated experiences, developed healthy coping. Residual vulnerability to triggers but overall functioning good."
+    }
+  },
+  
+  "citations": [
+    "Herman, J. L. (1992). Complex PTSD: A syndrome in survivors of prolonged and repeated trauma. Journal of Traumatic Stress, 5(3), 377-391.",
+    "van der Kolk, B. A. (2005). Developmental trauma disorder: Toward a rational diagnosis for children with complex trauma histories. Psychiatric Annals, 35(5), 401-408.",
+    "Cloitre, M., Garvert, D. W., Brewin, C. R., Bryant, R. A., & Maercker, A. (2013). Evidence for proposed ICD-11 PTSD and complex PTSD: A latent profile analysis. European Journal of Psychotraumatology, 4(1), 20706.",
+    "Shapiro, F. (2018). Eye movement desensitization and reprocessing (EMDR) therapy: Basic principles, protocols, and procedures (3rd ed.). Guilford Press.",
+    "Schwartz, R. C. (2021). No bad parts: Healing trauma and restoring wholeness with the Internal Family Systems model. Sounds True."
+  ],
+  
+  "remix_suggestions": [
+    {
+      "title": "Early Intervention - What if therapy started at age 14?",
+      "changes": [
+        "Add trauma-focused CBT at age 14 (while still in home)",
+        "Assumes CPS involvement and foster care placement for therapy safety",
+        "Keep all trauma experiences up to age 14"
+      ],
+      "hypothesis": "Earlier intervention could prevent some severe symptom development (self-harm, depersonalization, suicidal ideation). However, trauma-focused therapy while still in traumatic environment has limitations. Likely needs removal from home + therapy for best outcomes."
+    },
+    {
+      "title": "Protective Factor - Supportive Teacher",
+      "changes": [
+        "Add positive experience at age 9: 'Teacher notices child's distress. Provides consistent safe space at school, validates feelings, reports suspected abuse to authorities.'",
+        "Keep all other events"
+      ],
+      "hypothesis": "One consistent caring adult who witnesses the child can provide: (1) validation that abuse is wrong (counters internalized shame), (2) sense of safety in one environment, (3) possible intervention pathway. May not prevent C-PTSD but could reduce severity of self-concept disturbance."
+    },
+    {
+      "title": "Remove Father at Age 8",
+      "changes": [
+        "Add experience at age 8: 'Father arrested and imprisoned for 10 years. Mother gets therapy and becomes protective caregiver.'",
+        "Remove all trauma experiences after age 8",
+        "Keep trauma from ages 4-8"
+      ],
+      "hypothesis": "Test if removal after 4 years trauma (vs 14 years) allows more recovery. Child still has 4 years of severe trauma during attachment-critical period, so will have C-PTSD symptoms. But earlier intervention + safety + caregiver healing might result in less severe outcome. Compare: 4 years trauma + 10 years safety vs 14 years continuous trauma."
+    },
+    {
+      "title": "Mother Leaves Successfully at Age 10",
+      "changes": [
+        "Modify age 11 experience: 'Mother successfully escapes with child to domestic violence shelter, then safe housing. Begins her own therapy.'",
+        "Remove trauma experiences after age 11",
+        "Add: 'Mother's therapy helps her become emotionally available and protective'"
+      ],
+      "hypothesis": "If escape successful at age 10, child has 6 years trauma but then safety + healing caregiver. This tests: Can secure attachment with mother (post-escape) help heal disorganized attachment from early trauma? Likely still C-PTSD but less severe, especially if mother gets treatment to address her trauma and become attuned caregiver."
+    },
+    {
+      "title": "Add Sibling Support",
+      "changes": [
+        "Add experience at age 7: 'Older sibling (age 10) provides emotional support, protects when possible, validates that 'it's not your fault.' Sibling becomes attachment figure.'",
+        "Keep all trauma but add this protective relationship"
+      ],
+      "hypothesis": "Sibling bond can serve as partial secure attachment even when parents unavailable. May reduce isolation and negative self-concept ('maybe I'm not completely bad if sibling cares about me'). Won't prevent C-PTSD but might buffer some self-organization disturbances. Research shows sibling relationships can be protective in adverse environments."
+    }
+  ]
+}

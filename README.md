@@ -22,7 +22,7 @@ The Persona Evolution Simulator is a research and educational tool that models p
 
 ### Prerequisites
 
-- Python 3.12+
+- Python 3.11.8
 - Node.js 18+
 - OpenAI API key
 
@@ -161,7 +161,7 @@ Clinicians can:
 ## Technology Stack
 
 ### Backend
-- **Framework**: FastAPI (Python 3.12)
+- **Framework**: FastAPI (Python 3.11.8)
 - **Database**: SQLAlchemy ORM + SQLite/PostgreSQL
 - **AI**: OpenAI GPT-4o
 - **Testing**: Pytest (41/41 tests passing)

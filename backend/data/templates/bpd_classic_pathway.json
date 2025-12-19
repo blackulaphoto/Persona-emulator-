@@ -1,0 +1,256 @@
+{
+  "id": "bpd-classic-pathway",
+  "name": "Borderline Personality Disorder - Classic Developmental Pathway",
+  "disorder_type": "BPD",
+  "description": "Models the development of BPD through invalidating environment, attachment trauma, and identity confusion during critical developmental periods. Based on Linehan's biosocial theory and empirical BPD research.",
+  
+  "clinical_rationale": "BPD often develops from a combination of: (1) genetic predisposition to emotional sensitivity (high baseline neuroticism), (2) invalidating childhood environment where emotions are dismissed or punished, (3) unstable attachment patterns with primary caregivers, and (4) identity formation disruption during adolescence. This template reflects the biosocial theory of BPD development (Linehan, 1993) and attachment-based models (Fonagy et al., 2000). The progression demonstrates how early emotional sensitivity + environmental invalidation + attachment disruption creates the core features: emotional dysregulation, fear of abandonment, identity diffusion, and unstable relationships.",
+  
+  "baseline_age": 2,
+  "baseline_gender": "female",
+  "baseline_background": "Born with high emotional sensitivity (temperament). Family environment initially appears normal but contains subtle emotional invalidation patterns.",
+  
+  "baseline_personality": {
+    "openness": 0.65,
+    "conscientiousness": 0.45,
+    "extraversion": 0.50,
+    "agreeableness": 0.55,
+    "neuroticism": 0.75
+  },
+  
+  "baseline_attachment_style": "secure",
+  
+  "predefined_experiences": [
+    {
+      "age": 3,
+      "category": "family",
+      "valence": "negative",
+      "intensity": "moderate",
+      "description": "Parents frequently dismiss or minimize emotional expressions. When upset, told 'you're too sensitive' or 'stop being dramatic.' Emotions treated as inconvenient or wrong.",
+      "clinical_note": "Invalidating environment begins early during attachment formation. Child learns their emotional reality is wrong, creating core self-doubt and emotional dysregulation. Critical period: attachment patterns being formed (ages 0-5)."
+    },
+    {
+      "age": 6,
+      "category": "family",
+      "valence": "negative",
+      "intensity": "severe",
+      "description": "Parental conflict escalates. Witnesses intense arguments with unpredictable emotional outbursts. Home environment feels unsafe and chaotic. Never knows what mood parents will be in.",
+      "clinical_note": "Unstable attachment formation - caregiver emotional availability is unpredictable. Creates anxious-preoccupied attachment pattern and hypervigilance to others' emotions. Fear of abandonment begins here. Middle childhood (ages 6-11): identity formation disrupted."
+    },
+    {
+      "age": 9,
+      "category": "interpersonal",
+      "valence": "negative",
+      "intensity": "moderate",
+      "description": "Struggles to maintain friendships. Peers say 'you're too intense' or 'you overreact to everything.' Small conflicts feel catastrophic. Desperately seeks acceptance but pushes people away.",
+      "clinical_note": "Emotional dysregulation becomes visible in peer relationships. Pattern of intense but unstable relationships begins. Reinforces belief that something is wrong with self."
+    },
+    {
+      "age": 12,
+      "category": "identity",
+      "valence": "negative",
+      "intensity": "severe",
+      "description": "Begins questioning identity profoundly. Shifts between different friend groups, constantly changing interests, clothing style, values. Feels empty inside, like 'I don't know who I am.' Mirrors others to fit in.",
+      "clinical_note": "Identity diffusion during critical adolescent period (ages 12-18). Without secure attachment foundation, cannot develop coherent sense of self. This is a core BPD feature: unstable self-image and chronic feelings of emptiness."
+    },
+    {
+      "age": 14,
+      "category": "interpersonal",
+      "valence": "negative",
+      "intensity": "severe",
+      "description": "First romantic relationship becomes intensely unstable. Alternates between idealization ('you're perfect, I can't live without you') and devaluation ('I hate you, leave me alone'). Intense fear of abandonment leads to desperate attempts to keep partner close.",
+      "clinical_note": "BPD relationship pattern emerges: splitting (black-and-white thinking), intense fear of abandonment, impulsivity in relationships. This pattern will repeat in future relationships without intervention."
+    },
+    {
+      "age": 15,
+      "category": "self_harm",
+      "valence": "negative",
+      "intensity": "severe",
+      "description": "Begins self-harming (cutting) to regulate overwhelming emotions. Feels temporary relief but also deep shame. Uses self-harm when emotions feel unbearable and no other coping strategies work.",
+      "clinical_note": "Maladaptive coping for emotion dysregulation. Self-harm provides temporary physiological relief from emotional pain. Without skills training (like DBT), this becomes entrenched pattern."
+    },
+    {
+      "age": 16,
+      "category": "interpersonal",
+      "valence": "negative",
+      "intensity": "severe",
+      "description": "Relationship ends, triggering intense abandonment panic. Makes impulsive suicide gesture (overdose on pills, calls friend immediately after). Hospitalized briefly. Feels profound shame and confusion about what happened.",
+      "clinical_note": "Suicidal/self-destructive behavior under stress, especially relationship loss. This is reactive, not planned - triggered by unbearable emotional pain and fear of abandonment. Marks escalation requiring immediate intervention."
+    }
+  ],
+  
+  "predefined_interventions": [
+    {
+      "age": 16,
+      "therapy_type": "DBT",
+      "duration": "1_year",
+      "intensity": "weekly",
+      "rationale": "DBT is the gold-standard evidence-based treatment for BPD. Teaches four skill modules: (1) Distress tolerance - alternatives to self-harm, (2) Emotion regulation - understanding and modulating emotions, (3) Interpersonal effectiveness - healthy relationship skills, (4) Mindfulness - present-moment awareness. Standard DBT includes individual therapy, skills group, phone coaching, and therapist consultation team. Best started after crisis stabilization."
+    },
+    {
+      "age": 13,
+      "therapy_type": "family_therapy",
+      "duration": "6_months",
+      "intensity": "weekly",
+      "rationale": "Early family intervention to reduce invalidating environment and teach emotion validation skills to parents. Could change trajectory before severe symptoms develop. Research shows family-based interventions can prevent BPD in high-risk adolescents (Chanen et al., 2008)."
+    },
+    {
+      "age": 18,
+      "therapy_type": "Schema_Therapy",
+      "duration": "2_years",
+      "intensity": "weekly",
+      "rationale": "After DBT skills established, schema therapy addresses core beliefs and attachment patterns. Longer-term depth work on early childhood wounds. Combines CBT, attachment theory, and object relations. Good for addressing underlying schema: abandonment, defectiveness, mistrust."
+    }
+  ],
+  
+  "expected_outcomes": {
+    "age_16_untreated": {
+      "personality": {
+        "openness": 0.65,
+        "conscientiousness": 0.30,
+        "extraversion": 0.45,
+        "agreeableness": 0.35,
+        "neuroticism": 0.92
+      },
+      "symptoms": [
+        "intense fear of abandonment",
+        "unstable sense of self",
+        "emotional dysregulation",
+        "impulsivity",
+        "self_harm",
+        "suicidal_behaviors",
+        "unstable_relationships",
+        "chronic_emptiness",
+        "intense_anger",
+        "dissociation_under_stress"
+      ],
+      "symptom_severity": {
+        "fear_of_abandonment": 9,
+        "identity_disturbance": 8,
+        "emotional_dysregulation": 9,
+        "self_harm": 7,
+        "relationship_instability": 8,
+        "emptiness": 8,
+        "anger": 7,
+        "dissociation": 6
+      },
+      "dsm_criteria_met": 7,
+      "note": "Meets full DSM-5 criteria for BPD (requires 5+ of 9 criteria). Without treatment, symptoms typically worsen in late adolescence/early adulthood before potentially stabilizing in 30s-40s (but with significant life impairment)."
+    },
+    
+    "age_18_with_dbt_at_16": {
+      "personality": {
+        "openness": 0.65,
+        "conscientiousness": 0.50,
+        "extraversion": 0.50,
+        "agreeableness": 0.55,
+        "neuroticism": 0.70
+      },
+      "symptoms": [
+        "moderate_fear_of_abandonment",
+        "improved_self_image",
+        "better_emotion_regulation",
+        "reduced_self_harm",
+        "relationship_challenges_remain",
+        "reduced_emptiness",
+        "manageable_anger"
+      ],
+      "symptom_severity": {
+        "fear_of_abandonment": 5,
+        "identity_disturbance": 5,
+        "emotional_dysregulation": 4,
+        "self_harm": 2,
+        "relationship_instability": 6,
+        "emptiness": 4,
+        "anger": 4,
+        "dissociation": 3
+      },
+      "dsm_criteria_met": 4,
+      "note": "DBT shows significant symptom reduction: 50-60% reduction in self-harm, improved emotion regulation, reduced hospitalizations. However, relationship patterns and core attachment fears require longer-term work. Still meets some BPD criteria but functioning much improved. This is realistic outcome - therapy helps significantly but isn't a cure."
+    },
+    
+    "age_20_with_family_therapy_at_13_then_dbt": {
+      "personality": {
+        "openness": 0.65,
+        "conscientiousness": 0.55,
+        "extraversion": 0.55,
+        "agreeableness": 0.60,
+        "neuroticism": 0.60
+      },
+      "symptoms": [
+        "mild_abandonment_sensitivity",
+        "stable_identity",
+        "good_emotion_regulation_with_skills",
+        "no_self_harm",
+        "stable_relationships_with_effort",
+        "occasional_emptiness"
+      ],
+      "symptom_severity": {
+        "fear_of_abandonment": 3,
+        "identity_disturbance": 3,
+        "emotional_dysregulation": 3,
+        "self_harm": 0,
+        "relationship_instability": 3,
+        "emptiness": 3,
+        "anger": 2,
+        "dissociation": 1
+      },
+      "dsm_criteria_met": 2,
+      "note": "Early intervention (family therapy at 13) prevented some severe symptom development. Still developed mild BPD features but much better trajectory. Demonstrates power of early intervention during adolescence before patterns fully crystallize. No longer meets full BPD diagnosis but has residual traits."
+    }
+  },
+  
+  "citations": [
+    "Linehan, M. M. (1993). Cognitive-behavioral treatment of borderline personality disorder. Guilford Press.",
+    "Zanarini, M. C., Frankenburg, F. R., Hennen, J., & Silk, K. R. (2003). The longitudinal course of borderline psychopathology: 6-year prospective follow-up of the phenomenology of borderline personality disorder. American Journal of Psychiatry, 160(2), 274-283.",
+    "Crowell, S. E., Beauchaine, T. P., & Linehan, M. M. (2009). A biosocial developmental model of borderline personality: Elaborating and extending Linehan's theory. Psychological Bulletin, 135(3), 495-510.",
+    "Fonagy, P., Target, M., & Gergely, G. (2000). Attachment and borderline personality disorder: A theory and some evidence. Psychiatric Clinics of North America, 23(1), 103-122.",
+    "Chanen, A. M., Jackson, H. J., McGorry, P. D., Allot, K. A., Clarkson, V., & Yuen, H. P. (2008). Two-year stability of personality disorder in older adolescent outpatients. Journal of Personality Disorders, 22(5), 579-593."
+  ],
+  
+  "remix_suggestions": [
+    {
+      "title": "Early Intervention - What if family therapy started at age 13?",
+      "changes": [
+        "Add family_therapy intervention at age 13",
+        "Keep all experiences the same",
+        "See if early parent training prevents severe symptoms"
+      ],
+      "hypothesis": "Early family intervention teaching emotion validation could prevent identity diffusion and self-harm from developing. Research suggests family-based interventions effective for high-risk adolescents."
+    },
+    {
+      "title": "Protective Factor - Supportive Teacher",
+      "changes": [
+        "Add positive experience at age 10: 'Teacher validates emotions and provides consistent safe space. Tells her \"your feelings make sense\" and teaches emotion words.'",
+        "Keep all other events"
+      ],
+      "hypothesis": "One consistent validating adult can act as protective factor even when family environment is invalidating. May reduce severity of identity disturbance and relationship instability."
+    },
+    {
+      "title": "Remove Family Conflict at Age 6",
+      "changes": [
+        "Remove age 6 experience (parental conflict and chaos)",
+        "Keep emotional invalidation (age 3) and all other events"
+      ],
+      "hypothesis": "Test if stable (though invalidating) attachment reduces severity compared to unstable attachment. May still develop emotion dysregulation but less fear of abandonment."
+    },
+    {
+      "title": "What if DBT started immediately after age 15 self-harm?",
+      "changes": [
+        "Add DBT intervention at age 15 (immediately after self-harm begins)",
+        "Remove age 16 suicide gesture experience",
+        "Keep all other experiences"
+      ],
+      "hypothesis": "Immediate intervention after first self-harm could prevent escalation to suicidal behaviors. Early DBT skills might provide alternatives before pattern entrenches."
+    },
+    {
+      "title": "Add Peer Support at Age 14",
+      "changes": [
+        "Add positive experience at age 14: 'Joins DBT skills group for teens. Meets others who understand emotional intensity. Learns she's not alone or defective.'",
+        "Keep relationship crisis but with some coping skills"
+      ],
+      "hypothesis": "Peer normalization and group skills learning before severe relationship crisis might buffer impact. Group DBT shows strong outcomes for adolescents."
+    }
+  ]
+}
+

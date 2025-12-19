@@ -1,0 +1,22 @@
+[
+  {
+    "fileName": "main-overview.mdc",
+    "description": "Complete system overview detailing the psychological evolution engine architecture, component relationships, and high-level data flow between major subsystems"
+  },
+  {
+    "fileName": "psychological-algorithms.mdc",
+    "description": "Detailed documentation of core psychological calculation algorithms including personality trait evolution, trauma impact multipliers, and symptom development formulas"
+  },
+  {
+    "fileName": "data-models.mdc",
+    "description": "Comprehensive documentation of data structures for personality traits, developmental stages, therapy types, and their relationships and constraints"
+  },
+  {
+    "fileName": "therapeutic-matching.mdc",
+    "description": "Technical specification of the therapeutic match scoring algorithm, efficacy calculations, and intervention analysis logic"
+  },
+  {
+    "fileName": "component-dataflow.mdc",
+    "description": "Detailed mapping of data flow between major components including the psychology engine, intervention engine, and supporting frameworks"
+  }
+]
