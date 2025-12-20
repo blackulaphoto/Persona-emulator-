@@ -1,7 +1,9 @@
 """Application configuration and settings."""
-from pydantic_settings import BaseSettings
-from pydantic import Field
 from functools import lru_cache
+from typing import List
+
+from pydantic import Field
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -25,6 +27,10 @@ class Settings(BaseSettings):
     
     # Frontend
     frontend_url: str = Field(default="http://localhost:3000", env="FRONTEND_URL")
+    additional_cors_origins: List[str] = Field(
+        default_factory=list,
+        env="ADDITIONAL_CORS_ORIGINS",
+    )
     
     # Feature Flags - explicit env var names for clarity
     # Default to True in dev mode (can be overridden via .env)
