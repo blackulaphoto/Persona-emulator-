@@ -28,7 +28,7 @@ export default function LoginPage() {
       setMessage('');
       setLoading(true);
       await login(email, password);
-      router.push('/app');
+      router.push('/personas');
     } catch (err: any) {
       setError(err.message || 'Failed to log in');
     } finally {
@@ -42,7 +42,7 @@ export default function LoginPage() {
       setMessage('');
       setLoading(true);
       await loginWithGoogle();
-      router.push('/app');
+      router.push('/personas');
     } catch (err: any) {
       setError(err.message || 'Failed to sign in with Google');
     } finally {
