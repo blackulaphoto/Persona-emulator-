@@ -16,7 +16,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth, hasConfig } from '@/lib/firebase';
 
 interface AuthContextType {
   user: User | null;
@@ -43,6 +43,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // If auth isn't configured (e.g., missing env vars), skip initializing Firebase on server/SSR.
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
+
     // Listen for auth state changes
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
@@ -52,7 +58,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return unsubscribe;
   }, []);
 
+  // Auth helpers: if auth isn't configured, surface clear errors instead of crashing the app at import time.
   async function signup(email: string, password: string) {
+    if (!auth) throw new Error('Authentication is not configured. Set NEXT_PUBLIC_FIREBASE_* env vars.');
     try {
       await createUserWithEmailAndPassword(auth, email, password);
     } catch (error: any) {
@@ -61,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function login(email: string, password: string) {
+    if (!auth) throw new Error('Authentication is not configured. Set NEXT_PUBLIC_FIREBASE_* env vars.');
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error: any) {
@@ -69,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function logout() {
+    if (!auth) throw new Error('Authentication is not configured. Set NEXT_PUBLIC_FIREBASE_* env vars.');
     try {
       await signOut(auth);
     } catch (error: any) {
@@ -77,6 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function resetPassword(email: string) {
+    if (!auth) throw new Error('Authentication is not configured. Set NEXT_PUBLIC_FIREBASE_* env vars.');
     try {
       await sendPasswordResetEmail(auth, email);
     } catch (error: any) {
@@ -85,6 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function loginWithGoogle() {
+    if (!auth) throw new Error('Authentication is not configured. Set NEXT_PUBLIC_FIREBASE_* env vars.');
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);

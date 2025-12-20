@@ -16,8 +16,19 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase (singleton pattern)
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
+const isServer = typeof window === 'undefined';
+const hasConfig =
+  !!firebaseConfig.apiKey &&
+  !!firebaseConfig.authDomain &&
+  !!firebaseConfig.projectId &&
+  !!firebaseConfig.appId;
 
-export { app, auth };
+// Avoid initializing Firebase on the server to prevent SSR build errors.
+const app = !isServer && hasConfig
+  ? (getApps().length === 0 ? initializeApp(firebaseConfig) : getApp())
+  : null;
+
+// Expose auth only when initialized; consumers should guard for null.
+const auth = app ? getAuth(app) : null;
+
+export { app, auth, hasConfig };
