@@ -274,7 +274,7 @@ function ExperiencesTab({ experiences }: { experiences: TemplateDetails['predefi
   );
 }
 
-function InterventionsTab({ interventions }: { interventions: TemplateDetails['predefined_interventions'] }) {
+function InterventionsTab({ interventions = [] }: { interventions?: TemplateDetails['predefined_interventions'] }) {
   if (interventions.length === 0) {
     return (
       <div className="text-center py-12 text-sage font-['Outfit']">
