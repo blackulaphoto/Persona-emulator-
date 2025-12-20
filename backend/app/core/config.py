@@ -11,20 +11,20 @@ class Settings(BaseSettings):
     app_name: str = "Persona Evolution Simulator"
     
     # Database
-    database_url: str
+    database_url: str = Field(default="sqlite:///./dev.db", env="DATABASE_URL")
     
-    # OpenAI
-    openai_api_key: str = Field(..., env="OPENAI_API_KEY")
+    # OpenAI (optional to allow service startup without key)
+    openai_api_key: str | None = Field(default=None, env="OPENAI_API_KEY")
     
     # Security
-    jwt_secret: str
+    jwt_secret: str = Field(default="change-me", env="JWT_SECRET")
     
     # Environment
-    environment: str = "development"
-    debug: bool = True
+    environment: str = Field(default="development", env="ENVIRONMENT")
+    debug: bool = Field(default=True, env="DEBUG")
     
     # Frontend
-    frontend_url: str = "http://localhost:3000"
+    frontend_url: str = Field(default="http://localhost:3000", env="FRONTEND_URL")
     
     # Feature Flags - explicit env var names for clarity
     # Default to True in dev mode (can be overridden via .env)

@@ -125,21 +125,35 @@ class OpenAIService:
         self.model = model
         self.max_retries = max_retries
         self.base_delay = base_delay
+        self._client: Optional[AsyncOpenAI] = None
+        self._http_client: Optional[httpx.AsyncClient] = None
 
-        # Explicitly provide an httpx client so openai doesn't construct one with
-        # legacy kwargs incompatible with httpx 0.28+ (firebase_admin pins httpx 0.28.1).
-        http_client = httpx.AsyncClient(
-            timeout=httpx.Timeout(
-                connect=5.0,
-                read=600.0,
-                write=600.0,
-                pool=600.0,
-            ),
-        )
-        self.client = AsyncOpenAI(
-            api_key=self.api_key,
-            http_client=http_client,
-        )
+    def _get_client(self) -> AsyncOpenAI:
+        """
+        Lazily construct the OpenAI client so the service can start
+        even when the API key is not configured (e.g., health checks).
+        Raises a clear error when a key is required but missing.
+        """
+        if not self.api_key:
+            raise RuntimeError("OpenAI API key is not configured. Set OPENAI_API_KEY.")
+
+        if self._client is None:
+            # Explicitly provide an httpx client so openai doesn't construct one with
+            # legacy kwargs incompatible with httpx 0.28+ (firebase_admin pins httpx 0.28.1).
+            self._http_client = httpx.AsyncClient(
+                timeout=httpx.Timeout(
+                    connect=5.0,
+                    read=600.0,
+                    write=600.0,
+                    pool=600.0,
+                ),
+            )
+            self._client = AsyncOpenAI(
+                api_key=self.api_key,
+                http_client=self._http_client,
+            )
+
+        return self._client
     
     async def analyze(
         self,
@@ -165,9 +179,11 @@ class OpenAIService:
             APIError: If API error occurs
             ValueError: If response is not valid JSON
         """
+        client = self._get_client()
+
         for attempt in range(self.max_retries):
             try:
-                response = await self.client.chat.completions.create(
+                response = await client.chat.completions.create(
                     model=self.model,
                     messages=[
                         {"role": "system", "content": system_message},
