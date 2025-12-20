@@ -6,6 +6,7 @@ import asyncio
 import logging
 from typing import Dict, Any, Optional
 import tiktoken
+import httpx
 from openai import AsyncOpenAI, RateLimitError, APIError
 from app.core.config import settings
 
@@ -124,8 +125,21 @@ class OpenAIService:
         self.model = model
         self.max_retries = max_retries
         self.base_delay = base_delay
-        
-        self.client = AsyncOpenAI(api_key=self.api_key)
+
+        # Explicitly provide an httpx client so openai doesn't construct one with
+        # legacy kwargs incompatible with httpx 0.28+ (firebase_admin pins httpx 0.28.1).
+        http_client = httpx.AsyncClient(
+            timeout=httpx.Timeout(
+                connect=5.0,
+                read=600.0,
+                write=600.0,
+                pool=600.0,
+            ),
+        )
+        self.client = AsyncOpenAI(
+            api_key=self.api_key,
+            http_client=http_client,
+        )
     
     async def analyze(
         self,

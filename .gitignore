@@ -1,11 +1,48 @@
-﻿
 
-nul
-backend/nul
+# Python
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
 
+# Virtual environments
+venv/
+env/
+ENV/
+backend/venv/
+backend/env/
+
+# Environment variables
+.env
+.env.local
 backend/.env
+frontend/.env.local
+
+# Database files
+*.db
 backend/app.db
 backend/dev.db
-backend/**/__pycache__/
+
+# Firebase
 backend/firebase-service-account.json
-frontend/.env.local
+backend/firebase/
+
+# Narrative folder
+Narrative/
+
+# OS and IDE
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build and temp files
+nul
+backend/nul
+splash/
+
+# Claude settings (local only)
+.claude/settings.local.json
