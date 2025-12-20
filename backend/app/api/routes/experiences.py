@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from app.core.database import get_db
+from app.core.auth import get_current_user
 from app.models import Persona, Experience, PersonalitySnapshot
 from app.schemas import ExperienceCreate, ExperienceResponse
 from app.services.psychology_engine import analyze_experience
@@ -17,13 +18,17 @@ router = APIRouter(prefix="/api/v1/personas", tags=["experiences"])
 async def add_experience(
     persona_id: str,
     experience_data: ExperienceCreate,
+    user_id: str = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
     Add a life experience to a persona and analyze its psychological impact.
     """
-    # Get persona (ID is now a string, no UUID conversion needed)
-    persona = db.query(Persona).filter(Persona.id == persona_id).first()
+    # Get persona and verify ownership
+    persona = db.query(Persona).filter(
+        Persona.id == persona_id,
+        Persona.user_id == user_id
+    ).first()
     if not persona:
         raise HTTPException(status_code=404, detail="Persona not found")
 
@@ -59,6 +64,7 @@ async def add_experience(
     
     # Create experience record
     experience = Experience(
+        user_id=user_id,
         persona_id=persona_id,
         sequence_number=sequence_number,
         age_at_event=experience_data.age_at_event,
@@ -143,12 +149,19 @@ async def add_experience(
 
 
 @router.get("/{persona_id}/experiences", response_model=List[ExperienceResponse])
-def get_persona_experiences(persona_id: str, db: Session = Depends(get_db)):
+async def get_persona_experiences(
+    persona_id: str,
+    user_id: str = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """
     Get all experiences for a persona, ordered by sequence.
     """
-    # Verify persona exists
-    persona = db.query(Persona).filter(Persona.id == persona_id).first()
+    # Verify persona exists and user owns it
+    persona = db.query(Persona).filter(
+        Persona.id == persona_id,
+        Persona.user_id == user_id
+    ).first()
     if not persona:
         raise HTTPException(status_code=404, detail="Persona not found")
 

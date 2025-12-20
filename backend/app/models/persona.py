@@ -14,7 +14,7 @@ class Persona(Base):
     __tablename__ = "personas"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    owner_id = Column(String, ForeignKey("users.id"), nullable=True)  # Nullable for MVP (no auth)
+    user_id = Column(String, nullable=False, index=True)  # Firebase UID
     
     # Basic info
     name = Column(String, nullable=False)
@@ -45,7 +45,6 @@ class Persona(Base):
     share_token = Column(String, unique=True, nullable=True)
     
     # Relationships
-    owner = relationship("User", back_populates="personas")
     experiences = relationship("Experience", back_populates="persona", cascade="all, delete-orphan", order_by="Experience.sequence_number")
     interventions = relationship("Intervention", back_populates="persona", cascade="all, delete-orphan", order_by="Intervention.sequence_number")
     snapshots = relationship("PersonalitySnapshot", back_populates="persona", cascade="all, delete-orphan")

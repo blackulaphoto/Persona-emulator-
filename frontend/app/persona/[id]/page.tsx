@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Plus, Sparkles, Pill, TrendingDown, TrendingUp, AlertCircle, Camera, GitCompare, Wand2, Trash2 } from 'lucide-react'
 import { api, type Timeline, type TimelineEvent } from '@/lib/api'
 import { remixAPI, templatesAPI, type TimelineSnapshot, type Template, type TemplateDetails } from '@/lib/api/templates'
+import { useAuth } from '@/contexts/AuthContext'
 import ChatBox from './ChatBox'
 import SnapshotComparisonView from '@/components/templates/SnapshotComparison'
 import PersonaNarrative from '@/components/PersonaNarrative'
 
 export default function PersonaPage({ params }: { params: { id: string } }) {
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [timeline, setTimeline] = useState<Timeline | null>(null)
   const [loading, setLoading] = useState(true)
@@ -33,10 +35,18 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
-    loadTimeline()
-    loadSnapshots()
-    loadTemplates()
-  }, [params.id])
+    if (!authLoading && !user) {
+      router.push('/login')
+    }
+  }, [user, authLoading, router])
+
+  useEffect(() => {
+    if (user) {
+      loadTimeline()
+      loadSnapshots()
+      loadTemplates()
+    }
+  }, [params.id, user])
 
   async function handleDeletePersona() {
     if (!confirm(`Are you sure you want to delete "${persona.name}"? This action cannot be undone.`)) {
@@ -136,6 +146,20 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
     }
   }
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-moss border-t-transparent mx-auto mb-4"></div>
+          <p className="text-sage font-['Outfit']">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null
+  }
 
   if (loading) {
     return (

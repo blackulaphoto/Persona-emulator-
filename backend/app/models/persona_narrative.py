@@ -27,9 +27,10 @@ class PersonaNarrative(Base):
 
     # Primary key
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    
+
     # Foreign key
     persona_id = Column(String, ForeignKey("personas.id"), nullable=False, index=True)
+    user_id = Column(String, nullable=False, index=True)  # Firebase UID
     
     # Metadata
     generated_at = Column(DateTime, default=datetime.utcnow, nullable=False)

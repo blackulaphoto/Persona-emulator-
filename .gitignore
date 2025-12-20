@@ -7,3 +7,5 @@ backend/.env
 backend/app.db
 backend/dev.db
 backend/**/__pycache__/
+backend/firebase-service-account.json
+frontend/.env.local

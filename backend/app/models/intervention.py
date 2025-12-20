@@ -15,6 +15,7 @@ class Intervention(Base):
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     persona_id = Column(String, ForeignKey("personas.id"), nullable=False)
+    user_id = Column(String, nullable=False, index=True)  # Firebase UID
     
     # Sequencing
     sequence_number = Column(Integer, nullable=False)

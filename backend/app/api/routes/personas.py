@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from app.core.database import get_db
+from app.core.auth import get_current_user
 from app.models import Persona
 from app.schemas import PersonaCreate, PersonaUpdate, PersonaResponse
 
@@ -13,7 +14,11 @@ router = APIRouter(prefix="/api/v1/personas", tags=["personas"])
 
 
 @router.post("", response_model=PersonaResponse, status_code=201)
-def create_persona(persona_data: PersonaCreate, db: Session = Depends(get_db)):
+async def create_persona(
+    persona_data: PersonaCreate,
+    user_id: str = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """
     Create a new persona with baseline personality.
     """
@@ -37,6 +42,7 @@ def create_persona(persona_data: PersonaCreate, db: Session = Depends(get_db)):
     
     # Create persona
     persona = Persona(
+        user_id=user_id,  # Add Firebase UID
         name=persona_data.name,
         baseline_age=persona_data.baseline_age,
         current_age=persona_data.baseline_age,  # Starts at baseline
@@ -72,11 +78,14 @@ def create_persona(persona_data: PersonaCreate, db: Session = Depends(get_db)):
 
 
 @router.get("", response_model=List[PersonaResponse])
-def list_personas(db: Session = Depends(get_db)):
+async def list_personas(
+    user_id: str = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """
-    List all personas.
+    List all personas for the current user.
     """
-    personas = db.query(Persona).all()
+    personas = db.query(Persona).filter(Persona.user_id == user_id).all()
     
     # Convert to response format
     response_list = []
@@ -102,12 +111,19 @@ def list_personas(db: Session = Depends(get_db)):
 
 
 @router.get("/{persona_id}", response_model=PersonaResponse)
-def get_persona(persona_id: str, db: Session = Depends(get_db)):
+async def get_persona(
+    persona_id: str,
+    user_id: str = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """
     Get a specific persona by ID.
     """
-    persona = db.query(Persona).filter(Persona.id == persona_id).first()
-    
+    persona = db.query(Persona).filter(
+        Persona.id == persona_id,
+        Persona.user_id == user_id  # Verify ownership
+    ).first()
+
     if not persona:
         raise HTTPException(status_code=404, detail="Persona not found")
     
@@ -132,16 +148,20 @@ def get_persona(persona_id: str, db: Session = Depends(get_db)):
 
 
 @router.put("/{persona_id}", response_model=PersonaResponse)
-def update_persona(
+async def update_persona(
     persona_id: str,
     persona_update: PersonaUpdate,
+    user_id: str = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
     Update persona details (name, background).
     """
-    persona = db.query(Persona).filter(Persona.id == persona_id).first()
-    
+    persona = db.query(Persona).filter(
+        Persona.id == persona_id,
+        Persona.user_id == user_id  # Verify ownership
+    ).first()
+
     if not persona:
         raise HTTPException(status_code=404, detail="Persona not found")
     
@@ -175,12 +195,19 @@ def update_persona(
 
 
 @router.delete("/{persona_id}", status_code=204)
-def delete_persona(persona_id: str, db: Session = Depends(get_db)):
+async def delete_persona(
+    persona_id: str,
+    user_id: str = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """
     Delete a persona and all associated data.
     """
-    persona = db.query(Persona).filter(Persona.id == persona_id).first()
-    
+    persona = db.query(Persona).filter(
+        Persona.id == persona_id,
+        Persona.user_id == user_id  # Verify ownership
+    ).first()
+
     if not persona:
         raise HTTPException(status_code=404, detail="Persona not found")
     

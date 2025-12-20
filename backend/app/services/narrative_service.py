@@ -18,24 +18,28 @@ from app.models.persona_narrative import PersonaNarrative
 
 async def generate_persona_narrative(
     db: Session,
-    persona_id: str
+    persona_id: str,
+    user_id: str
 ) -> PersonaNarrative:
     """
     Generate a comprehensive narrative about a persona's psychological journey.
-    
+
     Analyzes:
     - Complete timeline of experiences
     - All interventions and treatments
     - Personality evolution
     - Current psychological state
-    
+
     Returns:
     - PersonaNarrative object with structured sections
     """
     start_time = time.time()
-    
-    # Fetch persona with all related data
-    persona = db.query(Persona).filter(Persona.id == persona_id).first()
+
+    # Fetch persona with all related data and verify ownership
+    persona = db.query(Persona).filter(
+        Persona.id == persona_id,
+        Persona.user_id == user_id
+    ).first()
     if not persona:
         raise ValueError(f"Persona {persona_id} not found")
     
@@ -91,6 +95,7 @@ async def generate_persona_narrative(
     
     # Create narrative record
     narrative = PersonaNarrative(
+        user_id=user_id,
         persona_id=persona_id,
         generated_at=datetime.utcnow(),
         generation_number=generation_number,
@@ -254,49 +259,55 @@ def _parse_narrative_sections(narrative_text: str) -> Dict[str, str]:
 async def get_persona_narratives(
     db: Session,
     persona_id: str,
+    user_id: str,
     limit: int = 10
 ) -> List[PersonaNarrative]:
     """
     Get all narratives for a persona, ordered by most recent first.
     """
     narratives = db.query(PersonaNarrative).filter(
-        PersonaNarrative.persona_id == persona_id
+        PersonaNarrative.persona_id == persona_id,
+        PersonaNarrative.user_id == user_id
     ).order_by(PersonaNarrative.generated_at.desc()).limit(limit).all()
-    
+
     return narratives
 
 
 async def get_narrative_by_id(
     db: Session,
-    narrative_id: str
+    narrative_id: str,
+    user_id: str
 ) -> PersonaNarrative:
     """
     Get a specific narrative by ID.
     """
     narrative = db.query(PersonaNarrative).filter(
-        PersonaNarrative.id == narrative_id
+        PersonaNarrative.id == narrative_id,
+        PersonaNarrative.user_id == user_id
     ).first()
-    
+
     if not narrative:
         raise ValueError(f"Narrative {narrative_id} not found")
-    
+
     return narrative
 
 
 async def delete_narrative(
     db: Session,
-    narrative_id: str
+    narrative_id: str,
+    user_id: str
 ) -> bool:
     """
     Delete a narrative.
     """
     narrative = db.query(PersonaNarrative).filter(
-        PersonaNarrative.id == narrative_id
+        PersonaNarrative.id == narrative_id,
+        PersonaNarrative.user_id == user_id
     ).first()
-    
+
     if not narrative:
         return False
-    
+
     db.delete(narrative)
     db.commit()
     return True

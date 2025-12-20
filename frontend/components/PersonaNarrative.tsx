@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { auth } from '@/lib/firebase';
 
 interface NarrativeData {
   id: string;
@@ -43,16 +44,27 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
     loadNarrativeHistory();
   }, [personaId]);
 
+  async function getAuthHeaders() {
+    const user = auth.currentUser;
+    if (!user) throw new Error('Not authenticated');
+    const token = await user.getIdToken();
+    return {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    };
+  }
+
   async function generateNarrative() {
     setGenerating(true);
     setError(null);
 
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/narratives/personas/${personaId}/generate`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+          headers
         }
       );
 
@@ -62,7 +74,7 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
 
       const data = await response.json();
       setNarrative(data);
-      
+
       // Reload history
       await loadNarrativeHistory();
 
@@ -75,8 +87,10 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
 
   async function loadNarrativeHistory() {
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/narratives/personas/${personaId}`
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/narratives/personas/${personaId}`,
+        { headers }
       );
 
       if (response.ok) {

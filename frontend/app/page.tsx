@@ -13,22 +13,36 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LandingPage() {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [scrollY, setScrollY] = useState(0);
   const [activeQuestion, setActiveQuestion] = useState(0);
   const [isChecking, setIsChecking] = useState(true);
 
-  // Check if user has seen landing page before
+  // Check if user is authenticated or has seen landing page before
   useEffect(() => {
+    // Wait for auth to finish loading
+    if (authLoading) {
+      return;
+    }
+
+    // If user is authenticated, skip landing page
+    if (user) {
+      router.push('/personas');
+      return;
+    }
+
+    // If user has seen landing page before, skip to personas (will redirect to login)
     const hasSeenLanding = localStorage.getItem('hasSeenLanding');
     if (hasSeenLanding === 'true') {
       router.push('/personas');
     } else {
       setIsChecking(false);
     }
-  }, [router]);
+  }, [user, authLoading, router]);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -46,7 +60,12 @@ export default function LandingPage() {
 
   function handleCTA() {
     localStorage.setItem('hasSeenLanding', 'true');
-    router.push('/personas');
+    // If user is authenticated, go to personas; otherwise go to signup
+    if (user) {
+      router.push('/personas');
+    } else {
+      router.push('/signup');
+    }
   }
 
   // Show loading spinner while checking localStorage

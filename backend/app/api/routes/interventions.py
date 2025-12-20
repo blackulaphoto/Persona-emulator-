@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from app.core.database import get_db
+from app.core.auth import get_current_user
 from app.models import Persona, Intervention, Experience, PersonalitySnapshot
 from app.schemas import InterventionCreate, InterventionResponse
 from app.services.intervention_engine import analyze_intervention
@@ -17,13 +18,17 @@ router = APIRouter(prefix="/api/v1/personas", tags=["interventions"])
 async def add_intervention(
     persona_id: str,
     intervention_data: InterventionCreate,
+    user_id: str = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
     Add a therapeutic intervention to a persona and analyze its efficacy.
     """
-    # Get persona (ID is now a string, no UUID conversion needed)
-    persona = db.query(Persona).filter(Persona.id == persona_id).first()
+    # Get persona and verify ownership
+    persona = db.query(Persona).filter(
+        Persona.id == persona_id,
+        Persona.user_id == user_id
+    ).first()
     if not persona:
         raise HTTPException(status_code=404, detail="Persona not found")
 
@@ -75,6 +80,7 @@ async def add_intervention(
     
     # Create intervention record
     intervention = Intervention(
+        user_id=user_id,
         persona_id=persona_id,
         sequence_number=sequence_number,
         age_at_intervention=intervention_data.age_at_intervention,
@@ -194,12 +200,19 @@ async def add_intervention(
 
 
 @router.get("/{persona_id}/interventions", response_model=List[InterventionResponse])
-def get_persona_interventions(persona_id: str, db: Session = Depends(get_db)):
+async def get_persona_interventions(
+    persona_id: str,
+    user_id: str = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """
     Get all interventions for a persona, ordered by sequence.
     """
-    # Verify persona exists
-    persona = db.query(Persona).filter(Persona.id == persona_id).first()
+    # Verify persona exists and user owns it
+    persona = db.query(Persona).filter(
+        Persona.id == persona_id,
+        Persona.user_id == user_id
+    ).first()
     if not persona:
         raise HTTPException(status_code=404, detail="Persona not found")
 

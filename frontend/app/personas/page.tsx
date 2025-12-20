@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation'
 import { Plus, User, Clock, TrendingUp, FileText, Wand2 } from 'lucide-react'
 import { api, type Persona } from '@/lib/api'
 import { templatesAPI, type Template } from '@/lib/api/templates'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function HomePage() {
+  const { user, loading: authLoading } = useAuth()
   const [personas, setPersonas] = useState<Persona[]>([])
   const [loading, setLoading] = useState(true)
   const [templates, setTemplates] = useState<Template[]>([])
@@ -15,9 +17,17 @@ export default function HomePage() {
   const router = useRouter()
 
   useEffect(() => {
-    loadPersonas()
-    loadTemplates()
-  }, [])
+    if (!authLoading && !user) {
+      router.push('/login')
+    }
+  }, [user, authLoading, router])
+
+  useEffect(() => {
+    if (user) {
+      loadPersonas()
+      loadTemplates()
+    }
+  }, [user])
 
   async function loadPersonas() {
     try {
@@ -52,6 +62,21 @@ export default function HomePage() {
       console.error('Failed to create persona from template:', error)
       alert('Failed to create persona from template. Please try again.')
     }
+  }
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-moss border-t-transparent mx-auto mb-4"></div>
+          <p className="text-sage font-['Outfit']">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null
   }
 
   return (

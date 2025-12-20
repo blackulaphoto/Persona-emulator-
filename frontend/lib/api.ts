@@ -1,3 +1,5 @@
+import { auth } from '@/lib/firebase';
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL
   ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1`
   : 'http://localhost:8000/api/v1';
@@ -73,15 +75,29 @@ export interface Timeline {
 }
 
 class ApiClient {
+  private async getAuthHeaders(): Promise<HeadersInit> {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    const token = await user.getIdToken();
+    return {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    };
+  }
+
   async createPersona(data: {
     name: string;
     baseline_age: number;
     baseline_gender: string;
     baseline_background: string;
   }): Promise<Persona> {
+    const headers = await this.getAuthHeaders();
     const response = await fetch(`${API_BASE}/personas`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(data),
     });
     if (!response.ok) throw new Error('Failed to create persona');
@@ -89,13 +105,15 @@ class ApiClient {
   }
 
   async getPersonas(): Promise<Persona[]> {
-    const response = await fetch(`${API_BASE}/personas`);
+    const headers = await this.getAuthHeaders();
+    const response = await fetch(`${API_BASE}/personas`, { headers });
     if (!response.ok) throw new Error('Failed to fetch personas');
     return response.json();
   }
 
   async getPersona(id: string): Promise<Persona> {
-    const response = await fetch(`${API_BASE}/personas/${id}`);
+    const headers = await this.getAuthHeaders();
+    const response = await fetch(`${API_BASE}/personas/${id}`, { headers });
     if (!response.ok) throw new Error('Failed to fetch persona');
     return response.json();
   }
@@ -104,9 +122,10 @@ class ApiClient {
     user_description: string;
     age_at_event: number;
   }): Promise<Experience> {
+    const headers = await this.getAuthHeaders();
     const response = await fetch(`${API_BASE}/personas/${personaId}/experiences`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(data),
     });
     if (!response.ok) throw new Error('Failed to add experience');
@@ -120,9 +139,10 @@ class ApiClient {
     age_at_intervention: number;
     user_notes?: string;
   }): Promise<Intervention> {
+    const headers = await this.getAuthHeaders();
     const response = await fetch(`${API_BASE}/personas/${personaId}/interventions`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -134,22 +154,26 @@ class ApiClient {
   }
 
   async getTimeline(personaId: string): Promise<Timeline> {
-    const response = await fetch(`${API_BASE}/personas/${personaId}/timeline`);
+    const headers = await this.getAuthHeaders();
+    const response = await fetch(`${API_BASE}/personas/${personaId}/timeline`, { headers });
     if (!response.ok) throw new Error('Failed to fetch timeline');
     return response.json();
   }
 
   async deletePersona(id: string): Promise<void> {
+    const headers = await this.getAuthHeaders();
     const response = await fetch(`${API_BASE}/personas/${id}`, {
       method: 'DELETE',
+      headers,
     });
     if (!response.ok) throw new Error('Failed to delete persona');
   }
 
   async chatWithPersona(personaId: string, message: string, conversationHistory?: ChatMessage[]): Promise<ChatResponse> {
+    const headers = await this.getAuthHeaders();
     const response = await fetch(`${API_BASE}/personas/${personaId}/chat`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({
         message,
         conversation_history: conversationHistory || []
