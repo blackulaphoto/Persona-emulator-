@@ -3,11 +3,11 @@ builder = "NIXPACKS"
 buildCommand = "cd backend && pip install --upgrade pip && pip install -r requirements.txt"
 
 [deploy]
-startCommand = "cd backend && alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+startCommand = "cd backend && alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT --log-level debug"
 healthcheckPath = "/health"
-healthcheckTimeout = 100
+healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 10
+restartPolicyMaxRetries = 3
 
 [phases.setup]
 nixPkgs = ["python311"]
