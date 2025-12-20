@@ -45,6 +45,8 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
   }, [personaId]);
 
   async function getAuthHeaders() {
+    if (!auth) throw new Error('Authentication is not configured. Set NEXT_PUBLIC_FIREBASE_* env vars.');
+
     const user = auth.currentUser;
     if (!user) throw new Error('Not authenticated');
     const token = await user.getIdToken();

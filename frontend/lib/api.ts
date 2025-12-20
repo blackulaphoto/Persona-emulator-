@@ -76,6 +76,8 @@ export interface Timeline {
 
 class ApiClient {
   private async getAuthHeaders(): Promise<HeadersInit> {
+    if (!auth) throw new Error('Authentication is not configured. Set NEXT_PUBLIC_FIREBASE_* env vars.');
+
     const user = auth.currentUser;
     if (!user) {
       throw new Error('Not authenticated');
