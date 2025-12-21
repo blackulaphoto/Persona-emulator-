@@ -135,7 +135,7 @@ class OpenAIService:
         Raises a clear error when a key is required but missing.
         """
         if not self.api_key:
-            raise RuntimeError("OpenAI API key is not configured. Set OPENAI_API_KEY.")
+            raise RuntimeError("OpenAI API key is not configured. Set OPENAI_API_KEY or OPENAI_KEY.")
 
         if self._client is None:
             # Explicitly provide an httpx client so openai doesn't construct one with

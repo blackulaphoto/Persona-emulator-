@@ -21,7 +21,7 @@ from app.models.persona import Persona
 
 # Initialize OpenAI service
 openai_service = OpenAIService(
-    api_key=os.getenv("OPENAI_API_KEY"),
+    api_key=os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_KEY"),
     model="gpt-4"
 )
 
