@@ -1,6 +1,7 @@
 """
 Experience API routes.
 """
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
@@ -12,6 +13,7 @@ from app.services.psychology_engine import analyze_experience
 
 
 router = APIRouter(prefix="/api/v1/personas", tags=["experiences"])
+logger = logging.getLogger(__name__)
 
 
 @router.post("/{persona_id}/experiences", response_model=ExperienceResponse, status_code=201)
@@ -57,10 +59,8 @@ async def add_experience(
             previous_experiences=previous_experiences
         )
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"AI analysis failed: {str(e)}"
-        )
+        logger.exception("Experience analysis failed for persona %s", persona_id)
+        raise HTTPException(status_code=500, detail=f"AI analysis failed: {str(e)}")
     
     # Create experience record
     experience = Experience(

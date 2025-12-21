@@ -6,6 +6,7 @@ how life experiences shape personality over time.
 """
 import json
 import os
+import logging
 from typing import Dict, List, Optional
 from sqlalchemy.orm import Session
 from app.services.openai_service import OpenAIService
@@ -20,6 +21,8 @@ from app.models.persona import Persona
 
 
 # Initialize OpenAI service
+logger = logging.getLogger(__name__)
+
 openai_service = OpenAIService(
     api_key=os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_KEY"),
     model="gpt-4"
@@ -182,10 +185,7 @@ async def analyze_experience(
     Returns:
         Dict with analysis results (immediate_effects, long_term_patterns, etc.)
     """
-    import logging
-    logger = logging.getLogger(__name__)
-    logger.error(f"DEBUG: analyze_experience called with persona_id type: {type(persona_id)}, value: {persona_id}")
-
+    logger.debug(f"analyze_experience persona_id={persona_id}, age={age_at_event}")
     # Normalize accidental ORM input to avoid SQLAlchemy comparison errors.
     if isinstance(persona_id, Persona):
         logger.warning("analyze_experience received Persona ORM object; normalizing to persona_id.")
