@@ -61,9 +61,12 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
     setError(null);
 
     try {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL;
+      if (!apiBase) throw new Error('NEXT_PUBLIC_API_URL is not configured.');
+
       const headers = await getAuthHeaders();
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/narratives/personas/${personaId}/generate`,
+        `${apiBase}/api/v1/narratives/personas/${personaId}/generate`,
         {
           method: 'POST',
           headers
@@ -89,9 +92,12 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
 
   async function loadNarrativeHistory() {
     try {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL;
+      if (!apiBase) throw new Error('NEXT_PUBLIC_API_URL is not configured.');
+
       const headers = await getAuthHeaders();
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/narratives/personas/${personaId}`,
+        `${apiBase}/api/v1/narratives/personas/${personaId}`,
         { headers }
       );
 

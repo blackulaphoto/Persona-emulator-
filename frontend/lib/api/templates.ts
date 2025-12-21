@@ -8,7 +8,10 @@
  * - Timeline snapshots and comparisons
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+if (!API_BASE_URL) {
+  throw new Error('NEXT_PUBLIC_API_URL is not configured. Set it to your backend URL.');
+}
 
 // Error handling helper
 class APIError extends Error {

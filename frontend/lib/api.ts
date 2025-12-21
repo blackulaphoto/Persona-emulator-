@@ -1,8 +1,10 @@
 import { auth } from '@/lib/firebase';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL
-  ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1`
-  : 'http://localhost:8000/api/v1';
+const API_ROOT = process.env.NEXT_PUBLIC_API_URL;
+if (!API_ROOT) {
+  throw new Error('NEXT_PUBLIC_API_URL is not configured. Set it to your backend URL.');
+}
+const API_BASE = `${API_ROOT}/api/v1`;
 
 export interface Persona {
   id: string;
