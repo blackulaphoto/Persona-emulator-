@@ -218,16 +218,29 @@ async def analyze_experience(
         previous_experiences=previous_experiences
     )
     
-    # Call OpenAI
-    response = await openai_service.analyze(
-        prompt=prompt,
-        system_message="You are a clinical psychologist specializing in developmental trauma and personality psychology. Respond ONLY with valid JSON.",
-        temperature=0.7,
-        max_tokens=2000
-    )
-    
-    # Parse response
-    return response
+    # Call OpenAI with graceful fallback so the endpoint won't 500 if the model fails.
+    try:
+        response = await openai_service.analyze(
+            prompt=prompt,
+            system_message="You are a clinical psychologist specializing in developmental trauma and personality psychology. Respond ONLY with valid JSON.",
+            temperature=0.7,
+            max_tokens=2000
+        )
+        return response
+    except Exception as e:
+        logger.exception("OpenAI analysis failed for persona %s: %s", persona_id, e)
+        # Fallback: deterministic minimal analysis to keep the flow working
+        return {
+            "immediate_effects": persona.current_personality or {},
+            "long_term_patterns": [],
+            "symptoms_developed": [],
+            "symptom_severity": {},
+            "coping_mechanisms": [],
+            "worldview_shifts": {},
+            "cross_experience_triggers": [],
+            "recommended_therapies": [],
+            "reasoning": f"AI analysis unavailable: {e}"
+        }
 
 
 def apply_personality_changes(

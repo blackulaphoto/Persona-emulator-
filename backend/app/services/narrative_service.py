@@ -9,6 +9,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 import openai
 import os
+from app.core.config import settings
 
 from app.models.persona import Persona
 from app.models.experience import Experience
@@ -64,7 +65,8 @@ async def generate_persona_narrative(
     
     # Call GPT-4
     try:
-        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        api_key = settings.openai_api_key or os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_KEY")
+        client = openai.OpenAI(api_key=api_key)
         response = client.chat.completions.create(
             model="gpt-4o",  # Use GPT-4o for best results
             messages=[

@@ -4,6 +4,7 @@ OpenAI service for GPT-4 integration with retry logic and error handling.
 import json
 import asyncio
 import logging
+import os
 from typing import Dict, Any, Optional
 import tiktoken
 import httpx
@@ -121,7 +122,12 @@ class OpenAIService:
             max_retries: Maximum retry attempts on rate limit
             base_delay: Base delay for exponential backoff (seconds)
         """
-        self.api_key = api_key or settings.openai_api_key
+        self.api_key = (
+            api_key
+            or settings.openai_api_key
+            or os.getenv("OPENAI_API_KEY")
+            or os.getenv("OPENAI_KEY")
+        )
         self.model = model
         self.max_retries = max_retries
         self.base_delay = base_delay
@@ -154,6 +160,14 @@ class OpenAIService:
             )
 
         return self._client
+
+    @property
+    def client(self) -> AsyncOpenAI:
+        """
+        Provide a client attribute for callers that expect it.
+        Ensures lazy initialization via _get_client.
+        """
+        return self._get_client()
     
     async def analyze(
         self,
