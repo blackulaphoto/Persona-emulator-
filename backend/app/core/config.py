@@ -1,6 +1,6 @@
 """Application configuration and settings."""
 from functools import lru_cache
-from typing import List
+from typing import List, Optional
 
 from pydantic import Field
 from pydantic_settings import BaseSettings
@@ -27,10 +27,7 @@ class Settings(BaseSettings):
     
     # Frontend
     frontend_url: str = Field(default="http://localhost:3000", env="FRONTEND_URL")
-    additional_cors_origins: List[str] = Field(
-        default_factory=list,
-        env="ADDITIONAL_CORS_ORIGINS",
-    )
+    additional_cors_origins_raw: Optional[str] = Field(default=None, env="ADDITIONAL_CORS_ORIGINS")
     
     # Feature Flags - explicit env var names for clarity
     # Default to True in dev mode (can be overridden via .env)
@@ -42,6 +39,20 @@ class Settings(BaseSettings):
         default=True,  # Enabled by default in dev
         env="FEATURE_REMIX_TIMELINE"
     )
+    
+    @property
+    def additional_cors_origins(self) -> List[str]:
+        """
+        Return parsed additional CORS origins from a comma-separated env var.
+        Accepts empty/undefined values without failing JSON parsing.
+        """
+        if not self.additional_cors_origins_raw:
+            return []
+        return [
+            origin.rstrip("/").strip()
+            for origin in self.additional_cors_origins_raw.split(",")
+            if origin and origin.strip()
+        ]
     
     class Config:
         env_file = ".env"
