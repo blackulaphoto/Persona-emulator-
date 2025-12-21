@@ -14,7 +14,7 @@ class Persona(Base):
     __tablename__ = "personas"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String, nullable=False, index=True)  # Firebase UID
+    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)  # Firebase UID
     
     # Basic info
     name = Column(String, nullable=False)
@@ -50,3 +50,4 @@ class Persona(Base):
     snapshots = relationship("PersonalitySnapshot", back_populates="persona", cascade="all, delete-orphan")
     timeline_snapshots = relationship("TimelineSnapshot", back_populates="persona", cascade="all, delete-orphan")
     narratives = relationship("PersonaNarrative", back_populates="persona", cascade="all, delete-orphan")
+    owner = relationship("User", back_populates="personas")
