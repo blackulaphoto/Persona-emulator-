@@ -1,8 +1,9 @@
 """Application configuration and settings."""
 from functools import lru_cache
 from typing import List, Optional
+import os
 
-from pydantic import Field
+from pydantic import Field, AliasChoices
 from pydantic_settings import BaseSettings
 
 
@@ -15,8 +16,11 @@ class Settings(BaseSettings):
     # Database
     database_url: str = Field(default="sqlite:///./dev.db", env="DATABASE_URL")
     
-    # OpenAI (optional to allow service startup without key)
-    openai_api_key: str | None = Field(default=None, env="OPENAI_API_KEY")
+    # OpenAI (optional to allow service startup without key). Accept OPENAI_API_KEY or OPENAI_KEY.
+    openai_api_key: str | None = Field(
+        default_factory=lambda: os.getenv("OPENAI_KEY"),
+        validation_alias=AliasChoices("OPENAI_API_KEY", "OPENAI_KEY"),
+    )
     
     # Security
     jwt_secret: str = Field(default="change-me", env="JWT_SECRET")
