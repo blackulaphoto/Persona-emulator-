@@ -4,22 +4,38 @@ Firebase Authentication Verification
 Verifies Firebase ID tokens from frontend requests.
 """
 import os
+import json
 from fastapi import HTTPException, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import firebase_admin
 from firebase_admin import credentials, auth as firebase_auth
 
 # Initialize Firebase Admin SDK
-# Service account JSON should be in backend/firebase-service-account.json
-cred_path = os.path.join(os.path.dirname(__file__), '../../firebase-service-account.json')
-
+# Try environment variable first, then fall back to file
 if not firebase_admin._apps:
     try:
-        cred = credentials.Certificate(cred_path)
-        firebase_admin.initialize_app(cred)
+        # First try to get credentials from environment variable
+        firebase_creds_json = os.getenv('FIREBASE_SERVICE_ACCOUNT_JSON')
+
+        if firebase_creds_json:
+            # Parse JSON from environment variable
+            cred_dict = json.loads(firebase_creds_json)
+            cred = credentials.Certificate(cred_dict)
+            firebase_admin.initialize_app(cred)
+            print("Firebase Admin SDK initialized from environment variable")
+        else:
+            # Fall back to file-based credentials
+            cred_path = os.path.join(os.path.dirname(__file__), '../../firebase-service-account.json')
+            if os.path.exists(cred_path):
+                cred = credentials.Certificate(cred_path)
+                firebase_admin.initialize_app(cred)
+                print("Firebase Admin SDK initialized from file")
+            else:
+                print("Warning: Firebase credentials not found")
+                print("Set FIREBASE_SERVICE_ACCOUNT_JSON environment variable or add firebase-service-account.json file")
     except Exception as e:
         print(f"Warning: Firebase Admin SDK not initialized: {e}")
-        print("Download service account JSON from Firebase Console")
+        print("Authentication will not work until Firebase is configured")
 
 security = HTTPBearer()
 
