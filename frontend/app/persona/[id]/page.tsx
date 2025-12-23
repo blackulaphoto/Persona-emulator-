@@ -224,37 +224,37 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
                 <span>{persona.interventions_count} interventions</span>
               </div>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2 md:gap-3 flex-wrap">
               <button
                 onClick={() => setShowAddExperience(true)}
-                className="btn-secondary flex items-center gap-2"
+                className="btn-secondary flex items-center gap-2 text-sm md:text-base"
               >
                 <Plus size={18} />
-                Add Experience
+                <span className="hidden xs:inline">Add</span> Experience
               </button>
               <button
                 onClick={() => setShowAddIntervention(true)}
-                className="btn-primary flex items-center gap-2"
+                className="btn-primary flex items-center gap-2 text-sm md:text-base"
               >
                 <Pill size={18} />
-                Add Therapy
+                <span className="hidden xs:inline">Add</span> Therapy
               </button>
               <button
                 onClick={() => setShowCreateSnapshot(true)}
-                className="btn-secondary flex items-center gap-2"
+                className="btn-secondary flex items-center gap-2 text-sm md:text-base"
                 title="Create timeline snapshot"
               >
                 <Camera size={18} />
-                Save Snapshot
+                <span className="hidden sm:inline">Save</span> Snapshot
               </button>
               {templates.length > 0 && (
                 <button
                   onClick={() => setShowTemplateRemix(true)}
-                  className="btn-secondary flex items-center gap-2"
+                  className="btn-secondary flex items-center gap-2 text-sm md:text-base"
                   title="Remix persona with template experiences"
                 >
                   <Wand2 size={18} />
-                  Remix with Template
+                  <span className="hidden sm:inline">Remix</span>
                 </button>
               )}
             </div>
@@ -268,20 +268,21 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
 
         {/* Tab Navigation */}
         <div className="mt-12 border-b border-charcoal/10">
-          <nav className="flex space-x-8">
+          <nav className="flex space-x-4 md:space-x-8 overflow-x-auto">
             <button
               onClick={() => setActiveTab('timeline')}
-              className={`pb-4 px-2 font-medium transition-colors ${
+              className={`pb-4 px-2 font-medium transition-colors whitespace-nowrap text-sm md:text-base ${
                 activeTab === 'timeline'
                   ? 'border-b-2 border-moss text-moss'
                   : 'text-sage hover:text-charcoal'
               }`}
             >
-              Timeline & Snapshots
+              <span className="hidden sm:inline">Timeline & Snapshots</span>
+              <span className="sm:hidden">Timeline</span>
             </button>
             <button
               onClick={() => setActiveTab('narrative')}
-              className={`pb-4 px-2 font-medium transition-colors ${
+              className={`pb-4 px-2 font-medium transition-colors whitespace-nowrap text-sm md:text-base ${
                 activeTab === 'narrative'
                   ? 'border-b-2 border-moss text-moss'
                   : 'text-sage hover:text-charcoal'
@@ -359,7 +360,7 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
               <p className="text-sage mb-6">
                 Add experiences and interventions to watch this persona evolve
               </p>
-              <div className="flex gap-4 justify-center">
+              <div className="flex gap-3 justify-center flex-wrap">
                 <button
                   onClick={() => setShowAddExperience(true)}
                   className="btn-secondary"
