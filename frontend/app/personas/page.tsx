@@ -94,6 +94,43 @@ export default function HomePage() {
       </header>
 
       <div className="max-w-6xl mx-auto px-6 py-12">
+        {/* Quick Start Guide */}
+        {personas.length === 0 && !loading && (
+          <div className="mb-8 animate-fade-in delay-150 bg-moss/10 rounded-xl p-6 border border-moss/20">
+            <h2 className="text-lg font-semibold text-charcoal mb-4 font-['Outfit']">How to Use</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-moss/20 flex items-center justify-center text-moss font-bold">1</div>
+                <div>
+                  <p className="text-sm font-medium text-charcoal">Create a Persona</p>
+                  <p className="text-xs text-sage mt-1">Set early life context</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-moss/20 flex items-center justify-center text-moss font-bold">2</div>
+                <div>
+                  <p className="text-sm font-medium text-charcoal">Add Experiences</p>
+                  <p className="text-xs text-sage mt-1">Shape personality over time</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-moss/20 flex items-center justify-center text-moss font-bold">3</div>
+                <div>
+                  <p className="text-sm font-medium text-charcoal">Explore Timeline</p>
+                  <p className="text-xs text-sage mt-1">Snapshots & narrative</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-moss/20 flex items-center justify-center text-moss font-bold">4</div>
+                <div>
+                  <p className="text-sm font-medium text-charcoal">Chat</p>
+                  <p className="text-xs text-sage mt-1">Talk to the persona as they've become</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Create New Persona & Templates */}
         <div className="mb-12 animate-fade-in delay-200 flex gap-4 flex-wrap">
           <button
