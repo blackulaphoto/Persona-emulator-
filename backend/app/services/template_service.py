@@ -177,7 +177,9 @@ def create_persona_from_template(
         current_personality=baseline_personality,
         current_attachment_style=template.baseline_attachment_style,
         current_age=template.baseline_age,
-        current_trauma_markers=[]
+        current_trauma_markers=[],
+        foundational_environment_signals={},
+        baseline_initialized=True
     )
     
     db.add(persona)
@@ -303,4 +305,3 @@ def get_templates_by_disorder(db: Session, disorder_type: str) -> List[ClinicalT
     ).all()
     
     return templates
-

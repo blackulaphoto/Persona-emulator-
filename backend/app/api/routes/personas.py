@@ -7,6 +7,10 @@ from typing import List
 from app.core.database import get_db
 from app.core.auth import get_current_user
 from app.models import Persona
+from app.utils.foundational_baseline import (
+    clamp_personality_range,
+    derive_foundational_baseline
+)
 from app.schemas import PersonaCreate, PersonaUpdate, PersonaResponse
 
 
@@ -22,7 +26,10 @@ async def create_persona(
     """
     Create a new persona with baseline personality.
     """
-    # Set baseline personality (default to 0.5 for all traits if not provided)
+    # Set baseline personality (default to foundational baseline if not provided)
+    early_environment = persona_data.baseline_background
+    foundational_signals = {}
+
     if persona_data.baseline_personality:
         baseline_personality = {
             "openness": persona_data.baseline_personality.openness,
@@ -31,14 +38,9 @@ async def create_persona(
             "agreeableness": persona_data.baseline_personality.agreeableness,
             "neuroticism": persona_data.baseline_personality.neuroticism
         }
+        baseline_personality = clamp_personality_range(baseline_personality)
     else:
-        baseline_personality = {
-            "openness": 0.5,
-            "conscientiousness": 0.5,
-            "extraversion": 0.5,
-            "agreeableness": 0.5,
-            "neuroticism": 0.5
-        }
+        baseline_personality, foundational_signals = derive_foundational_baseline(early_environment)
     
     # Create persona
     persona = Persona(
@@ -50,7 +52,9 @@ async def create_persona(
         baseline_background=persona_data.baseline_background,
         current_personality=baseline_personality,
         current_attachment_style=persona_data.baseline_attachment_style or "secure",
-        current_trauma_markers=[]
+        current_trauma_markers=[],
+        foundational_environment_signals=foundational_signals,
+        baseline_initialized=True
     )
     
     db.add(persona)

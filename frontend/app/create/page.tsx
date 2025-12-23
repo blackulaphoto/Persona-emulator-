@@ -132,6 +132,10 @@ export default function CreatePersonaPage() {
               <p className="text-xs text-sage mt-1">
                 This context helps the AI analyze how experiences affect development
               </p>
+              <p className="text-xs text-sage mt-2">
+                Early environment sets the emotional foundation, not the outcome.
+                Psychological traits start slightly biased, but experiences shape who someone becomes.
+              </p>
             </div>
 
             {/* Submit */}

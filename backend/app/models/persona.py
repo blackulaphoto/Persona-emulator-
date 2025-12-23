@@ -20,7 +20,7 @@ class Persona(Base):
     name = Column(String, nullable=False)
     baseline_age = Column(Integer, nullable=False)
     baseline_gender = Column(String, nullable=True)
-    baseline_background = Column(Text, nullable=True)  # Family context, early life
+    baseline_background = Column(Text, nullable=True)  # Early environment context
     
     # Current personality state (Big Five: 0.0 - 1.0 scale)
     current_personality = Column(JSON, nullable=False, default={
@@ -35,6 +35,8 @@ class Persona(Base):
     current_attachment_style = Column(String, nullable=False, default="secure")
     current_trauma_markers = Column(JSON, nullable=False, default=[])
     current_age = Column(Integer, nullable=False)  # Updates as experiences added
+    foundational_environment_signals = Column(JSON, nullable=False, default={})
+    baseline_initialized = Column(Boolean, nullable=False, default=False)
     
     # Metadata
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

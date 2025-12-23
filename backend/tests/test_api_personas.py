@@ -51,7 +51,7 @@ def test_create_persona_success(client):
             "name": "Emma",
             "baseline_age": 8,
             "baseline_gender": "female",
-            "baseline_background": "Happy childhood, loving parents"
+            "baseline_background": "Neutral upbringing."
         }
     )
     
@@ -64,7 +64,7 @@ def test_create_persona_success(client):
     assert data["baseline_age"] == 8
     assert data["current_age"] == 8
     
-    # Verify baseline personality (should be 0.5 for all traits)
+    # Verify neutral baseline when no signals are detected
     assert data["current_personality"]["openness"] == 0.5
     assert data["current_personality"]["conscientiousness"] == 0.5
     assert data["current_personality"]["extraversion"] == 0.5
@@ -99,9 +99,62 @@ def test_create_persona_with_custom_baseline(client):
     assert response.status_code == 201
     data = response.json()
     
-    assert data["current_personality"]["openness"] == 0.7
+    assert data["current_personality"]["openness"] == 0.6
+    assert data["current_personality"]["conscientiousness"] == 0.4
+    assert data["current_personality"]["extraversion"] == 0.4
+    assert data["current_personality"]["agreeableness"] == 0.6
     assert data["current_personality"]["neuroticism"] == 0.6
     assert data["current_attachment_style"] == "insecure-anxious"
+
+
+def test_create_persona_baseline_bias_from_environment(client):
+    """Test that early environment slightly biases baseline traits."""
+    response = client.post(
+        "/api/v1/personas",
+        json={
+            "name": "Nora",
+            "baseline_age": 9,
+            "baseline_gender": "female",
+            "baseline_background": (
+                "A stable, supportive home with reliable caregivers in a peaceful community. "
+                "She had friendly peers and was encouraged to try new things."
+            )
+        }
+    )
+
+    assert response.status_code == 201
+    data = response.json()
+
+    assert data["current_personality"]["openness"] == 0.52
+    assert data["current_personality"]["conscientiousness"] == 0.52
+    assert data["current_personality"]["extraversion"] == 0.54
+    assert data["current_personality"]["agreeableness"] == 0.53
+    assert data["current_personality"]["neuroticism"] == 0.4
+
+
+def test_create_persona_baseline_clamped(client):
+    """Test that extreme environment stays within 0.4-0.6 bounds."""
+    response = client.post(
+        "/api/v1/personas",
+        json={
+            "name": "Leo",
+            "baseline_age": 7,
+            "baseline_gender": "male",
+            "baseline_background": (
+                "An abusive, chaotic, unstable, violent home with unreliable caregivers. "
+                "Inconsistent support, bullying, and discouraged, restricted curiosity."
+            )
+        }
+    )
+
+    assert response.status_code == 201
+    data = response.json()
+
+    assert data["current_personality"]["openness"] == 0.46
+    assert data["current_personality"]["conscientiousness"] == 0.46
+    assert data["current_personality"]["extraversion"] == 0.44
+    assert data["current_personality"]["agreeableness"] == 0.44
+    assert data["current_personality"]["neuroticism"] == 0.6
 
 
 def test_create_persona_missing_required_fields(client):
