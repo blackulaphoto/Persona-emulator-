@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Plus, User, Clock, TrendingUp, FileText, Wand2 } from 'lucide-react'
 import { api, type Persona } from '@/lib/api'
 import { templatesAPI, type Template } from '@/lib/api/templates'
@@ -84,9 +85,18 @@ export default function HomePage() {
       {/* Header */}
       <header className="border-b border-charcoal/10 bg-cream/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-6 py-6">
-          <h1 className="text-4xl font-serif text-charcoal animate-fade-in">
-            Persona Evolution
-          </h1>
+          <div className="flex items-center gap-4 mb-2">
+            <Image
+              src="/logo.png"
+              alt="LifeStream Labs"
+              width={48}
+              height={48}
+              className="object-contain"
+            />
+            <h1 className="text-4xl font-serif text-charcoal animate-fade-in">
+              Persona Evolution
+            </h1>
+          </div>
           <p className="text-sage mt-2 animate-fade-in delay-100">
             Explore psychological transformation through life experiences and therapy
           </p>
