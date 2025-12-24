@@ -4,10 +4,12 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, User } from 'lucide-react'
 import { api } from '@/lib/api'
+import FeedbackModal from '@/components/FeedbackModal'
 
 export default function CreatePersonaPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     baseline_age: 10,
@@ -22,9 +24,15 @@ export default function CreatePersonaPage() {
     try {
       const persona = await api.createPersona(formData)
       router.push(`/persona/${persona.id}`)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to create persona:', error)
-      alert('Failed to create persona. Please try again.')
+
+      // Check if this is a persona limit error (403)
+      if (error.message && error.message.includes('403')) {
+        setShowFeedbackModal(true)
+      } else {
+        alert('Failed to create persona. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
@@ -171,6 +179,12 @@ export default function CreatePersonaPage() {
           </ul>
         </div>
       </div>
+
+      {/* Feedback Modal */}
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+      />
     </main>
   )
 }

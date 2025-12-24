@@ -25,7 +25,17 @@ async def create_persona(
 ):
     """
     Create a new persona with baseline personality.
+
+    Enforces 3-persona limit for research preview.
     """
+    # Check persona count for user (research preview limit: 3)
+    persona_count = db.query(Persona).filter(Persona.user_id == user_id).count()
+    if persona_count >= 3:
+        raise HTTPException(
+            status_code=403,
+            detail="Persona limit reached. Maximum 3 personas allowed in research preview."
+        )
+
     # Set baseline personality (default to foundational baseline if not provided)
     early_environment = persona_data.baseline_background
     foundational_signals = {}

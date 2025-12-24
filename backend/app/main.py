@@ -3,7 +3,7 @@ FastAPI main application.
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.routes import personas, experiences, interventions, timeline, chat, templates, remix, narratives
+from app.api.routes import personas, experiences, interventions, timeline, chat, templates, remix, narratives, feedback
 from app.core.config import settings
 from app.core.database import engine, Base
 
@@ -57,6 +57,7 @@ app.include_router(chat.router)
 app.include_router(templates.router)
 app.include_router(remix.router)
 app.include_router(narratives.router)
+app.include_router(feedback.router, prefix="/api/v1/feedback", tags=["feedback"])
 
 
 @app.get("/")

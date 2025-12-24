@@ -104,7 +104,10 @@ class ApiClient {
       headers,
       body: JSON.stringify(data),
     });
-    if (!response.ok) throw new Error('Failed to create persona');
+    if (!response.ok) {
+      // Include status code in error message for persona limit detection
+      throw new Error(`Failed to create persona (${response.status})`);
+    }
     return response.json();
   }
 
