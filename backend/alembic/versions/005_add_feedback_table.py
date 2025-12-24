@@ -20,7 +20,7 @@ def upgrade():
     op.create_table(
         'feedback',
         sa.Column('id', sa.String(), nullable=False),
-        sa.Column('user_id', sa.String(), nullable=False, index=True),
+        sa.Column('user_id', sa.String(), nullable=False),
         sa.Column('message', sa.Text(), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('user_agent', sa.String(), nullable=True),
