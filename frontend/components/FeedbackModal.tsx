@@ -52,6 +52,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
 
   async function getAuthToken(): Promise<string> {
     const { auth } = await import('@/lib/firebase')
+    if (!auth) throw new Error('Firebase auth not initialized')
     const user = auth.currentUser
     if (!user) throw new Error('Not authenticated')
     return await user.getIdToken()
