@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, User } from 'lucide-react'
 import { api } from '@/lib/api'
 import FeedbackModal from '@/components/FeedbackModal'
+import { Button } from '@/components/ui/Button'
+import { Input, Textarea } from '@/components/ui/Input'
+import { Card } from '@/components/ui/Card'
 
 export default function CreatePersonaPage() {
   const router = useRouter()
@@ -39,34 +42,34 @@ export default function CreatePersonaPage() {
   }
 
   return (
-    <main className="min-h-screen bg-grain">
-      {/* Header */}
-      <header className="border-b border-charcoal/10 bg-cream/80 backdrop-blur-sm">
+    <main className="min-h-screen bg-apple-bg-tertiary gradient-apple-mesh">
+      {/* Glass Header */}
+      <header className="glass-panel">
         <div className="max-w-4xl mx-auto px-6 py-6">
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-2 text-sage hover:text-moss transition-colors mb-4"
+            className="flex items-center gap-2 text-apple-text-secondary hover:text-apple-blue-500 transition-colors mb-4 font-medium"
           >
             <ArrowLeft size={20} />
             Back to Personas
           </button>
-          <h1 className="text-4xl font-serif text-charcoal">
+          <h1 className="text-4xl font-serif text-apple-text-primary font-bold animate-fade-in-apple">
             Create New Persona
           </h1>
         </div>
       </header>
 
       <div className="max-w-4xl mx-auto px-6 py-12">
-        <div className="bg-cream border-2 border-charcoal/10 rounded-2xl p-8 shadow-lg">
+        <Card className="animate-scale-in">
           <div className="flex items-center gap-3 mb-8">
-            <div className="bg-moss/10 p-3 rounded-xl">
-              <User className="text-moss" size={24} />
+            <div className="bg-apple-blue-100 p-3 rounded-apple-lg">
+              <User className="text-apple-blue-600" size={24} />
             </div>
             <div>
-              <h2 className="text-2xl font-serif text-charcoal">
+              <h2 className="text-2xl font-serif text-apple-text-primary font-bold">
                 Baseline Profile
               </h2>
-              <p className="text-sage text-sm">
+              <p className="text-apple-text-secondary text-sm">
                 Define the starting point for this persona's journey
               </p>
             </div>
@@ -74,48 +77,38 @@ export default function CreatePersonaPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Name */}
-            <div>
-              <label className="block text-sm font-medium text-charcoal mb-2">
-                Name
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border-2 border-charcoal/10 bg-cream focus:border-moss focus:outline-none transition-colors"
-                placeholder="e.g., Emma, Alex, Jordan"
-              />
-            </div>
+            <Input
+              label="Name"
+              type="text"
+              required
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="e.g., Emma, Alex, Jordan"
+            />
 
             {/* Age */}
             <div>
-              <label className="block text-sm font-medium text-charcoal mb-2">
-                Baseline Age
-              </label>
-              <input
+              <Input
+                label="Baseline Age"
                 type="number"
                 required
-                min="0"
-                max="100"
+                min={0}
+                max={100}
                 value={formData.baseline_age}
                 onChange={(e) => setFormData({ ...formData, baseline_age: parseInt(e.target.value) })}
-                className="w-full px-4 py-3 rounded-lg border-2 border-charcoal/10 bg-cream focus:border-moss focus:outline-none transition-colors"
               />
-              <p className="text-xs text-sage mt-1">
+              <p className="text-xs text-apple-text-tertiary mt-1.5">
                 The age when this persona's story begins
               </p>
             </div>
 
             {/* Gender */}
             <div>
-              <label className="block text-sm font-medium text-charcoal mb-2">
-                Gender
-              </label>
+              <label className="label-apple">Gender</label>
               <select
                 value={formData.baseline_gender}
                 onChange={(e) => setFormData({ ...formData, baseline_gender: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border-2 border-charcoal/10 bg-cream focus:border-moss focus:outline-none transition-colors"
+                className="input-apple"
               >
                 <option value="female">Female</option>
                 <option value="male">Male</option>
@@ -126,21 +119,18 @@ export default function CreatePersonaPage() {
 
             {/* Background */}
             <div>
-              <label className="block text-sm font-medium text-charcoal mb-2">
-                Background Story
-              </label>
-              <textarea
+              <Textarea
+                label="Background Story"
                 required
                 value={formData.baseline_background}
                 onChange={(e) => setFormData({ ...formData, baseline_background: e.target.value })}
                 rows={4}
-                className="w-full px-4 py-3 rounded-lg border-2 border-charcoal/10 bg-cream focus:border-moss focus:outline-none transition-colors resize-none"
                 placeholder="Describe their childhood, family, environment, and early experiences..."
               />
-              <p className="text-xs text-sage mt-1">
+              <p className="text-xs text-apple-text-tertiary mt-1.5">
                 This context helps the AI analyze how experiences affect development
               </p>
-              <p className="text-xs text-sage mt-2">
+              <p className="text-xs text-apple-text-tertiary mt-2">
                 Early environment sets the emotional foundation, not the outcome.
                 Psychological traits start slightly biased, but experiences shape who someone becomes.
               </p>
@@ -148,36 +138,51 @@ export default function CreatePersonaPage() {
 
             {/* Submit */}
             <div className="pt-4 flex gap-4">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
                 onClick={() => router.push('/')}
-                className="btn-secondary flex-1"
+                className="flex-1"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
+                variant="primary"
                 disabled={loading}
-                className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                loading={loading}
+                className="flex-1"
               >
                 {loading ? 'Creating...' : 'Create Persona'}
-              </button>
+              </Button>
             </div>
           </form>
-        </div>
+        </Card>
 
         {/* Info Card */}
-        <div className="mt-8 bg-sage/10 border-2 border-sage/20 rounded-xl p-6">
-          <h3 className="font-serif text-lg text-charcoal mb-2">
+        <Card variant="glass" className="mt-8 animate-fade-in-apple delay-apple-200">
+          <h3 className="font-serif text-lg text-apple-text-primary mb-3 font-semibold">
             What happens next?
           </h3>
-          <ul className="text-sm text-sage space-y-2">
-            <li>• Add life experiences to see how they shape personality</li>
-            <li>• Apply therapeutic interventions to address symptoms</li>
-            <li>• Watch the personality evolve over time with AI analysis</li>
-            <li>• View the complete timeline of psychological evolution</li>
+          <ul className="text-sm text-apple-text-secondary space-y-2">
+            <li className="flex items-start gap-2">
+              <span className="text-apple-blue-500 mt-0.5">•</span>
+              <span>Add life experiences to see how they shape personality</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-apple-blue-500 mt-0.5">•</span>
+              <span>Apply therapeutic interventions to address symptoms</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-apple-blue-500 mt-0.5">•</span>
+              <span>Watch the personality evolve over time with AI analysis</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-apple-blue-500 mt-0.5">•</span>
+              <span>View the complete timeline of psychological evolution</span>
+            </li>
           </ul>
-        </div>
+        </Card>
       </div>
 
       {/* Feedback Modal */}
