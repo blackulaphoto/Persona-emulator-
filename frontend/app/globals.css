@@ -77,3 +77,397 @@
 .delay-300 { animation-delay: 0.3s; }
 .delay-400 { animation-delay: 0.4s; }
 .delay-500 { animation-delay: 0.5s; }
+/**
+ * APPLE-INSPIRED THEME
+ * Modern, sleek UI components with glassmorphism and smooth animations
+ * Inspired by iOS/macOS design language
+ */
+
+/* ============================================
+   GLASSMORPHISM COMPONENTS (macOS Big Sur style)
+   ============================================ */
+
+@layer components {
+
+  /* Glass Card - Frosted glass effect */
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-apple border border-white/20;
+    @apply rounded-apple-lg shadow-apple-md;
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .glass-card:hover {
+    @apply bg-white/80 shadow-apple-lg;
+    transform: translateY(-2px);
+  }
+
+  /* Dark Glass Card */
+  .glass-card-dark {
+    @apply bg-apple-bg-primary/70 backdrop-blur-apple border border-white/10;
+    @apply rounded-apple-lg shadow-apple-md;
+    @apply transition-all duration-300 ease-out;
+  }
+
+  /* Glass Panel - For headers/navigation */
+  .glass-panel {
+    @apply bg-white/80 backdrop-blur-apple border-b border-apple-border-light;
+    @apply sticky top-0 z-50;
+  }
+
+  /* ============================================
+     APPLE-STYLE BUTTONS
+     ============================================ */
+
+  /* Base button style */
+  .btn-apple {
+    @apply px-6 py-3 rounded-apple font-medium text-[15px];
+    @apply transition-all duration-200 ease-out;
+    @apply focus:outline-none focus:ring-4 focus:ring-opacity-30;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Primary Button - iOS Blue */
+  .btn-apple-primary {
+    @apply btn-apple bg-apple-blue-500 text-white;
+    @apply hover:bg-apple-blue-600;
+    @apply shadow-apple-blue hover:shadow-apple-blue-lg;
+    @apply focus:ring-apple-blue-500;
+  }
+
+  .btn-apple-primary:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn-apple-primary:active {
+    transform: translateY(0);
+  }
+
+  /* Secondary Button - Frosted glass */
+  .btn-apple-secondary {
+    @apply btn-apple bg-white/10 backdrop-blur-sm;
+    @apply border border-apple-border text-apple-text-primary;
+    @apply hover:bg-white/20 hover:border-apple-border-dark;
+    @apply focus:ring-apple-blue-500;
+  }
+
+  /* Tertiary Button - Minimal */
+  .btn-apple-tertiary {
+    @apply btn-apple bg-transparent text-apple-blue-500;
+    @apply hover:bg-apple-blue-50;
+    @apply focus:ring-apple-blue-500;
+  }
+
+  /* Danger Button */
+  .btn-apple-danger {
+    @apply btn-apple bg-apple-red text-white;
+    @apply hover:bg-apple-red/90;
+    @apply shadow-apple-sm hover:shadow-apple-md;
+    @apply focus:ring-apple-red;
+  }
+
+  /* Success Button */
+  .btn-apple-success {
+    @apply btn-apple bg-apple-green text-white;
+    @apply hover:bg-apple-green/90;
+    @apply shadow-apple-sm hover:shadow-apple-md;
+    @apply focus:ring-apple-green;
+  }
+
+  /* ============================================
+     APPLE-STYLE CARDS
+     ============================================ */
+
+  /* Standard Card */
+  .card-apple {
+    @apply bg-white rounded-apple-lg p-6;
+    @apply shadow-apple-md border border-apple-border-light;
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .card-apple:hover {
+    @apply shadow-apple-lg;
+    transform: translateY(-4px);
+  }
+
+  /* Elevated Card (more shadow) */
+  .card-apple-elevated {
+    @apply card-apple shadow-apple-lg;
+  }
+
+  /* Dark Card */
+  .card-apple-dark {
+    @apply bg-apple-bg-secondary rounded-apple-lg p-6;
+    @apply shadow-apple-md border border-white/10;
+    @apply transition-all duration-300 ease-out;
+  }
+
+  /* ============================================
+     APPLE-STYLE INPUTS
+     ============================================ */
+
+  /* Standard Input */
+  .input-apple {
+    @apply w-full px-4 py-3 rounded-apple bg-apple-bg-tertiary;
+    @apply border border-transparent text-apple-text-primary;
+    @apply text-base placeholder:text-apple-text-tertiary;
+    @apply transition-all duration-200 ease-out;
+    @apply focus:outline-none focus:bg-white focus:border-apple-blue-500;
+    @apply focus:ring-4 focus:ring-apple-blue-500/10;
+  }
+
+  /* Input with error */
+  .input-apple-error {
+    @apply input-apple border-apple-red;
+    @apply focus:border-apple-red focus:ring-apple-red/10;
+  }
+
+  /* Label */
+  .label-apple {
+    @apply block text-sm font-medium text-apple-text-primary mb-2;
+  }
+
+  /* Textarea */
+  .textarea-apple {
+    @apply input-apple resize-none;
+    @apply min-h-[100px];
+  }
+
+  /* ============================================
+     APPLE-STYLE BADGES
+     ============================================ */
+
+  .badge-apple {
+    @apply inline-flex items-center px-3 py-1 rounded-full;
+    @apply text-xs font-semibold;
+    @apply transition-all duration-200;
+  }
+
+  .badge-apple-blue {
+    @apply badge-apple bg-apple-blue-100 text-apple-blue-700;
+  }
+
+  .badge-apple-green {
+    @apply badge-apple bg-apple-green/10 text-apple-green;
+  }
+
+  .badge-apple-orange {
+    @apply badge-apple bg-apple-orange/10 text-apple-orange;
+  }
+
+  .badge-apple-red {
+    @apply badge-apple bg-apple-red/10 text-apple-red;
+  }
+
+  .badge-apple-purple {
+    @apply badge-apple bg-apple-purple/10 text-apple-purple;
+  }
+
+  /* ============================================
+     APPLE-STYLE NAVIGATION
+     ============================================ */
+
+  /* Tab Navigation */
+  .tab-apple {
+    @apply px-4 py-2 text-sm font-medium rounded-apple;
+    @apply transition-all duration-200 ease-out;
+    @apply text-apple-text-secondary hover:text-apple-text-primary;
+    @apply hover:bg-apple-bg-tertiary;
+  }
+
+  .tab-apple-active {
+    @apply tab-apple bg-white text-apple-blue-500;
+    @apply shadow-apple-sm;
+  }
+
+  /* ============================================
+     LOADING STATES
+     ============================================ */
+
+  /* Skeleton loader */
+  .skeleton-apple {
+    @apply animate-pulse bg-apple-bg-tertiary rounded-apple;
+  }
+
+  /* Spinner */
+  .spinner-apple {
+    @apply inline-block w-5 h-5 border-2 border-current border-t-transparent;
+    @apply rounded-full animate-spin;
+  }
+
+  /* ============================================
+     ALERTS / NOTIFICATIONS
+     ============================================ */
+
+  .alert-apple {
+    @apply p-4 rounded-apple-lg;
+    @apply flex items-start gap-3;
+    @apply border-l-4;
+  }
+
+  .alert-apple-info {
+    @apply alert-apple bg-apple-blue-50 border-apple-blue-500;
+  }
+
+  .alert-apple-success {
+    @apply alert-apple bg-apple-green/10 border-apple-green;
+  }
+
+  .alert-apple-warning {
+    @apply alert-apple bg-apple-orange/10 border-apple-orange;
+  }
+
+  .alert-apple-error {
+    @apply alert-apple bg-apple-red/10 border-apple-red;
+  }
+
+  /* ============================================
+     GRADIENTS (Apple product page style)
+     ============================================ */
+
+  .gradient-apple-purple {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .gradient-apple-pink {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  }
+
+  .gradient-apple-blue {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  }
+
+  .gradient-apple-mesh {
+    background:
+      radial-gradient(at 40% 20%, rgba(102, 126, 234, 0.1) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, rgba(118, 75, 162, 0.1) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, rgba(79, 172, 254, 0.1) 0px, transparent 50%);
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+@layer utilities {
+  /* Container with max-width */
+  .container-apple {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Text utilities */
+  .text-gradient-apple {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  /* Smooth scrolling */
+  .scroll-smooth-apple {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Custom scrollbar (Apple style) */
+  .scrollbar-apple::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-apple::-webkit-scrollbar-track {
+    @apply bg-apple-bg-tertiary rounded-full;
+  }
+
+  .scrollbar-apple::-webkit-scrollbar-thumb {
+    @apply bg-apple-text-tertiary rounded-full;
+    @apply hover:bg-apple-text-secondary;
+  }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* Animation utility classes */
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-fade-in-apple {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  background-size: 1000px 100%;
+}
+
+/* Staggered animation delays */
+.delay-apple-100 { animation-delay: 0.1s; }
+.delay-apple-200 { animation-delay: 0.2s; }
+.delay-apple-300 { animation-delay: 0.3s; }
+.delay-apple-400 { animation-delay: 0.4s; }
+.delay-apple-500 { animation-delay: 0.5s; }

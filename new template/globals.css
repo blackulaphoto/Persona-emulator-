@@ -1,0 +1,368 @@
+/**
+ * Global Styles - Professional Clinical Theme
+ * 
+ * Replace: frontend/app/globals.css
+ * 
+ * Professional typography, component styles, and utilities
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Professional Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Crimson+Pro:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ============================================
+   BASE STYLES - Typography & Defaults
+   ============================================ */
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    @apply antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    font-variation-settings: 'opsz' auto;
+  }
+  
+  body {
+    @apply bg-bg-tertiary text-text-primary;
+    @apply font-sans;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  
+  /* Professional Typography Scale */
+  h1 {
+    @apply font-serif text-4xl font-bold text-text-primary;
+    @apply mb-6 leading-tight;
+  }
+  
+  h2 {
+    @apply font-serif text-3xl font-semibold text-text-primary;
+    @apply mb-4 leading-tight;
+  }
+  
+  h3 {
+    @apply font-serif text-2xl font-semibold text-text-primary;
+    @apply mb-3 leading-snug;
+  }
+  
+  h4 {
+    @apply font-sans text-xl font-semibold text-text-primary;
+    @apply mb-2;
+  }
+  
+  h5 {
+    @apply font-sans text-lg font-medium text-text-primary;
+    @apply mb-2;
+  }
+  
+  p {
+    @apply text-base text-text-secondary mb-4;
+  }
+  
+  a {
+    @apply text-accent-600 hover:text-accent-700;
+    @apply transition-colors duration-200;
+  }
+  
+  /* Lists */
+  ul, ol {
+    @apply mb-4 ml-6;
+  }
+  
+  li {
+    @apply mb-2 text-text-secondary;
+  }
+  
+  /* Code */
+  code {
+    @apply font-mono text-sm bg-primary-100 px-2 py-1 rounded;
+    @apply text-accent-700;
+  }
+  
+  pre {
+    @apply font-mono text-sm bg-primary-900 text-primary-50;
+    @apply p-4 rounded-lg overflow-x-auto mb-4;
+  }
+}
+
+/* ============================================
+   COMPONENT STYLES - Reusable UI Elements
+   ============================================ */
+
+@layer components {
+  
+  /* Professional Card */
+  .card {
+    @apply bg-bg-card rounded-lg shadow-card;
+    @apply border border-border-light;
+    @apply p-6;
+    @apply transition-all duration-200;
+  }
+  
+  .card-hover {
+    @apply card hover:shadow-lg hover:border-accent-200;
+  }
+  
+  /* Professional Header */
+  .header {
+    @apply bg-bg-primary text-text-inverse;
+    @apply border-b border-primary-800;
+    @apply shadow-header;
+  }
+  
+  /* Navigation Tabs */
+  .tab {
+    @apply px-4 py-2 rounded-md;
+    @apply font-medium text-sm;
+    @apply transition-all duration-200;
+    @apply border-b-2 border-transparent;
+  }
+  
+  .tab-active {
+    @apply bg-primary-600 text-white;
+    @apply border-accent-500;
+  }
+  
+  .tab-inactive {
+    @apply text-text-secondary hover:text-text-primary;
+    @apply hover:bg-bg-hover;
+  }
+  
+  /* Professional Button Styles */
+  .btn {
+    @apply px-4 py-2 rounded-md font-medium;
+    @apply transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-primary {
+    @apply btn bg-accent-600 text-white;
+    @apply hover:bg-accent-700;
+    @apply focus:ring-accent-500;
+    @apply shadow-sm hover:shadow-md;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-primary-100 text-primary-700;
+    @apply hover:bg-primary-200;
+    @apply focus:ring-primary-500;
+  }
+  
+  .btn-outline {
+    @apply btn border-2 border-accent-600 text-accent-600;
+    @apply hover:bg-accent-50;
+    @apply focus:ring-accent-500;
+  }
+  
+  .btn-ghost {
+    @apply btn text-text-secondary;
+    @apply hover:bg-bg-hover hover:text-text-primary;
+  }
+  
+  .btn-danger {
+    @apply btn bg-danger text-white;
+    @apply hover:bg-danger-dark;
+    @apply focus:ring-danger;
+  }
+  
+  /* Professional Input Fields */
+  .input {
+    @apply w-full px-4 py-2.5 rounded-md;
+    @apply bg-white border border-border;
+    @apply text-text-primary placeholder:text-text-tertiary;
+    @apply focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent;
+    @apply transition-all duration-200;
+  }
+  
+  .input-error {
+    @apply input border-danger;
+    @apply focus:ring-danger;
+  }
+  
+  .label {
+    @apply block text-sm font-medium text-text-primary mb-2;
+  }
+  
+  /* Professional Table */
+  .table {
+    @apply w-full border-collapse;
+  }
+  
+  .table thead {
+    @apply bg-primary-50 border-b-2 border-border;
+  }
+  
+  .table th {
+    @apply px-6 py-3 text-left text-xs font-semibold text-text-primary uppercase tracking-wider;
+  }
+  
+  .table td {
+    @apply px-6 py-4 text-sm text-text-secondary;
+    @apply border-b border-border-light;
+  }
+  
+  .table tbody tr {
+    @apply hover:bg-bg-hover transition-colors duration-150;
+  }
+  
+  /* Badge/Tag Styles */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .badge-primary {
+    @apply badge bg-accent-100 text-accent-800;
+  }
+  
+  .badge-success {
+    @apply badge bg-success-light text-success-dark;
+  }
+  
+  .badge-warning {
+    @apply badge bg-warning-light text-warning-dark;
+  }
+  
+  .badge-danger {
+    @apply badge bg-danger-light text-danger-dark;
+  }
+  
+  /* Professional Sidebar */
+  .sidebar {
+    @apply bg-bg-card border-l border-border-light;
+    @apply shadow-lg;
+  }
+  
+  .sidebar-header {
+    @apply px-6 py-4 border-b border-border-light;
+    @apply font-serif text-lg font-semibold;
+  }
+  
+  .sidebar-item {
+    @apply px-6 py-3 text-sm text-text-secondary;
+    @apply hover:bg-bg-hover hover:text-text-primary;
+    @apply transition-colors duration-150;
+    @apply cursor-pointer;
+  }
+  
+  .sidebar-item-active {
+    @apply sidebar-item bg-accent-50 text-accent-700;
+    @apply border-l-4 border-accent-600;
+  }
+  
+  /* Timeline Styles */
+  .timeline-container {
+    @apply relative;
+  }
+  
+  .timeline-line {
+    @apply absolute left-4 top-0 bottom-0 w-0.5 bg-border;
+  }
+  
+  .timeline-item {
+    @apply relative pl-12 pb-8;
+  }
+  
+  .timeline-marker {
+    @apply absolute left-0 w-8 h-8 rounded-full;
+    @apply bg-accent-600 border-4 border-bg-card;
+    @apply flex items-center justify-center;
+  }
+  
+  /* Loading States */
+  .skeleton {
+    @apply animate-pulse bg-primary-200 rounded;
+  }
+  
+  .spinner {
+    @apply inline-block w-5 h-5 border-2 border-current border-t-transparent rounded-full;
+    @apply animate-spin;
+  }
+  
+  /* Alert/Notice Boxes */
+  .alert {
+    @apply p-4 rounded-md border;
+  }
+  
+  .alert-info {
+    @apply alert bg-info-light border-info text-info-dark;
+  }
+  
+  .alert-success {
+    @apply alert bg-success-light border-success text-success-dark;
+  }
+  
+  .alert-warning {
+    @apply alert bg-warning-light border-warning text-warning-dark;
+  }
+  
+  .alert-danger {
+    @apply alert bg-danger-light border-danger text-danger-dark;
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES - Helper Styles
+   ============================================ */
+
+@layer utilities {
+  /* Text utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Scrollbar styling */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-primary-100 rounded-full;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-primary-400 rounded-full;
+    @apply hover:bg-primary-500;
+  }
+  
+  /* Focus visible for accessibility */
+  .focus-visible-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2;
+  }
+  
+  /* Container queries */
+  .container-snap {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+/* ============================================
+   ANIMATIONS & TRANSITIONS
+   ============================================ */
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  background-size: 1000px 100%;
+}
