@@ -38,9 +38,28 @@ def _keyword_hits(text: str, keywords: List[str]) -> int:
     hits = 0
     for keyword in keywords:
         pattern = r"\b" + re.escape(keyword) + r"\b"
-        if re.search(pattern, text):
-            hits += 1
+        hits += len(re.findall(pattern, text))
     return hits
+
+
+def _is_flat_profile(traits: Dict[str, float]) -> bool:
+    values = list(traits.values())
+    if not values:
+        return True
+    return max(values) - min(values) < 0.04 and all(0.45 <= value <= 0.55 for value in values)
+
+
+def _apply_signal_nudge(
+    baseline: Dict[str, float],
+    deltas: Dict[str, int],
+    scale: float = 0.005
+) -> Dict[str, float]:
+    nudged = {}
+    for trait, value in baseline.items():
+        delta = deltas.get(trait, 0)
+        nudged_value = value + (delta * scale)
+        nudged[trait] = _clamp_float(nudged_value, TRAIT_MIN / 100.0, TRAIT_MAX / 100.0)
+    return nudged
 
 
 def infer_foundational_signals(early_environment: str) -> Dict[str, int]:
@@ -59,7 +78,8 @@ def infer_foundational_signals(early_environment: str) -> Dict[str, int]:
         "attachmentConsistency": 0,
         "threatExposure": 0,
         "socialSafety": 0,
-        "explorationSupport": 0
+        "explorationSupport": 0,
+        "adversityIntensity": 0
     }
 
     mapping = {
@@ -102,6 +122,17 @@ def infer_foundational_signals(early_environment: str) -> Dict[str, int]:
         delta = positive_hits - negative_hits
         signals[signal] = _clamp_int(delta, SIGNAL_MIN, SIGNAL_MAX)
 
+    intensity_keywords = [
+        "severe", "chronic", "constant", "daily", "relentless", "extreme",
+        "traumatic", "terrifying", "life threatening", "nightmare", "repeated"
+    ]
+    adversity_markers = [
+        "abuse", "neglect", "violence", "assault", "rape", "molested",
+        "incarcerated", "addicted", "homeless", "abandoned", "beaten"
+    ]
+    adversity_hits = _keyword_hits(text, adversity_markers) + _keyword_hits(text, intensity_keywords)
+    signals["adversityIntensity"] = _clamp_int(adversity_hits, 0, SIGNAL_MAX)
+
     return signals
 
 
@@ -112,7 +143,8 @@ def _calculate_trait_deltas(signals: Dict[str, int]) -> Dict[str, int]:
         (-signals["threatExposure"] * 5) +
         (-signals["caregiverReliability"] * 3) +
         (-signals["attachmentConsistency"] * 2) +
-        (-signals["socialSafety"] * 2)
+        (-signals["socialSafety"] * 2) +
+        (signals["adversityIntensity"] * 3)
     )
     neuroticism_delta = _clamp_int(neuroticism_delta, -24, 24)
 
@@ -120,7 +152,8 @@ def _calculate_trait_deltas(signals: Dict[str, int]) -> Dict[str, int]:
         (signals["caregiverReliability"] * 4) +
         (signals["attachmentConsistency"] * 4) +
         (signals["emotionalSafety"] * 2) +
-        (-signals["threatExposure"] * 2)
+        (-signals["threatExposure"] * 2) +
+        (-signals["adversityIntensity"] * 2)
     )
     agreeableness_delta = _clamp_int(agreeableness_delta, -16, 16)
 
@@ -128,21 +161,24 @@ def _calculate_trait_deltas(signals: Dict[str, int]) -> Dict[str, int]:
         (signals["socialSafety"] * 4) +
         (signals["stability"] * 2) +
         (-signals["threatExposure"] * 2) +
-        (-signals["emotionalSafety"] * 1)
+        (-signals["emotionalSafety"] * 1) +
+        (-signals["adversityIntensity"] * 2)
     )
     extraversion_delta = _clamp_int(extraversion_delta, -12, 12)
 
     conscientiousness_delta = (
         (signals["stability"] * 4) +
         (signals["caregiverReliability"] * 2) +
-        (-signals["threatExposure"] * 1)
+        (-signals["threatExposure"] * 1) +
+        (-signals["adversityIntensity"] * 1)
     )
     conscientiousness_delta = _clamp_int(conscientiousness_delta, -12, 12)
 
     openness_delta = (
         (signals["explorationSupport"] * 4) +
         (signals["emotionalSafety"] * 1) +
-        (-signals["threatExposure"] * 1)
+        (-signals["threatExposure"] * 1) +
+        (-signals["adversityIntensity"] * 1)
     )
     openness_delta = _clamp_int(openness_delta, -12, 12)
 
@@ -200,6 +236,7 @@ IMPORTANT GUIDELINES:
 4. **Avoid stereotypes** - Abuse doesn't automatically mean neuroticism = 0.9
 5. **Use full range** - Traits can realistically range from 0.2 to 0.8
 6. **Context is key** - A loving but strict household is different from an abusive one
+7. **Avoid flat profiles** - If the background is clearly adverse or clearly supportive, at least two traits should deviate by >= 0.1 from 0.5
 
 TRAIT DEFINITIONS:
 - **Openness** (0.0-1.0): Imagination, curiosity, creativity, openness to new experiences
@@ -236,12 +273,18 @@ Respond ONLY with valid JSON."""
 
         # Extract traits
         baseline_personality = {
-            "openness": _clamp_float(response.get("openness", 0.5), 0.0, 1.0),
-            "conscientiousness": _clamp_float(response.get("conscientiousness", 0.5), 0.0, 1.0),
-            "extraversion": _clamp_float(response.get("extraversion", 0.5), 0.0, 1.0),
-            "agreeableness": _clamp_float(response.get("agreeableness", 0.5), 0.0, 1.0),
-            "neuroticism": _clamp_float(response.get("neuroticism", 0.5), 0.0, 1.0)
+            "openness": _clamp_float(response.get("openness", 0.5), TRAIT_MIN / 100.0, TRAIT_MAX / 100.0),
+            "conscientiousness": _clamp_float(response.get("conscientiousness", 0.5), TRAIT_MIN / 100.0, TRAIT_MAX / 100.0),
+            "extraversion": _clamp_float(response.get("extraversion", 0.5), TRAIT_MIN / 100.0, TRAIT_MAX / 100.0),
+            "agreeableness": _clamp_float(response.get("agreeableness", 0.5), TRAIT_MIN / 100.0, TRAIT_MAX / 100.0),
+            "neuroticism": _clamp_float(response.get("neuroticism", 0.5), TRAIT_MIN / 100.0, TRAIT_MAX / 100.0)
         }
+
+        if _is_flat_profile(baseline_personality):
+            signals = infer_foundational_signals(early_environment)
+            deltas = _calculate_trait_deltas(signals)
+            baseline_personality = _apply_signal_nudge(baseline_personality, deltas)
+            logger.info("AI baseline was flat; applied signal nudge. signals=%s deltas=%s", signals, deltas)
 
         logger.info(f"AI baseline analysis: {response.get('reasoning', 'No reasoning provided')}")
 
