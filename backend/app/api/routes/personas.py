@@ -9,7 +9,7 @@ from app.core.auth import get_current_user
 from app.models import Persona
 from app.utils.foundational_baseline import (
     clamp_personality_range,
-    derive_foundational_baseline
+    derive_foundational_baseline_async
 )
 from app.schemas import PersonaCreate, PersonaUpdate, PersonaResponse
 
@@ -50,7 +50,7 @@ async def create_persona(
         }
         baseline_personality = clamp_personality_range(baseline_personality)
     else:
-        baseline_personality, foundational_signals = derive_foundational_baseline(
+        baseline_personality, foundational_signals = await derive_foundational_baseline_async(
             early_environment,
             baseline_age=persona_data.baseline_age,
             gender=persona_data.baseline_gender

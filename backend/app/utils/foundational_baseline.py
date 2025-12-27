@@ -22,8 +22,8 @@ BASELINE_SCORE = 50
 TRAIT_MIN = 20  # Expanded from 40 to allow more variation
 TRAIT_MAX = 80  # Expanded from 60 to allow more variation
 
-SIGNAL_MIN = -2
-SIGNAL_MAX = 2
+SIGNAL_MIN = -4
+SIGNAL_MAX = 4
 
 
 def _clamp_int(value: int, min_value: int, max_value: int) -> int:
@@ -64,32 +64,35 @@ def infer_foundational_signals(early_environment: str) -> Dict[str, int]:
 
     mapping = {
         "emotionalSafety": {
-            "positive": ["loving", "supportive", "nurturing", "warm", "safe"],
-            "negative": ["abusive", "neglectful", "cold", "hostile", "unsafe"]
+            "positive": ["loving", "supportive", "nurturing", "warm", "safe", "affectionate", "caring"],
+            "negative": ["abusive", "neglectful", "cold", "hostile", "unsafe", "dismissive", "emotionally unavailable"]
         },
         "stability": {
-            "positive": ["stable", "predictable", "routine", "steady"],
-            "negative": ["chaotic", "unstable", "unpredictable", "frequent", "evicted"]
+            "positive": ["stable", "predictable", "routine", "steady", "consistent"],
+            "negative": ["chaotic", "unstable", "unpredictable", "frequent", "evicted", "homeless", "moved often"]
         },
         "caregiverReliability": {
-            "positive": ["reliable", "present", "available", "attentive", "dependable", "caring"],
-            "negative": ["absent", "unavailable", "addicted", "incarcerated", "unreliable"]
+            "positive": ["reliable", "present", "available", "attentive", "dependable", "caring", "protective"],
+            "negative": ["absent", "unavailable", "addicted", "incarcerated", "unreliable", "abandoned"]
         },
         "attachmentConsistency": {
-            "positive": ["secure", "close bond"],
-            "negative": ["inconsistent", "on and off", "hot and cold"]
+            "positive": ["secure", "close bond", "secure attachment"],
+            "negative": ["inconsistent", "on and off", "hot and cold", "disorganized", "fearful attachment"]
         },
         "threatExposure": {
-            "positive": ["protected", "peaceful", "low crime"],
-            "negative": ["violence", "violent", "crime", "danger", "threatening"]
+            "positive": ["protected", "peaceful", "low crime", "safe neighborhood"],
+            "negative": [
+                "violence", "violent", "crime", "danger", "threatening",
+                "domestic violence", "physical abuse", "sexual abuse", "assault"
+            ]
         },
         "socialSafety": {
-            "positive": ["friendly", "included", "accepted", "safe school"],
-            "negative": ["bullied", "bullying", "isolated", "rejected"]
+            "positive": ["friendly", "included", "accepted", "safe school", "belonged"],
+            "negative": ["bullied", "bullying", "isolated", "rejected", "excluded", "humiliated"]
         },
         "explorationSupport": {
-            "positive": ["encouraged", "curious", "creative", "explore", "adventurous"],
-            "negative": ["restricted", "controlled", "strict", "discouraged", "sheltered"]
+            "positive": ["encouraged", "curious", "creative", "explore", "adventurous", "imaginative"],
+            "negative": ["restricted", "controlled", "strict", "discouraged", "sheltered", "overprotective"]
         }
     }
 
@@ -104,29 +107,44 @@ def infer_foundational_signals(early_environment: str) -> Dict[str, int]:
 
 def _calculate_trait_deltas(signals: Dict[str, int]) -> Dict[str, int]:
     neuroticism_delta = (
-        (-signals["emotionalSafety"] * 4) +
-        (-signals["stability"] * 3) +
-        (-signals["threatExposure"] * 4)
+        (-signals["emotionalSafety"] * 5) +
+        (-signals["stability"] * 4) +
+        (-signals["threatExposure"] * 5) +
+        (-signals["caregiverReliability"] * 3) +
+        (-signals["attachmentConsistency"] * 2) +
+        (-signals["socialSafety"] * 2)
     )
-    neuroticism_delta = _clamp_int(neuroticism_delta, -12, 12)
+    neuroticism_delta = _clamp_int(neuroticism_delta, -24, 24)
 
     agreeableness_delta = (
-        (signals["caregiverReliability"] * 3) +
-        (signals["attachmentConsistency"] * 3)
+        (signals["caregiverReliability"] * 4) +
+        (signals["attachmentConsistency"] * 4) +
+        (signals["emotionalSafety"] * 2) +
+        (-signals["threatExposure"] * 2)
     )
-    agreeableness_delta = _clamp_int(agreeableness_delta, -8, 8)
+    agreeableness_delta = _clamp_int(agreeableness_delta, -16, 16)
 
     extraversion_delta = (
-        (signals["socialSafety"] * 2) +
-        (signals["stability"] * 2)
+        (signals["socialSafety"] * 4) +
+        (signals["stability"] * 2) +
+        (-signals["threatExposure"] * 2) +
+        (-signals["emotionalSafety"] * 1)
     )
-    extraversion_delta = _clamp_int(extraversion_delta, -6, 6)
+    extraversion_delta = _clamp_int(extraversion_delta, -12, 12)
 
-    conscientiousness_delta = (signals["stability"] * 2)
-    conscientiousness_delta = _clamp_int(conscientiousness_delta, -4, 4)
+    conscientiousness_delta = (
+        (signals["stability"] * 4) +
+        (signals["caregiverReliability"] * 2) +
+        (-signals["threatExposure"] * 1)
+    )
+    conscientiousness_delta = _clamp_int(conscientiousness_delta, -12, 12)
 
-    openness_delta = (signals["explorationSupport"] * 2)
-    openness_delta = _clamp_int(openness_delta, -4, 4)
+    openness_delta = (
+        (signals["explorationSupport"] * 4) +
+        (signals["emotionalSafety"] * 1) +
+        (-signals["threatExposure"] * 1)
+    )
+    openness_delta = _clamp_int(openness_delta, -12, 12)
 
     return {
         "openness": openness_delta,
@@ -139,7 +157,7 @@ def _calculate_trait_deltas(signals: Dict[str, int]) -> Dict[str, int]:
 
 def clamp_personality_range(personality: Dict[str, float]) -> Dict[str, float]:
     """
-    Clamp traits to the 40-60 range (0.4-0.6).
+    Clamp traits to the 20-80 range (0.2-0.8).
     """
     return {
         trait: _clamp_float(value, TRAIT_MIN / 100.0, TRAIT_MAX / 100.0)
@@ -235,30 +253,78 @@ Respond ONLY with valid JSON."""
         return None
 
 
-def derive_foundational_baseline(early_environment: str, baseline_age: int = 10, gender: str = "unknown") -> Tuple[Dict[str, float], Dict[str, int]]:
+async def derive_foundational_baseline_async(
+    early_environment: str,
+    baseline_age: int = 10,
+    gender: str = "unknown"
+) -> Tuple[Dict[str, float], Dict[str, int]]:
     """
     Derive baseline personality from early environment signals.
 
-    First attempts AI analysis, falls back to keyword-based if AI fails.
+    Uses AI analysis first, falls back to keyword-based if AI fails.
     """
-    # Try AI analysis first (async, so we need to handle it carefully)
-    import asyncio
     try:
-        loop = asyncio.get_event_loop()
-        ai_baseline = loop.run_until_complete(
-            analyze_baseline_personality_ai(early_environment, baseline_age, gender)
+        ai_baseline = await analyze_baseline_personality_ai(
+            early_environment,
+            baseline_age,
+            gender
         )
         if ai_baseline:
-            # Still infer signals for tracking purposes
             signals = infer_foundational_signals(early_environment)
             return ai_baseline, signals
     except Exception as e:
         logger.warning(f"AI baseline analysis failed, using keyword fallback: {e}")
 
-    # Fallback to keyword-based analysis
     signals = infer_foundational_signals(early_environment)
     deltas = _calculate_trait_deltas(signals)
+    logger.info("Baseline fallback signals=%s deltas=%s", signals, deltas)
 
+    baseline_scores = {}
+    for trait, delta in deltas.items():
+        score = _clamp_int(BASELINE_SCORE + delta, TRAIT_MIN, TRAIT_MAX)
+        baseline_scores[trait] = score / 100.0
+
+    return baseline_scores, signals
+
+
+def derive_foundational_baseline(
+    early_environment: str,
+    baseline_age: int = 10,
+    gender: str = "unknown"
+) -> Tuple[Dict[str, float], Dict[str, int]]:
+    """
+    Sync wrapper for deriving baseline personality.
+
+    Falls back to keyword-based analysis if called inside a running event loop.
+    """
+    import asyncio
+
+    try:
+        running_loop = asyncio.get_running_loop()
+        if running_loop.is_running():
+            logger.warning("derive_foundational_baseline called in async context; using keyword fallback.")
+            signals = infer_foundational_signals(early_environment)
+            deltas = _calculate_trait_deltas(signals)
+            baseline_scores = {}
+            for trait, delta in deltas.items():
+                score = _clamp_int(BASELINE_SCORE + delta, TRAIT_MIN, TRAIT_MAX)
+                baseline_scores[trait] = score / 100.0
+            return baseline_scores, signals
+    except RuntimeError:
+        pass
+
+    try:
+        ai_baseline = asyncio.run(
+            analyze_baseline_personality_ai(early_environment, baseline_age, gender)
+        )
+        if ai_baseline:
+            signals = infer_foundational_signals(early_environment)
+            return ai_baseline, signals
+    except Exception as e:
+        logger.warning(f"AI baseline analysis failed, using keyword fallback: {e}")
+
+    signals = infer_foundational_signals(early_environment)
+    deltas = _calculate_trait_deltas(signals)
     baseline_scores = {}
     for trait, delta in deltas.items():
         score = _clamp_int(BASELINE_SCORE + delta, TRAIT_MIN, TRAIT_MAX)
