@@ -2,12 +2,10 @@ import React from 'react'
 
 export type CardVariant = 'default' | 'glass' | 'elevated' | 'dark'
 
-interface CardProps {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: CardVariant
   hover?: boolean
-  className?: string
   children: React.ReactNode
-  onClick?: () => void
 }
 
 const variantClasses = {
@@ -22,7 +20,7 @@ export function Card({
   hover = false,
   className = '',
   children,
-  onClick,
+  ...props
 }: CardProps) {
   const baseClass = variantClasses[variant]
   const hoverClass = hover && variant === 'default' ? 'cursor-pointer' : ''
@@ -30,7 +28,7 @@ export function Card({
   return (
     <div
       className={`${baseClass} ${hoverClass} ${className}`}
-      onClick={onClick}
+      {...props}
     >
       {children}
     </div>
