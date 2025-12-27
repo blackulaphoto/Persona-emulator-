@@ -50,7 +50,11 @@ async def create_persona(
         }
         baseline_personality = clamp_personality_range(baseline_personality)
     else:
-        baseline_personality, foundational_signals = derive_foundational_baseline(early_environment)
+        baseline_personality, foundational_signals = derive_foundational_baseline(
+            early_environment,
+            baseline_age=persona_data.baseline_age,
+            gender=persona_data.baseline_gender
+        )
     
     # Create persona
     persona = Persona(
