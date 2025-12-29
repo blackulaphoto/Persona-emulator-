@@ -6,10 +6,15 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.core.database import get_db
 from app.core.auth import get_current_user
-from app.models import Persona
+from app.models import Persona, PersonaSymptom
 from app.utils.foundational_baseline import (
     clamp_personality_range,
-    derive_foundational_baseline_async
+    derive_foundational_baseline_async,
+    infer_foundational_signals
+)
+from app.utils.backstory_symptom_mapper import (
+    analyze_backstory_for_symptoms,
+    deduplicate_symptoms
 )
 from app.schemas import PersonaCreate, PersonaUpdate, PersonaResponse
 
@@ -74,7 +79,33 @@ async def create_persona(
     db.add(persona)
     db.commit()
     db.refresh(persona)
-    
+
+    # Assess initial symptoms from backstory
+    if persona.baseline_background:
+        initial_symptoms = analyze_backstory_for_symptoms(
+            backstory=persona.baseline_background,
+            baseline_age=persona.baseline_age
+        )
+
+        # Deduplicate if multiple backstory elements triggered same disorder
+        initial_symptoms = deduplicate_symptoms(initial_symptoms)
+
+        # Create PersonaSymptom records
+        for symptom_data in initial_symptoms:
+            persona_symptom = PersonaSymptom(
+                persona_id=persona.id,
+                symptom_name=symptom_data["disorder_name"],
+                severity=symptom_data["severity"],
+                category=symptom_data["category"],
+                first_onset_age=symptom_data["onset_age"],
+                symptom_details=symptom_data["symptom_details"]
+            )
+            db.add(persona_symptom)
+
+        # Commit symptoms
+        if initial_symptoms:
+            db.commit()
+
     # Convert to dict and add counts
     persona_dict = {
         "id": str(persona.id),
