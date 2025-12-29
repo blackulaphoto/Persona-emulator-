@@ -15,18 +15,21 @@ from app.utils.developmental_stages import (
     explain_developmental_impact,
     calculate_trauma_impact_multiplier
 )
+from app.utils.symptom_assessment_engine import SymptomAssessmentEngine
 
 # Import for defensive assertion only (not for ORM usage)
 from app.models.persona import Persona
 
 
-# Initialize OpenAI service
+# Initialize services
 logger = logging.getLogger(__name__)
 
 openai_service = OpenAIService(
     api_key=os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_KEY"),
     model="gpt-4"
 )
+
+symptom_engine = SymptomAssessmentEngine()
 
 
 def generate_experience_prompt(
@@ -361,6 +364,54 @@ def validate_analysis_response(response: Dict) -> bool:
                 raise ValueError(f"Missing Big Five trait in immediate_effects: {trait}")
     
     return True
+
+
+def assess_comprehensive_symptoms(
+    experiences: List,
+    current_age: int,
+    baseline_age: int
+) -> Dict[str, Dict]:
+    """
+    Use the comprehensive DSM-5/ICD-11 symptom taxonomy to assess disorders.
+
+    This enhances the AI analysis with evidence-based disorder mapping.
+
+    Args:
+        experiences: List of Experience objects with category, severity, age
+        current_age: Persona's current age
+        baseline_age: Age when persona was created
+
+    Returns:
+        Dict of {disorder_name: {severity, symptoms, onset_age, category}}
+    """
+    # Convert experiences to format needed by symptom engine
+    experience_data = []
+    for exp in experiences:
+        # Map experience type to category
+        event_type = exp.event_type if hasattr(exp, 'event_type') else "trauma"
+
+        # Map severity (1-10 scale) to severity label
+        severity_value = exp.severity if hasattr(exp, 'severity') else 5
+        if severity_value >= 8:
+            severity_label = "severe"
+        elif severity_value >= 5:
+            severity_label = "moderate"
+        else:
+            severity_label = "mild"
+
+        experience_data.append({
+            "id": exp.id if hasattr(exp, 'id') else str(len(experience_data)),
+            "category": event_type,
+            "severity": severity_label,
+            "age_at_experience": exp.age_at_event if hasattr(exp, 'age_at_event') else baseline_age
+        })
+
+    # Use symptom engine to assess
+    return symptom_engine.assess_symptoms(
+        experiences=experience_data,
+        current_age=current_age,
+        baseline_age=baseline_age
+    )
 
 
 async def batch_analyze_experiences(

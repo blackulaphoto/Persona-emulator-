@@ -52,4 +52,5 @@ class Persona(Base):
     snapshots = relationship("PersonalitySnapshot", back_populates="persona", cascade="all, delete-orphan")
     timeline_snapshots = relationship("TimelineSnapshot", back_populates="persona", cascade="all, delete-orphan")
     narratives = relationship("PersonaNarrative", back_populates="persona", cascade="all, delete-orphan")
+    detailed_symptoms = relationship("PersonaSymptom", back_populates="persona", cascade="all, delete-orphan")
     owner = relationship("User", back_populates="personas")
