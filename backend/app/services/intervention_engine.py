@@ -16,13 +16,16 @@ from app.utils.developmental_stages import (
     get_recommended_interventions_by_age,
     get_age_appropriate_coping_capacity
 )
+from app.utils.symptom_assessment_engine import SymptomAssessmentEngine
+from app.utils.symptom_taxonomy import SYMPTOM_TAXONOMY
 
 
-# Initialize OpenAI service
+# Initialize services
 openai_service = OpenAIService(
     api_key=os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_KEY"),
     model="gpt-4"
 )
+symptom_engine = SymptomAssessmentEngine()
 
 
 def generate_intervention_prompt(
@@ -405,3 +408,182 @@ def explain_why_therapy_works_or_not(
         explanation = f"{therapy_info['name']} is a poor match (efficacy: {efficacy_match:.0%}). This therapy is designed for {', '.join(therapy_info['best_for'][:3])}, not {', '.join(symptoms)}."
     
     return explanation
+
+
+# ============================================
+# COMPREHENSIVE SYMPTOM-BASED THERAPY MATCHING
+# ============================================
+
+def match_disorders_to_therapies(
+    disorders: Dict[str, Dict],
+    age: int
+) -> Dict[str, List[Dict]]:
+    """
+    Match disorders to appropriate therapeutic interventions.
+    
+    Uses comprehensive symptom taxonomy and evidence-based effectiveness scores.
+    
+    Args:
+        disorders: Dict from assess_comprehensive_symptoms()
+                  {disorder_name: {severity, symptoms, onset_age, category}}
+        age: Current age of the person
+        
+    Returns:
+        Dict of {disorder_name: [recommended_therapies]}
+    """
+    recommendations = {}
+    
+    for disorder_name, details in disorders.items():
+        # Get severity
+        severity = details["severity"]
+        
+        # Calculate intervention effectiveness for each therapy type
+        therapy_options = []
+        
+        # Check symptom_engine for intervention mappings
+        if hasattr(symptom_engine, 'calculate_intervention_effect'):
+            # Get common therapy types for this disorder category
+            category = details.get("category", "")
+            
+            # Define therapy types by category
+            therapy_by_category = {
+                "Mood Disorders": ["CBT", "medication", "combination"],
+                "Anxiety Disorders": ["CBT", "exposure_therapy", "medication"],
+                "Trauma and Stress Disorders": ["EMDR", "CPT", "PE", "medication"],
+                "Personality Disorders (Cluster B)": ["DBT", "schema_therapy", "MBT"],
+                "OCD and Related Disorders": ["ERP", "medication", "combination"],
+                "Substance Use Disorders": ["MAT", "CBT", "12_step", "residential"],
+                "Eating Disorders": ["FBT", "CBT_E", "medication"],
+            }
+            
+            # Get therapies for this category
+            therapies = therapy_by_category.get(category, ["CBT", "supportive_therapy"])
+            
+            for therapy_type in therapies:
+                # Calculate effectiveness
+                reduction = symptom_engine.calculate_intervention_effect(
+                    disorder=disorder_name,
+                    intervention_type=therapy_type,
+                    duration_weeks=24,  # Standard duration
+                    adherence=0.8
+                )
+                
+                therapy_options.append({
+                    "therapy_type": therapy_type,
+                    "expected_reduction": reduction,
+                    "reduction_percentage": f"{int(reduction * 100)}%",
+                    "recommended_duration": "24 weeks",
+                    "match_quality": "excellent" if reduction >= 0.5 else "moderate" if reduction >= 0.3 else "limited"
+                })
+            
+            # Sort by effectiveness
+            therapy_options.sort(key=lambda x: x["expected_reduction"], reverse=True)
+        
+        recommendations[disorder_name] = therapy_options
+    
+    return recommendations
+
+
+def calculate_comprehensive_therapy_efficacy(
+    persona_symptoms: List,  # List of PersonaSymptom objects
+    therapy_type: str,
+    duration_weeks: int,
+    adherence: float = 0.8
+) -> Dict[str, float]:
+    """
+    Calculate expected efficacy of therapy across multiple disorders.
+    
+    Args:
+        persona_symptoms: List of PersonaSymptom objects with severity
+        therapy_type: Type of therapy
+        duration_weeks: Duration in weeks
+        adherence: Adherence rate (0.0-1.0)
+        
+    Returns:
+        Dict of {disorder_name: expected_reduction}
+    """
+    efficacy_results = {}
+    
+    for symptom in persona_symptoms:
+        reduction = symptom_engine.calculate_intervention_effect(
+            disorder=symptom.symptom_name,
+            intervention_type=therapy_type,
+            duration_weeks=duration_weeks,
+            adherence=adherence
+        )
+        
+        efficacy_results[symptom.symptom_name] = reduction
+    
+    return efficacy_results
+
+
+def get_disorder_specific_recommendations(
+    disorder_name: str,
+    severity: float,
+    age: int
+) -> Dict:
+    """
+    Get detailed treatment recommendations for a specific disorder.
+    
+    Args:
+        disorder_name: Name of the disorder (e.g., "depression", "ptsd")
+        severity: Severity 0.0-1.0
+        age: Current age
+        
+    Returns:
+        Dict with treatment plan recommendations
+    """
+    if disorder_name not in SYMPTOM_TAXONOMY:
+        return {"error": f"Disorder '{disorder_name}' not found in taxonomy"}
+    
+    disorder_info = SYMPTOM_TAXONOMY[disorder_name]
+    
+    # Get recommended interventions by age
+    age_appropriate = get_recommended_interventions_by_age(age)
+    
+    # Calculate effectiveness for different therapy modalities
+    modalities = []
+    
+    # Try common therapy types
+    common_therapies = {
+        "CBT": "Cognitive Behavioral Therapy",
+        "DBT": "Dialectical Behavior Therapy",
+        "EMDR": "Eye Movement Desensitization and Reprocessing",
+        "ACT": "Acceptance and Commitment Therapy",
+        "medication": "Psychiatric Medication",
+        "psychodynamic": "Psychodynamic Therapy"
+    }
+    
+    for therapy_code, therapy_name in common_therapies.items():
+        try:
+            reduction = symptom_engine.calculate_intervention_effect(
+                disorder=disorder_name,
+                intervention_type=therapy_code,
+                duration_weeks=24,
+                adherence=0.8
+            )
+            
+            modalities.append({
+                "name": therapy_name,
+                "code": therapy_code,
+                "expected_reduction": reduction,
+                "percentage": f"{int(reduction * 100)}%"
+            })
+        except:
+            # Skip if therapy not mapped for this disorder
+            pass
+    
+    # Sort by effectiveness
+    modalities.sort(key=lambda x: x["expected_reduction"], reverse=True)
+    
+    return {
+        "disorder_name": disorder_name,
+        "full_name": disorder_info.get("full_name", disorder_name),
+        "category": disorder_info.get("category", ""),
+        "severity": severity,
+        "severity_label": "severe" if severity >= 0.7 else "moderate" if severity >= 0.4 else "mild",
+        "age": age,
+        "recommended_therapies": modalities[:3],  # Top 3
+        "age_appropriate_interventions": age_appropriate,
+        "common_comorbidities": disorder_info.get("common_comorbidities", [])
+    }
