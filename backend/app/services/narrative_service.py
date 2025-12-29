@@ -151,18 +151,22 @@ def _build_narrative_prompt(
     # Format current trauma markers (symptoms)
     trauma_text = ", ".join(persona.current_trauma_markers) if persona.current_trauma_markers else "None identified"
     
-    prompt = f"""Generate a comprehensive psychological narrative for this persona.
+    prompt = f"""You are a clinical psychologist writing a comprehensive developmental narrative.
+
+**CRITICAL: PATIENT BACKGROUND - USE THIS INFORMATION**
+{persona.baseline_background if persona.baseline_background else "No specific background provided."}
 
 **PERSONA OVERVIEW**
 Name: {persona.name}
 Age: {persona.current_age}
 Gender: {persona.baseline_gender or 'Not specified'}
+Baseline Age: {persona.baseline_age}
 Attachment Style: {persona.current_attachment_style}
 
-**PERSONALITY TRAITS (Big Five)**
+**PERSONALITY TRAITS (Big Five, 0.0-1.0 scale)**
 {personality_text}
 
-**DEVELOPMENTAL TIMELINE**
+**DOCUMENTED EXPERIENCES (Chronological)**
 {experiences_text}
 
 **THERAPEUTIC INTERVENTIONS**
@@ -173,32 +177,54 @@ Trauma Markers/Symptoms: {trauma_text}
 
 ---
 
-**GENERATE A COMPREHENSIVE NARRATIVE WITH THESE SECTIONS:**
+**INSTRUCTIONS:**
+Write a psychologically accurate developmental narrative that:
+
+1. **EXPLICITLY incorporates the background information provided above**
+   - If the background mentions substance-using parents → Discuss impact on attachment, stability, safety, neglect
+   - If the background mentions abuse/trauma → Discuss trauma responses, developmental disruption, betrayal
+   - If the background mentions neglect → Discuss attachment insecurity, unmet needs, emotional dysregulation
+   - If the background mentions molestation/sexual abuse → Discuss trauma, boundary violations, shame, lack of protection
+   - DO NOT invent a "secure attachment" or "nurturing environment" unless the background supports it
+   - DO NOT minimize or ignore severe adversity mentioned in the background
+
+2. **Uses evidence-based developmental psychology**:
+   - Attachment theory (secure, anxious, avoidant, disorganized based on actual caregiving)
+   - Trauma-informed perspective (ACEs, complex trauma, developmental trauma)
+   - Age-appropriate developmental tasks and how adversity disrupted them
+   - Realistic coping mechanisms developed in response to actual environment
+
+3. **Organizes narrative into these sections** (use markdown headers):
 
 ## EXECUTIVE SUMMARY
-(2-3 paragraphs: Who is this person? Core psychological profile, key developmental themes, current functioning level)
+(2-3 paragraphs: Who is this person? Core psychological profile rooted in their ACTUAL background, key developmental themes, current functioning level)
 
 ## DEVELOPMENTAL TIMELINE
-(Chronological narrative: How did experiences shape their development? Connect each event to personality/behavioral changes. Use age markers.)
+(Chronological narrative organized by developmental periods. For each period, describe how the BACKGROUND and experiences shaped development:
+- **Early Childhood (0-6)**: How did the caregiving environment affect attachment? What were the actual conditions?
+- **Middle Childhood (7-11)**: How did early experiences manifest in school/peer relationships?
+- **Adolescence (12-18)**: How did accumulated adversity affect identity formation?
+- **Adulthood (19+)**: Current patterns stemming from developmental history)
 
 ## CURRENT PRESENTATION
-(How they navigate the world: Daily behaviors, relationship patterns, coping mechanisms, emotional regulation, cognitive patterns)
+(How they navigate the world NOW: Daily behaviors, relationship patterns, coping mechanisms, emotional regulation - all connected to their actual background and experiences)
 
 ## TREATMENT RESPONSE
-(If interventions exist: How did therapy help? What changed? What symptoms improved? Include specific impacts.)
+(If interventions exist: How did therapy help? What changed? What symptoms improved? What remains challenging? Be realistic about limitations.)
 
 ## PROGNOSIS & RECOMMENDATIONS
-(Future outlook: What's the trajectory? What additional support needed? Realistic goals? Expected outcomes?)
+(Future outlook based on actual history: What's realistic? What additional support needed? Acknowledge both challenges and strengths)
 
-**GUIDELINES:**
-- Write in professional yet compassionate tone
-- Use psychological terminology accurately
-- Connect experiences to behaviors causally
-- Be specific about symptom manifestations
-- Acknowledge complexity and nuance
+**CRITICAL REQUIREMENTS:**
+- Base ALL analysis on the actual background provided - DO NOT make up a happy childhood
+- If parents were addicted/neglectful → Describe insecure/disorganized attachment
+- If abuse occurred → Describe trauma impact, not "resilience overcame everything"
+- If environment was chaotic → Describe hypervigilance, not "adapted well"
+- Be empathetic but clinically accurate about the REAL impact of adversity
+- Acknowledge protective factors where they exist, but don't minimize trauma
+- Use professional yet accessible language suitable for educational/clinical contexts
 - Total length: 1200-1800 words
-- Use markdown headers for sections
-- Be empathetic but clinical
+- Connect every assertion to actual background/experiences provided
 
 Begin the narrative:"""
 

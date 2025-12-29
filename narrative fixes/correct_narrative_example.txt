@@ -1,0 +1,66 @@
+"""
+CORRECT NARRATIVE EXAMPLE
+
+For Amy (meth-addicted parents, molested by schoolmates)
+
+This is what the narrative SHOULD look like with proper backstory integration.
+"""
+
+CORRECT_NARRATIVE = """
+**Developmental Narrative: Amy**
+
+**Early Childhood (Ages 0-6): Foundations of Insecurity**
+
+Amy's earliest years unfolded in an environment marked by profound instability and neglect. Raised by parents struggling with methamphetamine addiction, she experienced the chaos that characterizes substance-affected households: inconsistent caregiving, emotional unavailability, and periods of complete parental absence. Rather than developing the secure attachment that typically emerges from responsive, attuned caregiving, Amy likely formed a disorganized attachment pattern—alternating between seeking comfort from unpredictable caregivers and withdrawing in self-protection.
+
+The developmental implications of this early environment were significant. Amy's primary developmental task—establishing basic trust—was severely compromised. Where securely attached children learn that the world is safe and that adults are reliable, Amy learned vigilance. Her nervous system, repeatedly activated by household chaos and caregiver unreliability, may have become chronically dysregulated, setting the stage for heightened anxiety and difficulty with emotional regulation in later years.
+
+Despite these challenges, Amy demonstrated remarkable resilience. Her moderate levels of openness and conscientiousness suggest that she found ways to engage with her environment and maintain some sense of order, perhaps through routines at school or relationships with extended family members who provided pockets of stability. These qualities would become protective factors in her later development.
+
+**Middle Childhood (Ages 7-11): Navigating Instability**
+
+As Amy entered school age, the contrast between her home environment and the expectations of the outside world likely became more apparent. Her lower extraversion—manifesting as a preference for smaller, more controlled social settings—may have served as an adaptive response to the unpredictability at home. In quieter, more intimate friendships, Amy could exercise greater control and predict others' behavior, creating the stability she lacked in her primary relationships.
+
+Her emerging lower agreeableness, characterized by a cautious and discerning approach to new relationships, similarly reflects adaptive wariness. Children who cannot trust their primary caregivers often develop heightened skepticism about others' intentions—a protective mechanism that, while potentially limiting social connections, serves to prevent further betrayal or disappointment.
+
+During this period, Amy likely developed sophisticated coping mechanisms to manage the ongoing stress of her home environment. She may have become hyperaware of her parents' moods and states of intoxication, learning to anticipate danger and adjust her behavior accordingly. This vigilance, while exhausting, represented her best effort to maintain safety in an unsafe environment.
+
+**Early Adolescence (Age 12): Trauma Compounded**
+
+At age 12, Amy experienced sexual molestation by three schoolmates—a traumatic event that occurred within the context of her already compromised sense of safety and trust. For Amy, this assault represented not an isolated trauma but a compounding violation that confirmed her worst fears about the unreliability and dangerousness of others.
+
+The impact of this trauma was likely amplified by several factors inherent to her situation:
+
+1. **Lack of Protective Response**: In families where parents are emotionally present and engaged, disclosure of abuse often leads to protection, validation, and intervention. Amy's parents, impaired by addiction, were likely unable to provide this crucial support. The absence of adult protection may have intensified Amy's sense of isolation and reinforced her belief that she must navigate threatening situations alone.
+
+2. **Compounded Betrayal**: The molestation by peers added another layer to Amy's experience of betrayal. Having already learned that primary caregivers cannot be trusted, she now discovered that peers—who might have been a source of support—could also be perpetrators.
+
+3. **Shame and Secrecy**: The secrecy surrounding the abuse, combined with potential self-blame common in adolescent assault survivors, likely intensified Amy's emotional distress. Without a safe adult to disclose to, Amy may have internalized the trauma, experiencing it as confirmation of her worthlessness or inherent badness.
+
+Following this trauma, Amy's pre-existing high neuroticism—already elevated by her chaotic home environment—likely intensified dramatically. Her anxiety, once primarily focused on anticipating parental behavior, may have generalized to a pervasive sense of threat in multiple contexts. Hypervigilance, intrusive memories, and difficulty with emotional regulation would be expected responses to this layered trauma.
+
+**Emerging Patterns and Clinical Considerations**
+
+Amy's developmental trajectory reflects the cumulative impact of multiple adverse childhood experiences (ACEs). Research consistently shows that ACE exposure, particularly when involving both neglect and abuse, significantly increases risk for:
+
+- Complex trauma responses, including difficulties with emotional regulation and interpersonal relationships
+- Heightened anxiety and depressive symptoms
+- Challenges with trust and intimacy in future relationships
+- Increased vulnerability to re-victimization
+- Potential substance use as a maladaptive coping mechanism
+
+Yet Amy's story also reveals protective factors: her conscientiousness suggests an internal drive toward competence and mastery; her openness indicates a capacity for new experiences despite adversity; and her survival itself demonstrates profound resilience.
+
+**Therapeutic Implications**
+
+Any therapeutic approach with Amy would need to be trauma-informed, recognizing that her wariness of others (including therapists) is not pathological resistance but adaptive self-protection. Building safety and trust would necessarily precede any trauma processing work. Interventions might include:
+
+- Trauma-focused therapies (EMDR, CPT, or PE) to process both the sexual assault and the ongoing developmental trauma of neglect
+- DBT skills for emotional regulation and distress tolerance
+- Attachment-based approaches to help Amy develop a secure therapeutic relationship as a corrective emotional experience
+- Psychoeducation about trauma responses to externalize symptoms and reduce self-blame
+
+Amy's narrative reminds us that psychological development does not unfold in isolation but is profoundly shaped by the relational and environmental contexts in which children grow. Her story, while marked by significant adversity, also demonstrates the human capacity for adaptation and the potential for healing when appropriate support and intervention are provided.
+"""
+
+print(CORRECT_NARRATIVE)
