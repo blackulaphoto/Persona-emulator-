@@ -190,6 +190,48 @@ SYMPTOM_TAXONOMY = {
             "hyperarousal"
         ]
     },
+
+    "adjustment_disorder": {
+        "category": "Trauma and Stress Disorders",
+        "dsm_code": "F43.2x",
+        "full_name": "Adjustment Disorder",
+        "symptoms": [
+            "emotional_distress",
+            "anxiety",
+            "depressed_mood",
+            "difficulty_functioning",
+            "social_withdrawal",
+            "sleep_disturbance"
+        ]
+    },
+
+    "prolonged_grief_disorder": {
+        "category": "Trauma and Stress Disorders",
+        "dsm_code": "F43.81",
+        "full_name": "Prolonged Grief Disorder",
+        "symptoms": [
+            "intense_yearning",
+            "preoccupation_with_deceased",
+            "difficulty_accepting_death",
+            "emotional_pain",
+            "avoidance_of_reminders",
+            "identity_disruption"
+        ]
+    },
+
+    "reactive_attachment_disorder": {
+        "category": "Trauma and Stress Disorders",
+        "dsm_code": "F94.1",
+        "full_name": "Reactive Attachment Disorder",
+        "symptoms": [
+            "emotional_withdrawal",
+            "limited_positive_affect",
+            "minimal_social_responsiveness",
+            "unexplained_irritability",
+            "sadness_or_fearfulness",
+            "difficulty_seeking_comfort"
+        ]
+    },
     
     # ============================================
     # PERSONALITY DISORDERS - CLUSTER A
@@ -472,6 +514,22 @@ SYMPTOM_TAXONOMY = {
             "continued_use_despite_problems"
         ]
     },
+
+    "substance_use_disorder": {
+        "category": "Substance Use Disorders",
+        "dsm_code": "F1x.xx",
+        "full_name": "Substance Use Disorder (Unspecified)",
+        "symptoms": [
+            "tolerance",
+            "withdrawal",
+            "using_more_than_intended",
+            "unsuccessful_efforts_to_cut_down",
+            "time_spent_obtaining_substances",
+            "craving",
+            "continued_use_despite_problems",
+            "failure_to_fulfill_obligations"
+        ]
+    },
     
     # ============================================
     # SOMATIC SYMPTOM DISORDERS
@@ -682,6 +740,19 @@ SYMPTOM_TAXONOMY = {
             "pedophilic",
             "fetishistic",
             "transvestic"
+        ]
+    },
+
+    "sexual_dysfunction": {
+        "category": "Sexual Disorders",
+        "dsm_code": "F52.x",
+        "full_name": "Sexual Dysfunction (Unspecified)",
+        "symptoms": [
+            "low_sexual_desire",
+            "arousal_difficulty",
+            "pain_during_sex",
+            "anxiety_about_sex",
+            "avoidance_of_sexual_activity"
         ]
     },
     

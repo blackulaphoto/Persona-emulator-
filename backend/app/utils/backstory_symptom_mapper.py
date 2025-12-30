@@ -35,16 +35,16 @@ def analyze_backstory_for_symptoms(
     # SUBSTANCE USE IN CAREGIVERS
     # ========================================
     if any(keyword in backstory_lower for keyword in [
-        "meth", "methamphetamine", "heroin", "cocaine", "crack",
-        "drug addict", "alcoholic", "drinking", "drunk",
-        "substance abuse", "drug use", "overdose"
+        "meth", "methamphetamine", "opioid", "heroin", "cocaine", "crack",
+        "drug addict", "addicted", "alcoholic", "alcoholism", "drinking", "drunk",
+        "substance abuse", "substance use", "drug use", "overdose", "rehab"
     ]):
         # Attachment disorder - CRITICAL for children with addicted parents
         if baseline_age <= 12:
             initial_symptoms.append({
                 "disorder_name": "reactive_attachment_disorder",
                 "severity": 0.75,
-                "category": "Trauma and Stress-Related Disorders",
+                "category": "Trauma and Stress Disorders",
                 "symptom_details": {
                     "emotional_withdrawal": 0.8,
                     "minimal_social_responsiveness": 0.7,
@@ -58,7 +58,7 @@ def analyze_backstory_for_symptoms(
         initial_symptoms.append({
             "disorder_name": "complex_ptsd",
             "severity": 0.65,
-            "category": "Trauma and Stress-Related Disorders",
+            "category": "Trauma and Stress Disorders",
             "symptom_details": {
                 "hypervigilance": 0.8,
                 "emotional_dysregulation": 0.7,
@@ -86,14 +86,15 @@ def analyze_backstory_for_symptoms(
     # SEXUAL ABUSE / MOLESTATION
     # ========================================
     if any(keyword in backstory_lower for keyword in [
-        "molest", "sexual abuse", "raped", "assault", "fondled",
-        "inappropriate touch", "sexually abused"
+        "molest", "molested", "sexual abuse", "sexual assault", "raped", "rape",
+        "assault", "fondled", "groped", "inappropriate touch", "sexually abused",
+        "incest"
     ]):
         # PTSD - PRIMARY diagnosis for sexual trauma
         initial_symptoms.append({
             "disorder_name": "ptsd",
             "severity": 0.85,
-            "category": "Trauma and Stress-Related Disorders",
+            "category": "Trauma and Stress Disorders",
             "symptom_details": {
                 "intrusive_memories": 0.9,
                 "avoidance": 0.8,
@@ -107,7 +108,7 @@ def analyze_backstory_for_symptoms(
         initial_symptoms.append({
             "disorder_name": "complex_ptsd",
             "severity": 0.8,
-            "category": "Trauma and Stress-Related Disorders",
+            "category": "Trauma and Stress Disorders",
             "symptom_details": {
                 "affect_dysregulation": 0.85,
                 "negative_self_concept": 0.9,
@@ -134,13 +135,13 @@ def analyze_backstory_for_symptoms(
     # PHYSICAL ABUSE
     # ========================================
     if any(keyword in backstory_lower for keyword in [
-        "hit", "beaten", "whipped", "physical abuse", "violence",
-        "bruises", "hurt", "punched", "kicked"
+        "hit", "beaten", "beating", "whipped", "physical abuse", "physically abused",
+        "violence", "bruises", "hurt", "punched", "kicked", "slapped", "choked"
     ]):
         initial_symptoms.append({
             "disorder_name": "ptsd",
             "severity": 0.7,
-            "category": "Trauma and Stress-Related Disorders",
+            "category": "Trauma and Stress Disorders",
             "symptom_details": {
                 "intrusive_memories": 0.75,
                 "avoidance": 0.7,
@@ -165,14 +166,15 @@ def analyze_backstory_for_symptoms(
     # NEGLECT
     # ========================================
     if any(keyword in backstory_lower for keyword in [
-        "neglect", "ignored", "abandoned", "left alone",
-        "no food", "starving", "dirty", "uncared for"
+        "neglect", "neglected", "ignored", "abandoned", "left alone",
+        "no food", "starving", "dirty", "uncared for", "unattended",
+        "no supervision", "left for days", "forgotten"
     ]):
         if baseline_age <= 12:
             initial_symptoms.append({
                 "disorder_name": "reactive_attachment_disorder",
                 "severity": 0.7,
-                "category": "Trauma and Stress-Related Disorders",
+                "category": "Trauma and Stress Disorders",
                 "symptom_details": {
                     "emotional_withdrawal": 0.75,
                     "minimal_social_responsiveness": 0.7,
@@ -197,13 +199,14 @@ def analyze_backstory_for_symptoms(
     # DOMESTIC VIOLENCE (WITNESSED)
     # ========================================
     if any(keyword in backstory_lower for keyword in [
-        "domestic violence", "parents fighting", "hit my mother",
-        "witnessed violence", "saw violence"
+        "domestic violence", "parents fighting", "violent fights",
+        "hit my mother", "hit my father", "witnessed violence",
+        "saw violence", "screaming matches", "threatened at home"
     ]):
         initial_symptoms.append({
             "disorder_name": "ptsd",
             "severity": 0.65,
-            "category": "Trauma and Stress-Related Disorders",
+            "category": "Trauma and Stress Disorders",
             "symptom_details": {
                 "intrusive_memories": 0.7,
                 "hyperarousal": 0.75,
@@ -228,8 +231,8 @@ def analyze_backstory_for_symptoms(
     # BULLYING / PEER VICTIMIZATION
     # ========================================
     if any(keyword in backstory_lower for keyword in [
-        "bullied", "picked on", "teased", "excluded",
-        "rejected by peers", "no friends"
+        "bullied", "bullying", "picked on", "teased", "excluded",
+        "rejected by peers", "no friends", "harassed", "ostracized"
     ]):
         initial_symptoms.append({
             "disorder_name": "social_anxiety",
@@ -260,7 +263,8 @@ def analyze_backstory_for_symptoms(
     # ========================================
     if any(keyword in backstory_lower for keyword in [
         "poor", "poverty", "homeless", "no money",
-        "couldn't afford", "financial stress"
+        "couldn't afford", "financial stress", "evicted",
+        "food insecurity", "broke", "unemployed"
     ]):
         initial_symptoms.append({
             "disorder_name": "generalized_anxiety",
@@ -279,12 +283,13 @@ def analyze_backstory_for_symptoms(
     # ========================================
     if any(keyword in backstory_lower for keyword in [
         "sick", "illness", "disease", "disability",
-        "cancer", "chronic condition"
+        "cancer", "chronic condition", "terminal",
+        "hospitalized", "medical condition"
     ]):
         initial_symptoms.append({
             "disorder_name": "adjustment_disorder",
             "severity": 0.5,
-            "category": "Trauma and Stress-Related Disorders",
+            "category": "Trauma and Stress Disorders",
             "symptom_details": {
                 "anxiety": 0.55,
                 "depressed_mood": 0.5,
@@ -298,12 +303,12 @@ def analyze_backstory_for_symptoms(
     # ========================================
     if any(keyword in backstory_lower for keyword in [
         "died", "death", "passed away", "lost my",
-        "orphaned", "funeral"
+        "orphaned", "funeral", "killed"
     ]):
         initial_symptoms.append({
             "disorder_name": "prolonged_grief_disorder",
             "severity": 0.65,
-            "category": "Trauma and Stress-Related Disorders",
+            "category": "Trauma and Stress Disorders",
             "symptom_details": {
                 "intense_yearning": 0.7,
                 "preoccupation_with_deceased": 0.65,
@@ -320,6 +325,83 @@ def analyze_backstory_for_symptoms(
                 "depressed_mood": 0.7,
                 "anhedonia": 0.6,
                 "sleep_disturbance": 0.55
+            },
+            "onset_age": baseline_age
+        })
+
+    # ========================================
+    # PARENTAL DIVORCE / ABANDONMENT / SEPARATION
+    # ========================================
+    if any(keyword in backstory_lower for keyword in [
+        "divorce", "divorced", "separated", "separation",
+        "father left", "mother left", "abandoned",
+        "left the family", "foster care", "placement"
+    ]):
+        if baseline_age <= 12:
+            initial_symptoms.append({
+                "disorder_name": "reactive_attachment_disorder",
+                "severity": 0.6,
+                "category": "Trauma and Stress Disorders",
+                "symptom_details": {
+                    "emotional_withdrawal": 0.65,
+                    "minimal_social_responsiveness": 0.6,
+                    "limited_positive_affect": 0.6
+                },
+                "onset_age": baseline_age
+            })
+
+        initial_symptoms.append({
+            "disorder_name": "adjustment_disorder",
+            "severity": 0.55,
+            "category": "Trauma and Stress Disorders",
+            "symptom_details": {
+                "emotional_distress": 0.6,
+                "anxiety": 0.55,
+                "difficulty_functioning": 0.5
+            },
+            "onset_age": baseline_age
+        })
+
+        initial_symptoms.append({
+            "disorder_name": "generalized_anxiety",
+            "severity": 0.5,
+            "category": "Anxiety Disorders",
+            "symptom_details": {
+                "excessive_worry": 0.6,
+                "restlessness": 0.5,
+                "sleep_disturbance": 0.5
+            },
+            "onset_age": baseline_age
+        })
+
+    # ========================================
+    # EMOTIONAL / VERBAL ABUSE
+    # ========================================
+    if any(keyword in backstory_lower for keyword in [
+        "emotional abuse", "emotionally abused", "verbal abuse",
+        "verbally abused", "humiliated", "belittled",
+        "constant criticism", "yelled at"
+    ]):
+        initial_symptoms.append({
+            "disorder_name": "complex_ptsd",
+            "severity": 0.6,
+            "category": "Trauma and Stress Disorders",
+            "symptom_details": {
+                "emotional_dysregulation": 0.65,
+                "negative_self_concept": 0.7,
+                "relationship_difficulties": 0.6
+            },
+            "onset_age": baseline_age
+        })
+
+        initial_symptoms.append({
+            "disorder_name": "depression",
+            "severity": 0.55,
+            "category": "Mood Disorders",
+            "symptom_details": {
+                "depressed_mood": 0.6,
+                "worthlessness": 0.65,
+                "anhedonia": 0.55
             },
             "onset_age": baseline_age
         })

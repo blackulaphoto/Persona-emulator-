@@ -22,13 +22,14 @@ class SymptomAssessmentEngine:
             "ptsd": 0.7,
             "complex_ptsd": 0.5,
             "depression": 0.6,
-            "anxiety": 0.5,
-            "substance_use": 0.4
+            "generalized_anxiety": 0.5,
+            "substance_use_disorder": 0.4
         },
         "neglect": {
-            "attachment_disorder": 0.8,
+            "reactive_attachment_disorder": 0.8,
             "depression": 0.6,
-            "personality_disorders": 0.5,
+            "avoidant_personality": 0.4,
+            "dependent_personality": 0.3,
             "complex_ptsd": 0.6
         },
         "abuse": {
@@ -36,18 +37,18 @@ class SymptomAssessmentEngine:
             "complex_ptsd": 0.7,
             "borderline_personality": 0.6,
             "depression": 0.7,
-            "substance_use": 0.5
+            "substance_use_disorder": 0.5
         },
         "loss": {
             "depression": 0.7,
-            "complicated_grief": 0.6,
-            "anxiety": 0.4,
-            "substance_use": 0.3
+            "prolonged_grief_disorder": 0.6,
+            "generalized_anxiety": 0.4,
+            "substance_use_disorder": 0.3
         },
         "achievement": {
             "narcissistic_personality": 0.2,  # Can develop if excessive praise
-            "perfectionism": 0.3,
-            "anxiety": 0.2  # Performance anxiety
+            "obsessive_compulsive_personality": 0.3,
+            "generalized_anxiety": 0.2  # Performance anxiety
         },
         "social_isolation": {
             "social_anxiety": 0.6,
@@ -62,36 +63,34 @@ class SymptomAssessmentEngine:
             "avoidant_personality": 0.4
         },
         "parental_substance_use": {
-            "substance_use": 0.6,  # Modeling
-            "anxiety": 0.5,
-            "attachment_issues": 0.6,
-            "codependency": 0.5
+            "substance_use_disorder": 0.6,  # Modeling
+            "generalized_anxiety": 0.5,
+            "reactive_attachment_disorder": 0.6,
+            "dependent_personality": 0.4
         },
         "domestic_violence": {
             "ptsd": 0.8,
             "complex_ptsd": 0.7,
             "depression": 0.6,
-            "anxiety": 0.7,
-            "relationship_difficulties": 0.7
+            "generalized_anxiety": 0.7
         },
         "sexual_abuse": {
             "ptsd": 0.9,
             "complex_ptsd": 0.8,
             "hypersexuality": 0.4,  # Maladaptive coping
             "sexual_dysfunction": 0.6,
-            "borderline_personality": 0.5,
-            "dissociation": 0.7
+            "borderline_personality": 0.5
         },
         "financial_instability": {
-            "anxiety": 0.6,
+            "generalized_anxiety": 0.6,
             "depression": 0.4,
-            "hoarding": 0.3,  # Scarcity mindset
+            "hoarding_disorder": 0.3,  # Scarcity mindset
             "kleptomania": 0.1
         },
         "chronic_illness": {
             "depression": 0.6,
-            "anxiety": 0.5,
-            "illness_anxiety": 0.4,
+            "generalized_anxiety": 0.5,
+            "illness_anxiety_disorder": 0.4,
             "somatic_symptom_disorder": 0.3
         },
         "peer_rejection": {
@@ -103,10 +102,13 @@ class SymptomAssessmentEngine:
     
     # Age multipliers (younger = more impact for certain disorders)
     AGE_VULNERABILITY = {
-        "attachment_disorder": {"max_age": 5, "multiplier": 2.0},
+        "reactive_attachment_disorder": {"max_age": 5, "multiplier": 2.0},
         "complex_ptsd": {"max_age": 12, "multiplier": 1.5},
-        "personality_disorders": {"max_age": 18, "multiplier": 1.3},
-        "substance_use": {"min_age": 13, "max_age": 25, "multiplier": 1.4}
+        "borderline_personality": {"max_age": 18, "multiplier": 1.3},
+        "avoidant_personality": {"max_age": 18, "multiplier": 1.3},
+        "dependent_personality": {"max_age": 18, "multiplier": 1.3},
+        "obsessive_compulsive_personality": {"max_age": 18, "multiplier": 1.3},
+        "substance_use_disorder": {"min_age": 13, "max_age": 25, "multiplier": 1.4}
     }
     
     # Severity multipliers
