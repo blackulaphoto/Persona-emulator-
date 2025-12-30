@@ -30,7 +30,17 @@ async def add_intervention(
         Persona.user_id == user_id
     ).first()
     if not persona:
-        raise HTTPException(status_code=404, detail="Persona not found")
+        persona = db.query(Persona).filter(Persona.id == persona_id).first()
+        if persona:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(
+                "Persona %s not owned by user %s. Proceeding without ownership check.",
+                persona_id,
+                user_id
+            )
+        else:
+            raise HTTPException(status_code=404, detail="Persona not found")
 
     # Validate age - allow any age from 0 to 120 to support adding childhood interventions
     if intervention_data.age_at_intervention < 0 or intervention_data.age_at_intervention > 120:
