@@ -90,7 +90,8 @@ async def create_persona(
         # Deduplicate if multiple backstory elements triggered same disorder
         initial_symptoms = deduplicate_symptoms(initial_symptoms)
 
-        # Create PersonaSymptom records
+        # Create PersonaSymptom records AND update current_trauma_markers
+        trauma_markers = []
         for symptom_data in initial_symptoms:
             persona_symptom = PersonaSymptom(
                 persona_id=persona.id,
@@ -102,8 +103,12 @@ async def create_persona(
             )
             db.add(persona_symptom)
 
-        # Commit symptoms
-        if initial_symptoms:
+            # Add to current_trauma_markers for frontend display
+            trauma_markers.append(symptom_data["disorder_name"])
+
+        # Update persona's current_trauma_markers field
+        if trauma_markers:
+            persona.current_trauma_markers = trauma_markers
             db.commit()
 
     # Convert to dict and add counts
