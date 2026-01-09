@@ -7,7 +7,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useAuth } from "@/contexts/AuthContext";
+// Switched to relative path to avoid alias‑resolution build errors
+import { useAuth } from "../contexts/AuthContext";
 
 export default function LandingPage() {
   const router = useRouter();
