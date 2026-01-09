@@ -21,6 +21,15 @@ module.exports = {
         moss: '#5B6B4D',
         charcoal: '#2D3136',
 
+        // Splash page palette (avoid arbitrary hex classes)
+        'splash-bg-1': '#0F1115',
+        'splash-bg-2': '#1F2632',
+        'splash-bg-3': '#101216',
+        'splash-bg-4': '#0c0d0f',
+        'splash-card': '#14161B',
+        'splash-accent': '#6366F1',
+        'splash-text': '#C7D2FE',
+
         // APPLE-INSPIRED THEME (new)
         // Backgrounds
         'apple-bg': {

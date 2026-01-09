@@ -59,17 +59,17 @@ export default function LandingPage() {
   // ----- LOADING STATE ----------------------------------------------------------
   if (isChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0F1115] via-[#1F2632] to-[#101216]">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-splash-bg-1 via-splash-bg-2 to-splash-bg-3">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#6366F1] border-t-transparent mx-auto mb-4" />
-          <p className="text-[#C7D2FE] font-['Outfit']">Loading...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-splash-accent border-t-transparent mx-auto mb-4" />
+          <p className="text-splash-text font-['Outfit']">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden bg-[#0c0d0f] text-white">
+    <div className="min-h-screen relative overflow-x-hidden bg-splash-bg-4 text-white">
       {/* BACKGROUND GLOW & LINES --------------------------------------------------*/}
       <div className="pointer-events-none select-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_at_center,rgba(255,255,255,0.8)_0%,transparent_70%)]">
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-fuchsia-500/10 to-purple-600/5" />
@@ -103,7 +103,7 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 1, ease: "easeOut" }}
-          className="mt-8 max-w-2xl mx-auto text-lg md:text-xl text-[#C7D2FE]/90">
+          className="mt-8 max-w-2xl mx-auto text-lg md:text-xl text-splash-text/90">
           A psychological simulation engine that <span className="font-semibold">models how life experiences shape personality</span> over time.
         </motion.p>
 
@@ -117,7 +117,7 @@ export default function LandingPage() {
       </section>
 
       {/* FEATURES -----------------------------------------------------------------*/}
-      <section className="relative py-24 px-6 md:px-12 lg:px-24 bg-[#0c0d0f]">
+      <section className="relative py-24 px-6 md:px-12 lg:px-24 bg-splash-bg-4">
         <h2 className="text-center text-3xl md:text-4xl font-semibold mb-16 bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-purple-400 bg-clip-text text-transparent">
           Why It’s Different
         </h2>
@@ -142,7 +142,7 @@ export default function LandingPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: idx * 0.15 }}
-              className="p-8 rounded-2xl bg-[#14161B] backdrop-blur-xl ring-1 ring-white/5 hover:ring-fuchsia-500/40 shadow-xl shadow-black/30 flex flex-col justify-between group">
+              className="p-8 rounded-2xl bg-splash-card backdrop-blur-xl ring-1 ring-white/5 hover:ring-fuchsia-500/40 shadow-xl shadow-black/30 flex flex-col justify-between group">
               <div>
                 <h3 className="text-xl font-semibold mb-4 text-white/90 group-hover:text-fuchsia-400">
                   {item.title}
