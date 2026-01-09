@@ -1,7 +1,7 @@
 "use client";
 
-// Enhanced Landing Page – Persona Evolution Simulator
-// High‑impact, futuristic redesign with bold gradients, dynamic reflections and motion
+// Enhanced Landing Page - Persona Evolution Simulator
+// High-impact, futuristic redesign with bold gradients, dynamic reflections and motion
 // Route: /  (root)
 
 import { useState, useEffect } from "react";
@@ -16,7 +16,7 @@ export default function LandingPage() {
   const [activeQuestion, setActiveQuestion] = useState(0);
   const [isChecking, setIsChecking] = useState(true);
 
-  // ----- SCROLL‑BASED PARALLAX --------------------------------------------------
+  // ----- SCROLL-BASED PARALLAX --------------------------------------------------
   const { scrollY } = useScroll();
   const headingY = useTransform(scrollY, [0, 600], [0, 200]);
   const headingOpacity = useTransform(scrollY, [0, 600], [1, 0]);
@@ -123,15 +123,15 @@ export default function LandingPage() {
         <div className="grid gap-12 md:grid-cols-3 max-w-6xl mx-auto">
           {[
             {
-              title: "Hyper‑Realistic Personas",
-              desc: "Built with data‑driven psychological modeling and machine learning algorithms that grow with every simulation.",
+              title: "Hyper-Realistic Personas",
+              desc: "Built with data-driven psychological modeling and machine learning algorithms that grow with every simulation.",
             },
             {
-              title: "Live Time‑Warp Scenarios",
-              desc: "Fast‑forward and rewind through pivotal life events with real‑time personality adaptation.",
+              title: "Live Time-Warp Scenarios",
+              desc: "Fast-forward and rewind through pivotal life events with real-time personality adaptation.",
             },
             {
-              title: "Research‑Grade Insights",
+              title: "Research-Grade Insights",
               desc: "Visualize OCEAN trait deltas, resilience curves and growth charts inside an intuitive dashboard.",
             },
           ].map((item, idx) => (
