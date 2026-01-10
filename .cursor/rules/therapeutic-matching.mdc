@@ -1,5 +1,5 @@
 ---
-description: Technical specification for therapeutic intervention matching and efficacy calculation algorithms
+description: Technical specifications for therapeutic intervention matching algorithms and efficacy scoring systems
 ---
 
 # === USER INSTRUCTIONS ===
@@ -88,57 +88,92 @@ Key Matching Logic:
 $END$
 
  If you're using this file in context, clearly say in italics in one small line that "Context added by Giga therapeutic-matching" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.
-# === END USER INSTRUCTIONS ===
 
-# therapeutic-matching
-
+description: Technical specification for therapeutic intervention matching and efficacy calculation algorithms
 ## Core Components
-
 ### Intervention Analysis Engine
 Path: `backend/app/services/intervention_engine.py`
-Importance Score: 90/100
-
 - Calculates therapy match scores using evidence-based criteria
 - Evaluates intervention efficacy based on symptom profiles and age factors
 - Tracks therapeutic outcomes through symptom changes
 - Models sustained effects and intervention limitations
 - Considers developmental stage appropriateness for interventions
-
 ### Therapy Database System
 Path: `backend/app/utils/therapy_database.py`
-Importance Score: 80/100
-
 - Maintains profiles of evidence-based therapy modalities
 - Maps presenting symptoms to appropriate therapeutic approaches
 - Calculates therapy-symptom compatibility scores
 - Defines therapy duration and intensity requirements
 - Models therapy limitations and effectiveness boundaries
-
 ## Match Scoring Logic
-
 The therapeutic matching system implements:
-
 1. Symptom-Based Mapping
 - Direct correlation between symptom profiles and therapy modalities
 - Evidence-based efficacy scoring for each symptom-therapy pair
 - Consideration of symptom severity in match calculations
-
 2. Age-Appropriate Filtering
 - Developmental stage validation for intervention appropriateness
 - Age-specific therapy modification requirements
 - Adjustment of match scores based on developmental factors
-
 3. Efficacy Prediction
 - Calculation of expected intervention outcomes
 - Tracking of symptom changes through therapeutic progression
 - Modeling of sustained therapeutic effects
 - Analysis of intervention limitations
-
 4. Outcome Monitoring
 - Therapeutic progress tracking
 - Symptom severity change documentation
 - Personality trait evolution monitoring
 - Cross-experience trigger analysis
+# === END USER INSTRUCTIONS ===
+
+# therapeutic-matching
+
+The therapeutic matching system implements evidence-based therapy pairing algorithms through multiple specialized components:
+
+## Intervention Engine
+Importance Score: 95/100
+
+Located in: backend/app/services/intervention_engine.py
+- Calculates therapy match scores based on symptom profiles and developmental stages
+- Implements age-appropriate intervention filtering
+- Applies developmental impact multipliers for therapy efficacy
+- Models therapy duration requirements and effectiveness patterns
+- Maps specific symptoms to appropriate therapeutic modalities
+
+## Therapy Database
+Importance Score: 90/100
+
+Located in: backend/app/utils/therapy_database.py
+- Evidence-based therapy classification system
+- Maps disorders to recommended therapeutic approaches
+- Implements therapy limitations and contraindications
+- Maintains efficacy scores for different intervention types
+- Models therapy duration patterns and success indicators
+
+## Assessment Engine 
+Importance Score: 85/100
+
+Located in: backend/app/utils/symptom_assessment_engine.py
+- Calculates intervention effectiveness based on disorder type
+- Maps experiences to disorder probabilities
+- Models symptom progression patterns
+- Evaluates therapy response likelihood
+- Implements severity-based intervention matching
+
+Core Matching Logic:
+1. Symptom severity assessment
+2. Developmental stage evaluation
+3. Intervention efficacy scoring
+4. Therapy modality mapping
+5. Duration/intensity calculations
+
+The system prioritizes clinical accuracy through:
+- Evidence-based therapy matching
+- Age-appropriate interventions
+- Symptom severity considerations
+- Developmental stage alignment
+- Contraindication checking
 
 $END$
 

@@ -1,6 +1,7 @@
 /**
  * Reusable Help Components
- * Adapted for Apple design system
+ * 
+ * Use these throughout your app for consistent contextual help
  */
 
 'use client';
@@ -44,7 +45,7 @@ export function Tooltip({ content, position = 'top', children }: TooltipProps) {
         {children || (
           <button
             type="button"
-            className="w-5 h-5 rounded-full bg-apple-blue-100 text-apple-blue-600 flex items-center justify-center text-xs font-bold hover:bg-apple-blue-200 transition-colors cursor-help"
+            className="w-5 h-5 rounded-full bg-accent-100 text-accent-700 flex items-center justify-center text-xs font-bold hover:bg-accent-200 transition-colors cursor-help"
           >
             ?
           </button>
@@ -53,11 +54,11 @@ export function Tooltip({ content, position = 'top', children }: TooltipProps) {
       
       {show && (
         <div className={`absolute z-50 ${positionClasses[position]}`}>
-          <div className="w-80 max-w-sm p-3 bg-white border border-apple-border rounded-lg shadow-xl text-sm animate-fade-in">
+          <div className="w-80 max-w-sm p-3 bg-white border border-border rounded-lg shadow-xl text-sm animate-fade-in">
             <div className={`absolute w-3 h-3 bg-white transform rotate-45 ${arrowClasses[position]}`} />
             <div className="relative z-10">
               {typeof content === 'string' ? (
-                <p className="text-apple-text-primary">{content}</p>
+                <p className="text-text-primary">{content}</p>
               ) : (
                 content
               )}
@@ -80,17 +81,17 @@ interface HelpTextProps {
 
 export function HelpText({ children, type = 'info' }: HelpTextProps) {
   const styles = {
-    info: 'bg-apple-blue-50 border-apple-blue-200 text-apple-blue-800',
-    tip: 'bg-apple-green/10 border-apple-green/30 text-green-800',
-    warning: 'bg-apple-orange/10 border-apple-orange/30 text-orange-800'
+    info: 'bg-accent-50 border-accent-200 text-accent-800',
+    tip: 'bg-success-light border-success text-success-dark',
+    warning: 'bg-warning-light border-warning text-warning-dark'
   };
-
+  
   const icons = {
-    info: 'i',
-    tip: 'TIP',
-    warning: '!'
+    info: 'ℹ️',
+    tip: '💡',
+    warning: '⚠️'
   };
-
+  
   return (
     <div className={`mt-2 p-3 border rounded-lg text-sm ${styles[type]}`}>
       <span className="mr-2">{icons[type]}</span>
@@ -111,32 +112,32 @@ interface ExampleProps {
 
 export function Examples({ title, examples, defaultOpen = false }: ExampleProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
-
+  
   return (
     <div className="mt-3">
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="text-sm text-apple-blue-500 hover:text-apple-blue-600 font-medium flex items-center gap-2 transition-colors"
+        className="text-sm text-accent-600 hover:text-accent-700 font-medium flex items-center gap-2 transition-colors"
       >
         <span className="transform transition-transform" style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
           ▶
         </span>
         {title}
       </button>
-
+      
       {isOpen && (
-        <div className="mt-3 space-y-3 bg-apple-bg-tertiary border border-apple-border rounded-lg p-4 animate-slide-down">
+        <div className="mt-3 space-y-3 bg-primary-50 border border-primary-200 rounded-lg p-4 animate-slide-down">
           {examples.map((example, i) => (
-            <div key={i} className="border-l-4 border-apple-blue-500 pl-3">
+            <div key={i} className="border-l-4 border-accent-500 pl-3">
               {typeof example === 'string' ? (
-                <p className="text-sm text-apple-text-secondary italic">"{example}"</p>
+                <p className="text-sm text-text-secondary italic">"{example}"</p>
               ) : (
                 <>
-                  <p className="text-sm font-medium text-apple-blue-600 mb-1">
+                  <p className="text-sm font-medium text-accent-700 mb-1">
                     {example.label}
                   </p>
-                  <p className="text-sm text-apple-text-secondary italic leading-relaxed">
+                  <p className="text-sm text-text-secondary italic leading-relaxed">
                     "{example.text}"
                   </p>
                 </>
@@ -160,14 +161,14 @@ interface ChecklistProps {
 
 export function Checklist({ title, items }: ChecklistProps) {
   return (
-    <div className="bg-apple-blue-50 border border-apple-blue-200 rounded-lg p-4">
-      <p className="text-sm font-semibold text-apple-blue-800 mb-3">
+    <div className="bg-accent-50 border border-accent-200 rounded-lg p-4">
+      <p className="text-sm font-semibold text-accent-800 mb-3">
         {title}
       </p>
       <ul className="space-y-2">
         {items.map((item, i) => (
-          <li key={i} className="text-sm text-apple-text-secondary flex items-start gap-2">
-            <span className="text-apple-blue-600 font-bold mt-0.5">•</span>
+          <li key={i} className="text-sm text-text-secondary flex items-start gap-2">
+            <span className="text-accent-600 font-bold mt-0.5">•</span>
             <span>{item}</span>
           </li>
         ))}
@@ -194,11 +195,11 @@ export function FAQ({ items }: FAQProps) {
     <div className="space-y-2">
       {items.map((item, i) => (
         <details key={i} className="group">
-          <summary className="text-sm font-medium text-apple-blue-600 cursor-pointer hover:text-apple-blue-700 list-none flex items-center gap-2">
+          <summary className="text-sm font-medium text-accent-600 cursor-pointer hover:text-accent-700 list-none flex items-center gap-2">
             <span className="transform transition-transform group-open:rotate-90">▶</span>
             {item.question}
           </summary>
-          <div className="mt-2 pl-6 text-sm text-apple-text-secondary">
+          <div className="mt-2 pl-6 text-sm text-text-secondary">
             {typeof item.answer === 'string' ? (
               <p>{item.answer}</p>
             ) : (
@@ -222,11 +223,9 @@ interface SidebarHelpProps {
 
 export function SidebarHelp({ title, children }: SidebarHelpProps) {
   return (
-    <div className="sticky top-24 bg-white rounded-apple-lg border border-apple-border shadow-apple-md">
-      <div className="px-6 py-4 border-b border-apple-border">
-        <h3 className="font-semibold text-apple-text-primary flex items-center gap-2">
-          <span className="text-apple-blue-600">?</span> {title}
-        </h3>
+    <div className="sidebar sticky top-24">
+      <div className="sidebar-header">
+        💡 {title}
       </div>
       <div className="p-6 space-y-4">
         {children}

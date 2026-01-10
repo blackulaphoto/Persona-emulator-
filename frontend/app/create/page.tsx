@@ -166,7 +166,7 @@ export default function CreatePersonaPage() {
 
                   {/* What to include checklist */}
                   <Checklist
-                    title="📝 What to include:"
+                    title="What to include:"
                     items={HELP_CONTENT.persona.backstory.whatToInclude}
                   />
 

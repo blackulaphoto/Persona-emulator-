@@ -1,5 +1,5 @@
 ---
-description: Defines data flow patterns between psychological modeling and therapeutic intervention components
+description: Documents data flow patterns between major psychological simulation components
 ---
 
 # === USER INSTRUCTIONS ===
@@ -116,63 +116,104 @@ Core Data Exchange Objects:
 $END$
 
  If you're using this file in context, clearly say in italics in one small line that "Context added by Giga component-dataflow" along with specifying exactly what information was used from this file in a human-friendly way, instead of using kebab-case use normal sentence case.
-# === END USER INSTRUCTIONS ===
 
-# component-dataflow
-
+description: Defines data flow patterns between psychological modeling and therapeutic intervention components
 Core Data Flow Pathways:
-
 1. Psychology Engine → Intervention Engine
 - Personality trait evolution data
 - Symptom severity metrics
 - Trauma impact calculations
 - Trigger pattern analysis
-Importance Score: 95/100
-
 2. Developmental Framework → Psychology Engine
 - Age-specific vulnerability factors
 - Developmental stage multipliers
 - Resilience factor metrics
 - Stage-appropriate coping data
 Importance Score: 85/100
-
 3. Psychology Engine → Therapy Database
 - Current symptom profiles
 - Personality trait states
 - Impact severity metrics
 - Cross-experience patterns
-Importance Score: 90/100
-
 4. Intervention Engine → Therapy Database
 - Therapy efficacy scores
 - Intervention match criteria
 - Treatment duration requirements
 - Outcome predictions
-Importance Score: 80/100
-
 Primary Data Integration Points:
-
 1. Developmental Stage Integration
 - Age factors → Psychology Engine
 - Stage metrics → Intervention Analysis
 - Developmental tasks → Therapy Matching
-
 2. Therapeutic Response Flow
 - Symptom changes → Psychology Engine
 - Treatment effects → Personality Evolution
 - Outcome data → Intervention Adjustments
-
 3. Cross-Component Validation
 - Therapy recommendations ↔ Development stage
 - Intervention efficacy ↔ Personality traits
 - Treatment matching ↔ Symptom profiles
-
 Key Data Exchange Patterns:
 - Bidirectional trauma impact assessment
 - Continuous personality trait updates
 - Real-time intervention efficacy tracking
 - Dynamic therapy matching adjustments
 - Cross-validated treatment recommendations
+# === END USER INSTRUCTIONS ===
+
+# component-dataflow
+
+Core data flow paths between major system components:
+
+1. Psychology Engine -> Intervention Engine
+- Sends trauma analysis results and symptom severity scores
+- Transmits developmental stage markers 
+- Forwards personality trait modifications
+- Importance Score: 95/100
+
+2. Intervention Engine -> Psychology Engine 
+- Returns therapy efficacy scores
+- Sends intervention impact calculations
+- Provides therapy outcome predictions
+- Importance Score: 90/100
+
+3. Symptom Assessment -> Psychology Engine
+- Maps experiences to disorder probabilities
+- Transmits severity scoring data
+- Sends comorbidity pattern analysis
+- Importance Score: 85/100
+
+4. Psychology Engine -> Narrative Generation
+- Provides personality evolution data
+- Sends developmental timeline markers
+- Transmits therapeutic response patterns
+- Importance Score: 80/100
+
+5. Timeline Snapshot System -> Remix Service
+- Captures psychological state markers
+- Transmits intervention timing data
+- Sends personality change deltas
+- Importance Score: 75/100
+
+Key Integration Points:
+
+1. Trauma Analysis Pipeline
+backend/app/utils/backstory_symptom_mapper.py -> backend/app/utils/symptom_assessment_engine.py
+- Experience mapping
+- Clinical symptom correlation
+- Severity calculations
+
+2. Therapy Response Flow
+backend/app/utils/therapy_database.py -> backend/app/utils/developmental_stages.py
+- Intervention matching
+- Age-appropriate adjustments
+- Efficacy scoring
+
+3. Personality Evolution Chain
+backend/app/services/psychology_engine.py -> backend/app/services/narrative_service.py
+- Trait modifications
+- Development tracking
+- State transitions
 
 $END$
 
