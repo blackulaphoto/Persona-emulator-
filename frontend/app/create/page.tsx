@@ -8,6 +8,8 @@ import FeedbackModal from '@/components/FeedbackModal'
 import { Button } from '@/components/ui/Button'
 import { Input, Textarea } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
+import { Tooltip, Examples, Checklist, SidebarHelp, FAQ, HelpText } from '@/components/help/HelpComponents'
+import { HELP_CONTENT } from '@/lib/help/HelpContentLibrary'
 
 export default function CreatePersonaPage() {
   const router = useRouter()
@@ -59,130 +61,202 @@ export default function CreatePersonaPage() {
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <Card className="animate-scale-in">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="bg-apple-blue-100 p-3 rounded-apple-lg">
-              <User className="text-apple-blue-600" size={24} />
-            </div>
-            <div>
-              <h2 className="text-2xl font-serif text-apple-text-primary font-bold">
-                Baseline Profile
-              </h2>
-              <p className="text-apple-text-secondary text-sm">
-                Define the starting point for this persona's journey
-              </p>
-            </div>
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Main Form - 3 columns */}
+          <div className="lg:col-span-3">
+            <Card className="animate-scale-in">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="bg-apple-blue-100 p-3 rounded-apple-lg">
+                  <User className="text-apple-blue-600" size={24} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-serif text-apple-text-primary font-bold">
+                    Baseline Profile
+                  </h2>
+                  <p className="text-apple-text-secondary text-sm">
+                    Define the starting point for this persona's journey
+                  </p>
+                </div>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Name */}
+                <div>
+                  <div className="flex items-center gap-2">
+                    <label className="label-apple">Name</label>
+                    <Tooltip content={HELP_CONTENT.persona.name.tooltip} />
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="e.g., Emma, Alex, Jordan"
+                    className="input-apple mt-2"
+                  />
+                  <Examples
+                    title="See examples"
+                    examples={HELP_CONTENT.persona.name.examples}
+                  />
+                </div>
+
+                {/* Age */}
+                <div>
+                  <div className="flex items-center gap-2">
+                    <label className="label-apple">Baseline Age</label>
+                    <Tooltip content={HELP_CONTENT.persona.age.tooltip} />
+                  </div>
+                  <input
+                    type="number"
+                    required
+                    min={0}
+                    max={100}
+                    value={formData.baseline_age}
+                    onChange={(e) => setFormData({ ...formData, baseline_age: parseInt(e.target.value) })}
+                    className="input-apple mt-2"
+                  />
+                  <p className="text-xs text-apple-text-tertiary mt-1.5">
+                    {HELP_CONTENT.persona.age.helpText}
+                  </p>
+                </div>
+
+                {/* Gender */}
+                <div>
+                  <div className="flex items-center gap-2">
+                    <label className="label-apple">Gender</label>
+                    <Tooltip content={HELP_CONTENT.persona.gender.tooltip} />
+                  </div>
+                  <select
+                    value={formData.baseline_gender}
+                    onChange={(e) => setFormData({ ...formData, baseline_gender: e.target.value })}
+                    className="input-apple mt-2"
+                  >
+                    <option value="female">Female</option>
+                    <option value="male">Male</option>
+                    <option value="non-binary">Non-binary</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                {/* Background - THE BIG ONE */}
+                <div>
+                  <div className="flex items-center gap-2">
+                    <label className="label-apple">Background Story</label>
+                    <Tooltip content={HELP_CONTENT.persona.backstory.tooltip} />
+                  </div>
+                  <textarea
+                    required
+                    value={formData.baseline_background}
+                    onChange={(e) => setFormData({ ...formData, baseline_background: e.target.value })}
+                    rows={8}
+                    placeholder="Provide comprehensive background information about childhood, family, environment, experiences, symptoms, and strengths..."
+                    className="input-apple mt-2"
+                  />
+
+                  {/* Character counter */}
+                  <div className="flex justify-between items-center mt-1.5">
+                    <span className="text-xs text-apple-text-tertiary">
+                      {formData.baseline_background.length} characters
+                    </span>
+                    <span className="text-xs text-apple-blue-600 font-medium">
+                      More detail = Better results (aim for 200-500 words)
+                    </span>
+                  </div>
+
+                  {/* What to include checklist */}
+                  <Checklist
+                    title="📝 What to include:"
+                    items={HELP_CONTENT.persona.backstory.whatToInclude}
+                  />
+
+                  {/* Examples */}
+                  <Examples
+                    title="See examples"
+                    examples={HELP_CONTENT.persona.backstory.examples.map(ex => ({
+                      label: ex.title,
+                      text: ex.text
+                    }))}
+                  />
+
+                  <HelpText type="tip">
+                    Think like a therapist writing a clinical intake summary. Include BOTH challenges AND strengths!
+                  </HelpText>
+                </div>
+
+                {/* Submit */}
+                <div className="pt-4 flex gap-4">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => router.push('/')}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={loading}
+                    loading={loading}
+                    className="flex-1"
+                  >
+                    {loading ? 'Creating...' : 'Create Persona'}
+                  </Button>
+                </div>
+              </form>
+            </Card>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Name */}
-            <Input
-              label="Name"
-              type="text"
-              required
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="e.g., Emma, Alex, Jordan"
-            />
+          {/* Sidebar Guide - 1 column */}
+          <div className="lg:col-span-1">
+            <SidebarHelp title="Quick Guide">
+              <div className="bg-apple-blue-50 border-l-4 border-apple-blue-500 p-3 rounded">
+                <p className="text-sm font-semibold text-apple-blue-800 mb-1">
+                  Pro Tip
+                </p>
+                <p className="text-xs text-apple-text-secondary">
+                  Think of this as writing a client intake form. Include both challenges AND strengths!
+                </p>
+              </div>
 
-            {/* Age */}
-            <div>
-              <Input
-                label="Baseline Age"
-                type="number"
-                required
-                min={0}
-                max={100}
-                value={formData.baseline_age}
-                onChange={(e) => setFormData({ ...formData, baseline_age: parseInt(e.target.value) })}
-              />
-              <p className="text-xs text-apple-text-tertiary mt-1.5">
-                The age when this persona's story begins
-              </p>
-            </div>
+              <div>
+                <h4 className="text-sm font-semibold text-apple-text-primary mb-2">
+                  Essential Information
+                </h4>
+                <ul className="space-y-2 text-xs text-apple-text-secondary">
+                  <li className="flex items-start gap-2">
+                    <span className="text-apple-green">✓</span>
+                    <span>Family background & parenting</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-apple-green">✓</span>
+                    <span>Early childhood experiences</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-apple-green">✓</span>
+                    <span>Trauma or adversity</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-apple-green">✓</span>
+                    <span>Current symptoms/concerns</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-apple-green">✓</span>
+                    <span>Protective factors</span>
+                  </li>
+                </ul>
+              </div>
 
-            {/* Gender */}
-            <div>
-              <label className="label-apple">Gender</label>
-              <select
-                value={formData.baseline_gender}
-                onChange={(e) => setFormData({ ...formData, baseline_gender: e.target.value })}
-                className="input-apple"
-              >
-                <option value="female">Female</option>
-                <option value="male">Male</option>
-                <option value="non-binary">Non-binary</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            {/* Background */}
-            <div>
-              <Textarea
-                label="Background Story"
-                required
-                value={formData.baseline_background}
-                onChange={(e) => setFormData({ ...formData, baseline_background: e.target.value })}
-                rows={4}
-                placeholder="Describe their childhood, family, environment, and early experiences..."
-              />
-              <p className="text-xs text-apple-text-tertiary mt-1.5">
-                This context helps the AI analyze how experiences affect development
-              </p>
-              <p className="text-xs text-apple-text-tertiary mt-2">
-                Early environment sets the emotional foundation, not the outcome.
-                Psychological traits start slightly biased, but experiences shape who someone becomes.
-              </p>
-            </div>
-
-            {/* Submit */}
-            <div className="pt-4 flex gap-4">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => router.push('/')}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                variant="primary"
-                disabled={loading}
-                loading={loading}
-                className="flex-1"
-              >
-                {loading ? 'Creating...' : 'Create Persona'}
-              </Button>
-            </div>
-          </form>
-        </Card>
-
-        {/* Info Card */}
-        <Card variant="glass" className="mt-8 animate-fade-in-apple delay-apple-200">
-          <h3 className="font-serif text-lg text-apple-text-primary mb-3 font-semibold">
-            What happens next?
-          </h3>
-          <ul className="text-sm text-apple-text-secondary space-y-2">
-            <li className="flex items-start gap-2">
-              <span className="text-apple-blue-500 mt-0.5">•</span>
-              <span>Add life experiences to see how they shape personality</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-apple-blue-500 mt-0.5">•</span>
-              <span>Apply therapeutic interventions to address symptoms</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-apple-blue-500 mt-0.5">•</span>
-              <span>Watch the personality evolve over time with AI analysis</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-apple-blue-500 mt-0.5">•</span>
-              <span>View the complete timeline of psychological evolution</span>
-            </li>
-          </ul>
-        </Card>
+              <div className="border-t border-apple-border pt-4">
+                <h4 className="text-sm font-semibold text-apple-text-primary mb-2">
+                  Common Questions
+                </h4>
+                <FAQ items={HELP_CONTENT.faq.general.slice(0, 3)} />
+              </div>
+            </SidebarHelp>
+          </div>
+        </div>
       </div>
 
       {/* Feedback Modal */}
