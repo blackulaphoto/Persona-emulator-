@@ -13,14 +13,6 @@ module.exports = {
         mono: ['SF Mono', 'Monaco', 'Menlo', 'monospace'],
       },
       colors: {
-        // OLD THEME (keep for compatibility)
-        cream: '#F8F6F1',
-        clay: '#E8DCC4',
-        terracotta: '#C17B5C',
-        sage: '#8B9D83',
-        moss: '#5B6B4D',
-        charcoal: '#2D3136',
-
         // Splash page palette (avoid arbitrary hex classes)
         'splash-bg-1': '#0F1115',
         'splash-bg-2': '#1F2632',
@@ -30,50 +22,50 @@ module.exports = {
         'splash-accent': '#6366F1',
         'splash-text': '#C7D2FE',
 
-        // APPLE-INSPIRED THEME (new)
+        // EXACT PALETTE - Warm & Earthy
         // Backgrounds
         'apple-bg': {
-          primary: '#1D1D1F',      // Deep almost-black (Apple dark)
-          secondary: '#2C2C2E',    // Elevated surfaces
-          tertiary: '#F5F5F7',     // Light background
-          card: '#FFFFFF',         // White cards
+          primary: '#4a3242',      // RGB 74, 50, 66 - Matterhorn (dark)
+          secondary: '#f6f4e2',    // RGB 246, 244, 226 - Beige (cards)
+          tertiary: '#f2f8f9',     // RGB 242, 248, 249 - Catskill White (main bg)
+          card: '#f6f4e2',         // RGB 246, 244, 226 - Beige
         },
 
-        // iOS System Blue (vibrant, not corporate)
+        // Primary action color - Copperfield
         'apple-blue': {
-          50: '#E5F2FF',
-          100: '#CCE5FF',
-          200: '#99CCFF',
-          300: '#66B2FF',
-          400: '#3399FF',
-          500: '#007AFF',          // iOS system blue
-          600: '#0051D5',
-          700: '#0040AA',
-          800: '#003080',
-          900: '#002055',
+          50: '#fef8f5',
+          100: '#fdeee6',
+          200: '#fbd4c8',
+          300: '#f7b6a1',
+          400: '#ec9f7d',
+          500: '#d58d65',          // RGB 213, 141, 101 - Copperfield (primary)
+          600: '#c17856',
+          700: '#a46448',
+          800: '#87523d',
+          900: '#6f4434',
         },
 
-        // iOS System Colors
+        // Accent colors from exact palette
         'apple-teal': '#5AC8FA',
         'apple-purple': '#AF52DE',
         'apple-pink': '#FF2D55',
         'apple-green': '#34C759',
-        'apple-orange': '#FF9500',
-        'apple-red': '#FF3B30',
+        'apple-orange': '#f0d2af',  // RGB 240, 210, 175 - Pancho
+        'apple-red': '#c75e56',     // RGB 199, 94, 86 - Fuzzy Wuzzy Brown
 
-        // Text colors (high contrast)
+        // Text colors
         'apple-text': {
-          primary: '#1D1D1F',      // Deep black
-          secondary: '#86868B',    // Apple secondary gray
-          tertiary: '#C7C7CC',     // Muted
-          inverse: '#F5F5F7',      // Light on dark
+          primary: '#4a3242',      // RGB 74, 50, 66 - Matterhorn
+          secondary: '#7a6572',    // Lighter Matterhorn
+          tertiary: '#a69099',     // Even lighter
+          inverse: '#f2f8f9',      // RGB 242, 248, 249 - Catskill White
         },
 
         // Borders
         'apple-border': {
-          light: 'rgba(0, 0, 0, 0.1)',
-          DEFAULT: 'rgba(0, 0, 0, 0.2)',
-          dark: 'rgba(0, 0, 0, 0.3)',
+          light: 'rgba(74, 50, 66, 0.1)',
+          DEFAULT: 'rgba(74, 50, 66, 0.2)',
+          dark: 'rgba(74, 50, 66, 0.3)',
         },
       },
 

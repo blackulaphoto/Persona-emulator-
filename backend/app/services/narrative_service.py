@@ -8,6 +8,7 @@ from typing import Dict, Any, List
 from datetime import datetime
 from sqlalchemy.orm import Session
 import openai
+import httpx
 import os
 from app.core.config import settings
 
@@ -66,7 +67,18 @@ async def generate_persona_narrative(
     # Call GPT-4
     try:
         api_key = settings.openai_api_key or os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_KEY")
-        client = openai.OpenAI(api_key=api_key)
+
+        # Explicitly provide an httpx client to avoid compatibility issues with old openai library version
+        http_client = httpx.Client(
+            timeout=httpx.Timeout(
+                connect=5.0,
+                read=600.0,
+                write=600.0,
+                pool=600.0,
+            ),
+        )
+
+        client = openai.OpenAI(api_key=api_key, http_client=http_client)
         response = client.chat.completions.create(
             model="gpt-4o",  # Use GPT-4o for best results
             messages=[

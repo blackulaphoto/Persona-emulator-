@@ -5,28 +5,30 @@
 @tailwind utilities;
 
 :root {
-  --cream: #F8F6F1;
-  --clay: #E8DCC4;
-  --terracotta: #C17B5C;
-  --sage: #8B9D83;
-  --moss: #5B6B4D;
-  --charcoal: #2D3136;
+  /* EXACT PALETTE - Warm & Earthy */
+  --apple-blue: #d58d65;          /* RGB 213, 141, 101 - Copperfield (primary) */
+  --apple-text-primary: #4a3242;   /* RGB 74, 50, 66 - Matterhorn (text) */
+  --apple-text-secondary: #7a6572; /* Lighter Matterhorn */
+  --apple-bg-tertiary: #f2f8f9;    /* RGB 242, 248, 249 - Catskill White (main bg) */
+  --apple-bg-card: #f6f4e2;        /* RGB 246, 244, 226 - Beige (cards) */
+  --apple-accent: #c75e56;         /* RGB 199, 94, 86 - Fuzzy Wuzzy Brown (accent) */
+  --pancho: #f0d2af;               /* RGB 240, 210, 175 - Pancho */
 }
 
 @layer base {
   * {
-    @apply border-charcoal/10;
+    @apply border-apple-border;
   }
-  
+
   body {
-    @apply bg-cream text-charcoal font-sans antialiased;
-    background-image: 
-      radial-gradient(circle at 20% 50%, rgba(139, 157, 131, 0.03) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(193, 123, 92, 0.02) 0%, transparent 50%);
+    @apply bg-apple-bg-tertiary text-apple-text-primary font-sans antialiased;
+    background-image:
+      radial-gradient(circle at 20% 50%, rgba(213, 141, 101, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(199, 94, 86, 0.03) 0%, transparent 50%);
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
-    @apply font-serif font-semibold;
+    @apply font-serif font-semibold text-apple-text-primary;
   }
 }
 
@@ -34,21 +36,22 @@
   .text-balance {
     text-wrap: balance;
   }
-  
+
   .bg-grain {
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
   }
-  
+
   .card-hover {
     @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
   }
-  
+
+  /* Updated to use Apple colors */
   .btn-primary {
-    @apply bg-moss text-cream px-6 py-3 rounded-lg font-medium hover:bg-moss/90 transition-all duration-200 hover:shadow-lg;
+    @apply bg-apple-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-apple-blue-700 transition-all duration-200 hover:shadow-lg;
   }
-  
+
   .btn-secondary {
-    @apply bg-clay text-charcoal px-6 py-3 rounded-lg font-medium hover:bg-clay/80 transition-all duration-200;
+    @apply bg-apple-bg-tertiary text-apple-text-primary px-6 py-3 rounded-lg font-medium hover:bg-white border border-apple-border transition-all duration-200;
   }
 }
 
