@@ -27,7 +27,9 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
     setError(null)
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/feedback`, {
+      const apiBase = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+      const apiRoot = apiBase ? `${apiBase}/api/v1` : '/api/v1';
+      const response = await fetch(`${apiRoot}/feedback`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -70,17 +72,17 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-cream max-w-2xl w-full rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
+      <div className="bg-white max-w-2xl w-full rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
         {/* Header */}
-        <div className="relative border-b border-charcoal/10 p-8">
+        <div className="relative border-b border-apple-border-light p-8">
           <button
             onClick={handleClose}
-            className="absolute top-4 right-4 text-sage hover:text-charcoal transition-colors"
+            className="absolute top-4 right-4 text-apple-text-secondary hover:text-apple-text-primary transition-colors"
             aria-label="Close"
           >
             <X size={24} />
           </button>
-          <h2 className="text-3xl font-serif text-charcoal">
+          <h2 className="text-3xl font-serif text-apple-text-primary">
             Thank you for exploring this
           </h2>
         </div>
@@ -89,35 +91,35 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
         <div className="p-8">
           {!submitted ? (
             <>
-              <p className="text-lg text-charcoal mb-6 leading-relaxed">
+              <p className="text-lg text-apple-text-primary mb-6 leading-relaxed">
                 You've reached the current limit for this research preview.
               </p>
-              <p className="text-base text-sage mb-8 leading-relaxed">
+              <p className="text-base text-apple-text-secondary mb-8 leading-relaxed">
                 Your time and curiosity genuinely matter — this project is still forming, and early feedback helps shape what it becomes.
               </p>
-              <p className="text-base text-sage mb-8 leading-relaxed">
+              <p className="text-base text-apple-text-secondary mb-8 leading-relaxed">
                 If anything felt unclear, surprising, useful, or frustrating, I'd really like to know.
               </p>
 
               <form onSubmit={handleSubmit}>
-                <label className="block mb-3 text-sm font-medium text-charcoal">
+                <label className="block mb-3 text-sm font-medium text-apple-text-primary">
                   What stood out to you?
                 </label>
                 <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Share a thought, question, or reaction…"
-                  className="w-full h-40 px-4 py-3 rounded-lg border-2 border-clay/30 focus:border-moss focus:outline-none resize-none text-charcoal placeholder-sage/50 font-['Outfit']"
+                  className="w-full h-40 px-4 py-3 rounded-lg border-2 border-apple-border-light/30 focus:border-apple-blue-600 focus:outline-none resize-none text-apple-text-primary placeholder-sage/50 font-['Outfit']"
                   disabled={loading}
                 />
 
                 {error && (
-                  <p className="mt-3 text-sm text-terracotta">
+                  <p className="mt-3 text-sm text-red-500">
                     {error}
                   </p>
                 )}
 
-                <p className="mt-4 text-xs text-sage/70 italic">
+                <p className="mt-4 text-xs text-apple-text-secondary/70 italic">
                   This isn't a signup or a paywall — just a pause while the project evolves.
                 </p>
 
@@ -142,7 +144,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
             </>
           ) : (
             <>
-              <p className="text-lg text-charcoal mb-8 leading-relaxed">
+              <p className="text-lg text-apple-text-primary mb-8 leading-relaxed">
                 Thank you — your feedback was received.
               </p>
 

@@ -62,7 +62,7 @@ export default function ChatBox({ personaId, personaName }: ChatBoxProps) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 bg-moss text-cream p-4 rounded-full shadow-lg hover:bg-sage transition-colors z-50 flex items-center gap-2"
+        className="fixed bottom-6 right-6 bg-apple-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-apple-blue-100 transition-colors z-50 flex items-center gap-2"
         aria-label="Open chat"
       >
         <MessageCircle size={24} />
@@ -72,16 +72,16 @@ export default function ChatBox({ personaId, personaName }: ChatBoxProps) {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 w-96 h-[600px] bg-cream border-2 border-charcoal/20 rounded-2xl shadow-2xl flex flex-col z-50">
+    <div className="fixed bottom-6 right-6 w-96 h-[600px] bg-white border-2 border-apple-border rounded-2xl shadow-2xl flex flex-col z-50">
       {/* Header */}
-      <div className="bg-moss text-cream p-4 rounded-t-2xl flex items-center justify-between">
+      <div className="bg-apple-blue-600 text-white p-4 rounded-t-2xl flex items-center justify-between">
         <div>
           <h3 className="font-serif text-lg">Chat with {personaName}</h3>
           <p className="text-xs opacity-90">See how personality evolves through conversation</p>
         </div>
         <button
           onClick={() => setIsOpen(false)}
-          className="text-cream hover:text-charcoal transition-colors"
+          className="text-white hover:text-apple-text-primary transition-colors"
           aria-label="Close chat"
         >
           <X size={20} />
@@ -91,7 +91,7 @@ export default function ChatBox({ personaId, personaName }: ChatBoxProps) {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
-          <div className="text-center text-sage py-8">
+          <div className="text-center text-apple-text-secondary py-8">
             <MessageCircle size={48} className="mx-auto mb-4 opacity-50" />
             <p className="text-sm">Start a conversation to see how {personaName} responds based on their current personality and experiences.</p>
           </div>
@@ -104,8 +104,8 @@ export default function ChatBox({ personaId, personaName }: ChatBoxProps) {
               <div
                 className={`max-w-[80%] rounded-lg px-4 py-2 ${
                   msg.role === 'user'
-                    ? 'bg-moss text-cream'
-                    : 'bg-clay/20 text-charcoal'
+                    ? 'bg-apple-blue-600 text-white'
+                    : 'bg-apple-bg-tertiary/20 text-apple-text-primary'
                 }`}
               >
                 <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
@@ -115,7 +115,7 @@ export default function ChatBox({ personaId, personaName }: ChatBoxProps) {
         )}
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-clay/20 text-charcoal rounded-lg px-4 py-2">
+            <div className="bg-apple-bg-tertiary/20 text-apple-text-primary rounded-lg px-4 py-2">
               <div className="flex gap-1">
                 <span className="animate-bounce">.</span>
                 <span className="animate-bounce" style={{ animationDelay: '0.1s' }}>.</span>
@@ -128,26 +128,26 @@ export default function ChatBox({ personaId, personaName }: ChatBoxProps) {
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSend} className="p-4 border-t border-charcoal/10">
+      <form onSubmit={handleSend} className="p-4 border-t border-apple-border-light">
         <div className="flex gap-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1 px-4 py-2 rounded-lg border-2 border-charcoal/10 bg-cream focus:border-moss focus:outline-none"
+            className="flex-1 px-4 py-2 rounded-lg border-2 border-apple-border-light bg-white focus:border-apple-blue-600 focus:outline-none"
             disabled={loading}
           />
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="bg-moss text-cream p-2 rounded-lg hover:bg-sage transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-apple-blue-600 text-white p-2 rounded-lg hover:bg-apple-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Send message"
           >
             <Send size={20} />
           </button>
         </div>
-        <p className="text-xs text-sage mt-2">
+        <p className="text-xs text-apple-text-secondary mt-2">
           Responses reflect {personaName}'s current personality, age, and life experiences
         </p>
       </form>

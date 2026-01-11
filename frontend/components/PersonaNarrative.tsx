@@ -61,12 +61,12 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
     setError(null);
 
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL;
-      if (!apiBase) throw new Error('NEXT_PUBLIC_API_URL is not configured.');
+      const apiBase = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+      const apiRoot = apiBase ? `${apiBase}/api/v1` : '/api/v1';
 
       const headers = await getAuthHeaders();
       const response = await fetch(
-        `${apiBase}/api/v1/narratives/personas/${personaId}/generate`,
+        `${apiRoot}/narratives/personas/${personaId}/generate`,
         {
           method: 'POST',
           headers
@@ -92,12 +92,12 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
 
   async function loadNarrativeHistory() {
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL;
-      if (!apiBase) throw new Error('NEXT_PUBLIC_API_URL is not configured.');
+      const apiBase = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+      const apiRoot = apiBase ? `${apiBase}/api/v1` : '/api/v1';
 
       const headers = await getAuthHeaders();
       const response = await fetch(
-        `${apiBase}/api/v1/narratives/personas/${personaId}`,
+        `${apiRoot}/narratives/personas/${personaId}`,
         { headers }
       );
 
@@ -151,10 +151,10 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
       {/* Header with generate button */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-charcoal font-['Crimson_Pro']">
+          <h2 className="text-2xl font-bold text-apple-text-primary font-['Crimson_Pro']">
             Persona Narrative
           </h2>
-          <p className="text-sm text-sage font-['Outfit']">
+          <p className="text-sm text-apple-text-secondary font-['Outfit']">
             AI-generated comprehensive psychological summary
           </p>
         </div>
@@ -163,7 +163,7 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
           {narrativeHistory.length > 0 && (
             <button
               onClick={() => setShowHistory(!showHistory)}
-              className="px-4 py-2 text-sage hover:text-charcoal font-['Outfit']"
+              className="px-4 py-2 text-apple-text-secondary hover:text-apple-text-primary font-['Outfit']"
             >
               {showHistory ? 'Hide' : 'Show'} History ({narrativeHistory.length})
             </button>
@@ -191,15 +191,15 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
 
       {/* Error display */}
       {error && (
-        <div className="bg-terracotta/10 border border-terracotta/30 rounded-xl p-4">
-          <p className="text-terracotta font-['Outfit']">{error}</p>
+        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+          <p className="text-red-500 font-['Outfit']">{error}</p>
         </div>
       )}
 
       {/* History sidebar */}
       {showHistory && narrativeHistory.length > 0 && (
-        <div className="bg-clay/20 border border-charcoal/10 rounded-xl p-4">
-          <h3 className="text-lg font-semibold text-charcoal mb-3 font-['Crimson_Pro']">
+        <div className="bg-apple-bg-tertiary/20 border border-apple-border-light rounded-xl p-4">
+          <h3 className="text-lg font-semibold text-apple-text-primary mb-3 font-['Crimson_Pro']">
             Narrative History
           </h3>
           <div className="space-y-2">
@@ -209,20 +209,20 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
                 onClick={() => setNarrative(n)}
                 className={`w-full text-left p-3 rounded-lg transition-colors font-['Outfit'] ${
                   narrative?.id === n.id
-                    ? 'bg-moss/20 border border-moss/30'
-                    : 'bg-cream hover:bg-clay/30 border border-charcoal/10'
+                    ? 'bg-apple-blue-600/20 border border-apple-blue-200'
+                    : 'bg-white hover:bg-apple-bg-tertiary/30 border border-apple-border-light'
                 }`}
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <div className="font-semibold text-charcoal">
+                    <div className="font-semibold text-apple-text-primary">
                       Generation #{n.generation_number}
                     </div>
-                    <div className="text-sm text-sage">
+                    <div className="text-sm text-apple-text-secondary">
                       Age {n.persona_age_at_generation} • {n.total_experiences_count} experiences
                     </div>
                   </div>
-                  <div className="text-xs text-sage">
+                  <div className="text-xs text-apple-text-secondary">
                     {formatDate(n.generated_at)}
                   </div>
                 </div>
@@ -236,31 +236,31 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
       {narrative ? (
         <div className="space-y-6">
           {/* Metadata bar */}
-          <div className="bg-sage/20 border border-sage/30 rounded-xl p-4">
+          <div className="bg-apple-blue-100/20 border border-apple-border/30 rounded-xl p-4">
             <div className="grid grid-cols-4 gap-4 text-center">
               <div>
-                <div className="text-2xl font-bold text-charcoal font-['Crimson_Pro']">
+                <div className="text-2xl font-bold text-apple-text-primary font-['Crimson_Pro']">
                   #{narrative.generation_number}
                 </div>
-                <div className="text-xs text-sage font-['Outfit']">Generation</div>
+                <div className="text-xs text-apple-text-secondary font-['Outfit']">Generation</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-charcoal font-['Crimson_Pro']">
+                <div className="text-2xl font-bold text-apple-text-primary font-['Crimson_Pro']">
                   {narrative.persona_age_at_generation}
                 </div>
-                <div className="text-xs text-sage font-['Outfit']">Age</div>
+                <div className="text-xs text-apple-text-secondary font-['Outfit']">Age</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-charcoal font-['Crimson_Pro']">
+                <div className="text-2xl font-bold text-apple-text-primary font-['Crimson_Pro']">
                   {narrative.word_count}
                 </div>
-                <div className="text-xs text-sage font-['Outfit']">Words</div>
+                <div className="text-xs text-apple-text-secondary font-['Outfit']">Words</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-charcoal font-['Crimson_Pro']">
+                <div className="text-2xl font-bold text-apple-text-primary font-['Crimson_Pro']">
                   {narrative.generation_time_seconds || '–'}s
                 </div>
-                <div className="text-xs text-sage font-['Outfit']">Generated</div>
+                <div className="text-xs text-apple-text-secondary font-['Outfit']">Generated</div>
               </div>
             </div>
           </div>
@@ -317,12 +317,12 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
         </div>
       ) : (
         !generating && (
-          <div className="text-center py-12 bg-cream border border-charcoal/10 rounded-xl">
+          <div className="text-center py-12 bg-white border border-apple-border-light rounded-xl">
             <div className="text-6xl mb-4">📖</div>
-            <h3 className="text-lg font-semibold text-charcoal mb-2 font-['Crimson_Pro']">
+            <h3 className="text-lg font-semibold text-apple-text-primary mb-2 font-['Crimson_Pro']">
               No Narrative Generated Yet
             </h3>
-            <p className="text-sage mb-4 font-['Outfit']">
+            <p className="text-apple-text-secondary mb-4 font-['Outfit']">
               Click "Generate Narrative" to create a comprehensive AI-powered summary
             </p>
           </div>
@@ -331,12 +331,12 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
 
       {/* Generating state */}
       {generating && (
-        <div className="text-center py-12 bg-sage/10 border border-sage/30 rounded-xl">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-moss mx-auto mb-4"></div>
-          <h3 className="text-lg font-semibold text-moss mb-2 font-['Crimson_Pro']">
+        <div className="text-center py-12 bg-apple-blue-100/10 border border-apple-border/30 rounded-xl">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-apple-blue-600 mx-auto mb-4"></div>
+          <h3 className="text-lg font-semibold text-apple-blue-600 mb-2 font-['Crimson_Pro']">
             Generating Narrative...
           </h3>
-          <p className="text-sage font-['Outfit']">
+          <p className="text-apple-text-secondary font-['Outfit']">
             Analyzing timeline and crafting comprehensive summary (15-30 seconds)
           </p>
         </div>
@@ -357,16 +357,16 @@ function NarrativeSection({ title, content, icon }: NarrativeSectionProps) {
   console.log(`${title}:`, content ? `${content.substring(0, 100)}...` : 'EMPTY');
 
   return (
-    <div className="bg-cream border border-charcoal/10 rounded-xl p-6">
-      <h3 className="text-xl font-bold text-charcoal mb-4 font-['Crimson_Pro']">
+    <div className="bg-white border border-apple-border-light rounded-xl p-6">
+      <h3 className="text-xl font-bold text-apple-text-primary mb-4 font-['Crimson_Pro']">
         {title}
       </h3>
       {content && content.trim().length > 0 ? (
-        <div className="prose prose-sm max-w-none font-['Outfit'] text-charcoal whitespace-pre-wrap">
+        <div className="prose prose-sm max-w-none font-['Outfit'] text-apple-text-primary whitespace-pre-wrap">
           <ReactMarkdown>{content}</ReactMarkdown>
         </div>
       ) : (
-        <div className="text-sage italic">No content available for this section</div>
+        <div className="text-apple-text-secondary italic">No content available for this section</div>
       )}
     </div>
   );

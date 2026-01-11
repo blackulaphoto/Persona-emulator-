@@ -57,22 +57,22 @@ export default function TemplateBrowser({ onSelectTemplate }: TemplateBrowserPro
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-moss"></div>
-        <span className="ml-3 text-sage font-['Outfit']">Loading templates...</span>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-apple-blue-600"></div>
+        <span className="ml-3 text-apple-text-secondary font-['Outfit']">Loading templates...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-terracotta/10 border border-terracotta/30 rounded-xl p-6">
+      <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-6">
         <div className="flex items-start">
-          <svg className="h-5 w-5 text-terracotta mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="h-5 w-5 text-red-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
           </svg>
           <div className="ml-3">
-            <h3 className="text-sm font-medium text-charcoal font-['Outfit']">Error loading templates</h3>
-            <p className="mt-1 text-sm text-sage font-['Outfit']">{error}</p>
+            <h3 className="text-sm font-medium text-apple-text-primary font-['Outfit']">Error loading templates</h3>
+            <p className="mt-1 text-sm text-apple-text-secondary font-['Outfit']">{error}</p>
           </div>
         </div>
       </div>
@@ -84,19 +84,19 @@ export default function TemplateBrowser({ onSelectTemplate }: TemplateBrowserPro
       {/* Header with filter */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-charcoal font-['Crimson_Pro']">Clinical Templates</h2>
-          <p className="mt-1 text-sm text-sage font-['Outfit']">
+          <h2 className="text-2xl font-bold text-apple-text-primary font-['Crimson_Pro']">Clinical Templates</h2>
+          <p className="mt-1 text-sm text-apple-text-secondary font-['Outfit']">
             Evidence-based disorder development pathways
           </p>
         </div>
 
         {/* Disorder type filter */}
         <div className="flex items-center space-x-3">
-          <label className="text-sm font-medium text-charcoal font-['Outfit']">Filter:</label>
+          <label className="text-sm font-medium text-apple-text-primary font-['Outfit']">Filter:</label>
           <select
             value={selectedDisorder}
             onChange={(e) => setSelectedDisorder(e.target.value)}
-            className="rounded-lg border-charcoal/20 bg-cream shadow-sm focus:border-moss focus:ring-moss font-['Outfit']"
+            className="rounded-lg border-apple-border bg-white shadow-sm focus:border-apple-blue-600 focus:ring-moss font-['Outfit']"
           >
             <option value="">All Disorders</option>
             {disorderTypes.map((type) => (
@@ -110,12 +110,12 @@ export default function TemplateBrowser({ onSelectTemplate }: TemplateBrowserPro
 
       {/* Templates grid */}
       {templates.length === 0 ? (
-        <div className="text-center py-12 bg-cream rounded-xl border border-charcoal/10">
-          <svg className="mx-auto h-12 w-12 text-sage" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="text-center py-12 bg-white rounded-xl border border-apple-border-light">
+          <svg className="mx-auto h-12 w-12 text-apple-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-charcoal font-['Outfit']">No templates found</h3>
-          <p className="mt-1 text-sm text-sage font-['Outfit']">
+          <h3 className="mt-2 text-sm font-medium text-apple-text-primary font-['Outfit']">No templates found</h3>
+          <p className="mt-1 text-sm text-apple-text-secondary font-['Outfit']">
             {selectedDisorder ? 'Try selecting a different disorder type.' : 'No templates available.'}
           </p>
         </div>
@@ -144,17 +144,17 @@ function TemplateCard({ template, onSelect }: TemplateCardProps) {
   // Color scheme based on disorder type - using custom palette
   const getDisorderColor = (type: string) => {
     const colors: Record<string, string> = {
-      'BPD': 'bg-terracotta/20 text-terracotta border-terracotta/30',
-      'C-PTSD': 'bg-moss/20 text-moss border-moss/30',
-      'Social_Anxiety': 'bg-sage/30 text-sage border-sage/40',
-      'DID': 'bg-clay/50 text-charcoal border-clay',
-      'MDD': 'bg-charcoal/10 text-charcoal border-charcoal/20',
+      'BPD': 'bg-red-500/20 text-red-500 border-red-500/30',
+      'C-PTSD': 'bg-apple-blue-600/20 text-apple-blue-600 border-apple-blue-200',
+      'Social_Anxiety': 'bg-apple-blue-100/30 text-apple-text-secondary border-apple-border/40',
+      'DID': 'bg-apple-bg-tertiary/50 text-apple-text-primary border-apple-border-light',
+      'MDD': 'bg-apple-bg-primary/10 text-apple-text-primary border-apple-border',
     };
-    return colors[type] || 'bg-clay/30 text-charcoal border-charcoal/20';
+    return colors[type] || 'bg-apple-bg-tertiary/30 text-apple-text-primary border-apple-border';
   };
 
   return (
-    <div className="bg-cream border border-charcoal/10 rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden card-hover">
+    <div className="bg-white border border-apple-border-light rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden card-hover">
       {/* Disorder badge */}
       <div className="px-6 pt-6 pb-3">
         <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium font-['Outfit'] ${getDisorderColor(template.disorder_type)}`}>
@@ -164,31 +164,31 @@ function TemplateCard({ template, onSelect }: TemplateCardProps) {
 
       {/* Template info */}
       <div className="px-6 pb-6">
-        <h3 className="text-lg font-semibold text-charcoal mb-2 font-['Crimson_Pro']">
+        <h3 className="text-lg font-semibold text-apple-text-primary mb-2 font-['Crimson_Pro']">
           {template.name}
         </h3>
-        <p className="text-sm text-sage line-clamp-3 mb-4 font-['Outfit']">
+        <p className="text-sm text-apple-text-secondary line-clamp-3 mb-4 font-['Outfit']">
           {template.description}
         </p>
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mb-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-charcoal font-['Crimson_Pro']">{template.experience_count}</div>
-            <div className="text-xs text-sage font-['Outfit']">Experiences</div>
+            <div className="text-2xl font-bold text-apple-text-primary font-['Crimson_Pro']">{template.experience_count}</div>
+            <div className="text-xs text-apple-text-secondary font-['Outfit']">Experiences</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-charcoal font-['Crimson_Pro']">{template.intervention_count}</div>
-            <div className="text-xs text-sage font-['Outfit']">Interventions</div>
+            <div className="text-2xl font-bold text-apple-text-primary font-['Crimson_Pro']">{template.intervention_count}</div>
+            <div className="text-xs text-apple-text-secondary font-['Outfit']">Interventions</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-charcoal font-['Crimson_Pro']">{template.remix_suggestion_count}</div>
-            <div className="text-xs text-sage font-['Outfit']">Remixes</div>
+            <div className="text-2xl font-bold text-apple-text-primary font-['Crimson_Pro']">{template.remix_suggestion_count}</div>
+            <div className="text-xs text-apple-text-secondary font-['Outfit']">Remixes</div>
           </div>
         </div>
 
         {/* Baseline age */}
-        <div className="flex items-center text-sm text-sage mb-4 font-['Outfit']">
+        <div className="flex items-center text-sm text-apple-text-secondary mb-4 font-['Outfit']">
           <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
