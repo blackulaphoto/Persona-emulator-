@@ -1,6 +1,6 @@
 import React from 'react'
 
-export type BadgeColor = 'blue' | 'green' | 'orange' | 'red' | 'purple'
+export type BadgeColor = 'blue' | 'green' | 'orange' | 'red' | 'purple' | 'gray'
 
 interface BadgeProps {
   color?: BadgeColor
@@ -14,6 +14,7 @@ const colorClasses = {
   orange: 'badge-apple-orange',
   red: 'badge-apple-red',
   purple: 'badge-apple-purple',
+  gray: 'badge-apple bg-primary-200 text-primary-700',
 }
 
 export function Badge({
