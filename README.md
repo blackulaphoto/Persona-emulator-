@@ -343,6 +343,38 @@ MIT License - see LICENSE file for details
 - Next.js framework
 - Tailwind CSS
 
+## Deployment
+
+This project uses a split deployment architecture:
+
+### Production Deployment
+
+- **Frontend (Vercel)**: Next.js app deployed at `persona-emulator.vercel.app`
+  - Configured via `vercel.json` with `rootDirectory: "frontend"`
+  - Automatic deployments on push to `main` branch
+  - Build command: `npm run build` (runs in frontend/ directory)
+
+- **Backend (Railway)**: FastAPI server deployed independently
+  - Configured via `railway.toml` with backend-specific settings
+  - Runs Python 3.11 with uvicorn
+  - Database migrations handled via Alembic on startup
+
+### Environment Variables
+
+**Frontend (.env.local)**:
+```bash
+NEXT_PUBLIC_API_URL=https://your-backend-url.railway.app
+NEXT_PUBLIC_FIREBASE_API_KEY=...
+```
+
+**Backend (.env)**:
+```bash
+DATABASE_URL=postgresql://...
+OPENAI_API_KEY=sk-...
+JWT_SECRET=...
+FRONTEND_URL=https://persona-emulator.vercel.app
+```
+
 ## Support
 
 - **Documentation**: See `/backend/README.md` and `/frontend/README.md`
