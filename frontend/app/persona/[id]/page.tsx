@@ -20,7 +20,7 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'timeline' | 'narrative'>('timeline')
   const [showAddExperience, setShowAddExperience] = useState(false)
-  const [showAddIntervention, setShowAddIntervention] = useState(false)
+  const [showAddSupport, setShowAddSupport] = useState(false)
   const [snapshots, setSnapshots] = useState<TimelineSnapshot[]>([])
   const [loadingSnapshots, setLoadingSnapshots] = useState(false)
   const [showCreateSnapshot, setShowCreateSnapshot] = useState(false)
@@ -153,8 +153,8 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-apple-blue-600 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-apple-text-secondary font-['Outfit']">Loading...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-deep-purple border-t-transparent mx-auto mb-4"></div>
+          <p className="text-muted-foreground font-['Outfit']">Loading...</p>
         </div>
       </div>
     )
@@ -166,10 +166,10 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-apple-bg-tertiary gradient-apple-mesh flex items-center justify-center">
+      <div className="min-h-screen bg-muted gradient-apple-mesh flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-apple-blue-600 border-t-transparent"></div>
-          <p className="mt-4 text-apple-text-secondary">Loading persona...</p>
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-deep-purple border-t-transparent"></div>
+          <p className="mt-4 text-muted-foreground">Loading persona...</p>
         </div>
       </div>
     )
@@ -177,10 +177,10 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
 
   if (!timeline) {
     return (
-      <div className="min-h-screen bg-apple-bg-tertiary gradient-apple-mesh flex items-center justify-center">
+      <div className="min-h-screen bg-muted gradient-apple-mesh flex items-center justify-center">
         <div className="text-center">
           <AlertCircle size={48} className="mx-auto text-red-500 mb-4" />
-          <h2 className="text-2xl font-serif text-apple-text-primary mb-2">Persona Not Found</h2>
+          <h2 className="text-2xl font-display text-foreground mb-2">Persona Not Found</h2>
           <button onClick={() => router.push('/')} className="btn-primary mt-4">
             Return Home
           </button>
@@ -192,14 +192,14 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
   const { persona } = timeline
 
   return (
-    <main className="min-h-screen bg-apple-bg-tertiary gradient-apple-mesh">
+    <main className="min-h-screen bg-muted gradient-apple-mesh">
       {/* Header */}
-      <header className="border-b border-apple-border-light bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+      <header className="border-b border-border bg-white/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => router.push('/personas')}
-              className="flex items-center gap-2 text-apple-text-secondary hover:text-apple-blue-600 transition-colors"
+              className="flex items-center gap-2 text-muted-foreground hover:text-deep-purple transition-colors"
             >
               <ArrowLeft size={20} />
               Back to Personas
@@ -216,15 +216,15 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
           </div>
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-4xl font-serif text-apple-text-primary mb-2">
+              <h1 className="text-4xl font-display text-foreground mb-2">
                 {persona.name}
               </h1>
-              <div className="flex items-center gap-4 text-apple-text-secondary text-sm">
+              <div className="flex items-center gap-4 text-muted-foreground text-sm">
                 <span>Age {persona.current_age}</span>
                 <span>•</span>
                 <span>{persona.experiences_count} experiences</span>
                 <span>•</span>
-                <span>{persona.interventions_count} interventions</span>
+                <span>{persona.interventions_count} moments of support</span>
               </div>
             </div>
             <div className="flex gap-2 md:gap-3 flex-wrap items-center">
@@ -240,7 +240,7 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
               </div>
               <div className="flex items-center gap-1">
                 <button
-                  onClick={() => setShowAddIntervention(true)}
+                  onClick={() => setShowAddSupport(true)}
                   className="btn-primary flex items-center gap-2 text-sm md:text-base"
                 >
                   <Pill size={18} />
@@ -283,14 +283,14 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
         <PersonalityOverview persona={persona} />
 
         {/* Tab Navigation */}
-        <div className="mt-12 border-b border-apple-border-light">
+        <div className="mt-12 border-b border-border">
           <nav className="flex space-x-4 md:space-x-8 overflow-x-auto">
             <button
               onClick={() => setActiveTab('timeline')}
               className={`pb-4 px-2 font-medium transition-colors whitespace-nowrap text-sm md:text-base ${
                 activeTab === 'timeline'
-                  ? 'border-b-2 border-apple-blue-600 text-apple-blue-600'
-                  : 'text-apple-text-secondary hover:text-apple-text-primary'
+                  ? 'border-b-2 border-deep-purple text-deep-purple'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <span className="hidden sm:inline">Timeline & Snapshots</span>
@@ -300,8 +300,8 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
               onClick={() => setActiveTab('narrative')}
               className={`pb-4 px-2 font-medium transition-colors whitespace-nowrap text-sm md:text-base ${
                 activeTab === 'narrative'
-                  ? 'border-b-2 border-apple-blue-600 text-apple-blue-600'
-                  : 'text-apple-text-secondary hover:text-apple-text-primary'
+                  ? 'border-b-2 border-deep-purple text-deep-purple'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               📖 Narrative
@@ -316,7 +316,7 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
             <div className="mt-12">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-3xl font-serif text-apple-text-primary">Timeline Snapshots</h2>
+                  <h2 className="text-3xl font-display text-foreground">Moments in Time</h2>
                   <Tooltip content={SITE_HELP.snapshot.whatIs} />
                 </div>
                 {snapshots.length >= 2 && (
@@ -336,9 +336,7 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
               <HelpText type="info">
                 <p className="mb-2">{SITE_HELP.snapshot.whatIs}</p>
                 <ul className="list-disc list-inside space-y-1 text-xs">
-                  {SITE_HELP.snapshot.whenToUse.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
+                  <li>{SITE_HELP.snapshot.howToUse}</li>
                 </ul>
               </HelpText>
               {snapshots.length === 0 ? (
@@ -351,20 +349,20 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
                     onClick: () => setShowCreateSnapshot(true),
                     helpKey: 'snapshot'
                   }}
-                  helpItems={SITE_HELP.snapshot.whenToUse}
+                  helpItems={[SITE_HELP.snapshot.howToUse]}
                 />
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                   {snapshots.map((snapshot) => (
                     <div
                       key={snapshot.id}
-                      className="bg-white border-2 border-apple-border-light rounded-xl p-4 hover:border-apple-blue-200 transition-colors"
+                      className="bg-white border-2 border-border rounded-xl p-4 hover:border-lavender transition-colors"
                     >
-                      <h3 className="text-xl font-serif text-apple-text-primary mb-2">{snapshot.label}</h3>
+                      <h3 className="text-xl font-display text-foreground mb-2">{snapshot.label}</h3>
                       {snapshot.description && (
-                        <p className="text-apple-text-secondary text-sm mb-3">{snapshot.description}</p>
+                        <p className="text-muted-foreground text-sm mb-3">{snapshot.description}</p>
                       )}
-                      <div className="text-xs text-apple-text-secondary">
+                      <div className="text-xs text-muted-foreground">
                         Created: {new Date(snapshot.created_at).toLocaleDateString()}
                       </div>
                       <div className="flex gap-2 mt-3">
@@ -390,20 +388,20 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
         {/* Timeline */}
         <div className="mt-12">
           <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-3xl font-serif text-apple-text-primary">Evolution Timeline</h2>
+            <h2 className="text-3xl font-display text-foreground">Their Journey</h2>
             <Tooltip content={SITE_HELP.personaDetail.timeline.tooltip} />
           </div>
           <HelpText type="info">
             {SITE_HELP.personaDetail.timeline.whatIs}
           </HelpText>
           {timeline.timeline_events.length === 0 ? (
-            <div className="text-center py-20 bg-apple-bg-tertiary/20 rounded-2xl">
-              <Sparkles size={48} className="mx-auto text-apple-text-secondary mb-4" />
-              <h3 className="text-2xl font-serif text-apple-text-primary mb-2">
+            <div className="text-center py-20 bg-muted/20 rounded-2xl">
+              <Sparkles size={48} className="mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-2xl font-display text-foreground mb-2">
                 Begin The Journey
               </h3>
-              <p className="text-apple-text-secondary mb-6">
-                Add experiences and interventions to watch this persona evolve
+              <p className="text-muted-foreground mb-6">
+                Add experiences and moments of support to watch this persona evolve
               </p>
               <div className="flex gap-3 justify-center flex-wrap">
                 <button
@@ -413,10 +411,10 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
                   Add First Experience
                 </button>
                 <button
-                  onClick={() => setShowAddIntervention(true)}
+                  onClick={() => setShowAddSupport(true)}
                   className="btn-primary"
                 >
-                  Add Intervention
+                  Add Support
                 </button>
               </div>
             </div>
@@ -447,13 +445,13 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
           }}
         />
       )}
-      {showAddIntervention && (
+      {showAddSupport && (
         <AddInterventionModal
           personaId={params.id}
           currentAge={persona.current_age}
-          onClose={() => setShowAddIntervention(false)}
+          onClose={() => setShowAddSupport(false)}
           onSuccess={() => {
-            setShowAddIntervention(false)
+            setShowAddSupport(false)
             loadTimeline()
           }}
         />
@@ -508,17 +506,17 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
       )}
 
       {showSnapshotComparison && comparisonSnapshot1 && comparisonSnapshot2 && (
-        <div className="fixed inset-0 bg-apple-bg-primary/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-background/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-auto">
-            <div className="p-6 border-b border-apple-border-light flex items-center justify-between">
-              <h2 className="text-2xl font-serif text-apple-text-primary">Snapshot Comparison</h2>
+            <div className="p-6 border-b border-border flex items-center justify-between">
+              <h2 className="text-2xl font-display text-foreground">Snapshot Comparison</h2>
               <button
                 onClick={() => {
                   setShowSnapshotComparison(false)
                   setComparisonSnapshot1(null)
                   setComparisonSnapshot2(null)
                 }}
-                className="text-apple-text-secondary hover:text-apple-text-primary"
+                className="text-muted-foreground hover:text-foreground"
               >
                 ×
               </button>
@@ -573,14 +571,14 @@ function TemplateRemixModal({
   onSuccess: () => void
 }) {
   return (
-    <div className="fixed inset-0 bg-apple-bg-primary/50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-background/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-auto">
-        <div className="p-6 border-b border-apple-border-light flex items-center justify-between sticky top-0 bg-white z-10">
+        <div className="p-6 border-b border-border flex items-center justify-between sticky top-0 bg-white z-10">
           <div>
-            <h2 className="text-2xl font-serif text-apple-text-primary">Remix with Template Experiences</h2>
-            <p className="text-apple-text-secondary text-sm mt-1">Select a template and choose which experiences to apply</p>
+            <h2 className="text-2xl font-display text-foreground">Remix with Template Experiences</h2>
+            <p className="text-muted-foreground text-sm mt-1">Select a template and choose which experiences to apply</p>
           </div>
-          <button onClick={onClose} className="text-apple-text-secondary hover:text-apple-text-primary text-2xl">
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-2xl">
             ×
           </button>
         </div>
@@ -588,55 +586,55 @@ function TemplateRemixModal({
         <div className="p-6">
           {!selectedTemplate ? (
             <div>
-              <h3 className="text-xl font-serif text-apple-text-primary mb-4">Select a Clinical Template</h3>
+              <h3 className="text-xl font-display text-foreground mb-4">Choose a Story Pattern</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {templates.map((template) => (
                   <div
                     key={template.id}
-                    className="border-2 border-apple-border-light rounded-xl p-4 hover:border-apple-blue-200 transition-colors cursor-pointer"
+                    className="border-2 border-border rounded-xl p-4 hover:border-lavender transition-colors cursor-pointer"
                     onClick={() => onSelectTemplate(template.id)}
                   >
                     <div className="flex items-start justify-between mb-2">
-                      <h4 className="text-lg font-serif text-apple-text-primary">{template.name}</h4>
+                      <h4 className="text-lg font-display text-foreground">{template.name}</h4>
                       <span className="text-xs px-2 py-1 bg-red-500/20 text-red-500 rounded-full">
                         {template.disorder_type.replace(/_/g, ' ')}
                       </span>
                     </div>
-                    <p className="text-apple-text-secondary text-sm mb-3">{template.description}</p>
-                    <div className="flex gap-4 text-xs text-apple-text-secondary">
+                    <p className="text-muted-foreground text-sm mb-3">{template.description}</p>
+                    <div className="flex gap-4 text-xs text-muted-foreground">
                       <span>{template.experience_count} experiences</span>
-                      <span>{template.intervention_count} interventions</span>
+                      <span>{template.intervention_count} moments of support</span>
                     </div>
                   </div>
                 ))}
               </div>
               {templates.length === 0 && (
-                <div className="text-center py-12 text-apple-text-secondary">
+                <div className="text-center py-12 text-muted-foreground">
                   No templates available. Enable FEATURE_CLINICAL_TEMPLATES=true to use templates.
                 </div>
               )}
             </div>
           ) : loadingTemplateDetails ? (
             <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-apple-blue-600 mx-auto"></div>
-              <p className="mt-4 text-apple-text-secondary">Loading template details...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-deep-purple mx-auto"></div>
+              <p className="mt-4 text-muted-foreground">Loading template details...</p>
             </div>
           ) : (
             <div>
               <div className="mb-6">
                 <button
                   onClick={onResetTemplate}
-                  className="text-apple-text-secondary hover:text-apple-text-primary mb-4"
+                  className="text-muted-foreground hover:text-foreground mb-4"
                 >
                   ← Back to template selection
                 </button>
-                <h3 className="text-xl font-serif text-apple-text-primary mb-2">{selectedTemplate.name}</h3>
-                <p className="text-apple-text-secondary text-sm">{selectedTemplate.description}</p>
+                <h3 className="text-xl font-display text-foreground mb-2">{selectedTemplate.name}</h3>
+                <p className="text-muted-foreground text-sm">{selectedTemplate.description}</p>
               </div>
 
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-lg font-serif text-apple-text-primary">Select Experiences to Apply</h4>
+                  <h4 className="text-lg font-display text-foreground">Select Experiences to Apply</h4>
                   <div className="flex gap-2">
                     <button
                       onClick={() => {
@@ -667,8 +665,8 @@ function TemplateRemixModal({
                       key={idx}
                       className={`border-2 rounded-xl p-4 cursor-pointer transition-colors ${
                         selectedExperienceIndices.has(idx)
-                          ? 'border-apple-blue-600 bg-apple-blue-600/10'
-                          : 'border-apple-border-light hover:border-apple-border/30'
+                          ? 'border-deep-purple bg-deep-purple/10'
+                          : 'border-border hover:border-border/30'
                       }`}
                       onClick={() => onToggleExperience(idx)}
                     >
@@ -682,26 +680,26 @@ function TemplateRemixModal({
                         />
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2 flex-wrap">
-                            <span className="text-sm font-medium text-apple-text-primary">Age {exp.age}</span>
+                            <span className="text-sm font-medium text-foreground">Age {exp.age}</span>
                             <span className={`text-xs px-2 py-1 rounded-full ${
                               exp.valence === 'negative' ? 'bg-red-500/20 text-red-500' :
-                              exp.valence === 'positive' ? 'bg-apple-blue-600/20 text-apple-blue-600' :
-                              'bg-apple-blue-100/20 text-apple-text-secondary'
+                              exp.valence === 'positive' ? 'bg-deep-purple/20 text-deep-purple' :
+                              'bg-lavender/20/20 text-muted-foreground'
                             }`}>
                               {exp.valence}
                             </span>
-                            <span className="text-xs px-2 py-1 bg-apple-bg-tertiary/20 text-apple-text-primary rounded-full">
+                            <span className="text-xs px-2 py-1 bg-muted/20 text-foreground rounded-full">
                               {exp.intensity}
                             </span>
                             {exp.category && (
-                              <span className="text-xs px-2 py-1 bg-apple-bg-primary/10 text-apple-text-primary rounded-full">
+                              <span className="text-xs px-2 py-1 bg-background/10 text-foreground rounded-full">
                                 {exp.category.replace(/_/g, ' ')}
                               </span>
                             )}
                           </div>
-                          <p className="text-apple-text-primary text-sm mb-1">{exp.description}</p>
+                          <p className="text-foreground text-sm mb-1">{exp.description}</p>
                           {exp.clinical_note && (
-                            <p className="text-apple-text-secondary text-xs italic mt-1 border-l-2 border-apple-border/30 pl-2">
+                            <p className="text-muted-foreground text-xs italic mt-1 border-l-2 border-border/30 pl-2">
                               {exp.clinical_note}
                             </p>
                           )}
@@ -774,16 +772,16 @@ function CreateSnapshotModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-apple-bg-primary/50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-background/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl max-w-md w-full p-6">
         <div className="flex items-center gap-2 mb-2">
-          <h2 className="text-2xl font-serif text-apple-text-primary">Create Timeline Snapshot</h2>
+          <h2 className="text-2xl font-display text-foreground">Create Timeline Snapshot</h2>
           <Tooltip content={SITE_HELP.snapshot.whatIs} />
         </div>
         <HelpText type="info">
           <p className="mb-2">{SITE_HELP.snapshot.whatIs}</p>
           <ul className="list-disc list-inside space-y-1 text-xs">
-            {SITE_HELP.snapshot.whenToUse.map((item) => (
+            {[SITE_HELP.snapshot.howToUse].map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
@@ -791,27 +789,27 @@ function CreateSnapshotModal({
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <div className="flex items-center gap-2 mb-2">
-              <label className="block text-apple-text-primary font-medium">Label *</label>
-              <Tooltip content={SITE_HELP.snapshot.create.labelTooltip} />
+              <label className="block text-foreground font-medium">Label *</label>
+              
             </div>
             <input
               type="text"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
-              className="w-full px-4 py-2 border border-apple-border rounded-lg bg-white text-apple-text-primary focus:outline-none focus:border-apple-blue-600"
+              className="w-full px-4 py-2 border border-border rounded-lg bg-white text-foreground focus:outline-none focus:border-deep-purple"
               placeholder="e.g., Baseline State"
               required
             />
           </div>
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
-              <label className="block text-apple-text-primary font-medium">Description</label>
-              <Tooltip content={SITE_HELP.snapshot.create.descriptionTooltip} />
+              <label className="block text-foreground font-medium">Description</label>
+              
             </div>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-2 border border-apple-border rounded-lg bg-white text-apple-text-primary focus:outline-none focus:border-apple-blue-600"
+              className="w-full px-4 py-2 border border-border rounded-lg bg-white text-foreground focus:outline-none focus:border-deep-purple"
               rows={3}
               placeholder="Optional description..."
             />
@@ -846,19 +844,19 @@ function CreateSnapshotModal({
 
 function PersonalityOverview({ persona }: { persona: any }) {
   const traits = [
-    { name: 'Openness', key: 'openness', value: persona.current_personality.openness, color: 'bg-apple-blue-100' },
-    { name: 'Conscientiousness', key: 'conscientiousness', value: persona.current_personality.conscientiousness, color: 'bg-apple-blue-600' },
-    { name: 'Extraversion', key: 'extraversion', value: persona.current_personality.extraversion, color: 'bg-red-500' },
-    { name: 'Agreeableness', key: 'agreeableness', value: persona.current_personality.agreeableness, color: 'bg-apple-bg-tertiary' },
-    { name: 'Neuroticism', key: 'neuroticism', value: persona.current_personality.neuroticism, color: 'bg-apple-bg-primary' },
+    { name: 'Openness', key: 'openness', value: persona.current_personality.openness, color: 'bg-periwinkle' },
+    { name: 'Conscientiousness', key: 'conscientiousness', value: persona.current_personality.conscientiousness, color: 'bg-deep-purple' },
+    { name: 'Extraversion', key: 'extraversion', value: persona.current_personality.extraversion, color: 'bg-soft-purple' },
+    { name: 'Agreeableness', key: 'agreeableness', value: persona.current_personality.agreeableness, color: 'bg-lavender' },
+    { name: 'Neuroticism', key: 'neuroticism', value: persona.current_personality.neuroticism, color: 'bg-muted-coral' },
   ] as const
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Personality Traits */}
-      <div className="bg-white border-2 border-apple-border-light rounded-xl p-6">
+      <div className="bg-white border-2 border-border rounded-xl p-6">
         <div className="flex items-center gap-2 mb-2">
-          <h3 className="text-xl font-serif text-apple-text-primary">Big Five Personality</h3>
+          <h3 className="text-xl font-display text-foreground">How They Think & Feel</h3>
           <Tooltip content={SITE_HELP.personaDetail.bigFive.tooltip} />
         </div>
         <HelpText type="info">{SITE_HELP.personaDetail.bigFive.whatIs}</HelpText>
@@ -869,12 +867,12 @@ function PersonalityOverview({ persona }: { persona: any }) {
               <div key={trait.name}>
                 <div className="flex justify-between text-sm mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-apple-text-primary font-medium">{trait.name}</span>
+                    <span className="text-foreground font-medium">{trait.name}</span>
                     <TraitHelp trait={trait.key} score={score} />
                   </div>
-                  <span className="text-apple-text-secondary">{score}%</span>
+                  <span className="text-muted-foreground">{score}%</span>
                 </div>
-                <div className="bg-apple-bg-tertiary/30 rounded-full h-3 overflow-hidden">
+                <div className="bg-muted/30 rounded-full h-3 overflow-hidden">
                   <div
                     className={`${trait.color} h-full rounded-full transition-all duration-700`}
                     style={{ width: `${trait.value * 100}%` }}
@@ -887,16 +885,16 @@ function PersonalityOverview({ persona }: { persona: any }) {
       </div>
 
       {/* Trauma Markers */}
-      <div className="bg-white border-2 border-apple-border-light rounded-xl p-6">
+      <div className="bg-white border-2 border-border rounded-xl p-6">
         <div className="flex items-center gap-2 mb-2">
-          <h3 className="text-xl font-serif text-apple-text-primary">Current Symptoms</h3>
+          <h3 className="text-xl font-display text-foreground">What They're Navigating</h3>
           <Tooltip content={SITE_HELP.personaDetail.symptoms.tooltip} />
         </div>
         <HelpText type="info">{SITE_HELP.personaDetail.symptoms.whatIs}</HelpText>
         {persona.current_trauma_markers.length === 0 ? (
-          <div className="text-center py-8 text-apple-text-secondary">
+          <div className="text-center py-8 text-muted-foreground">
             <TrendingUp size={32} className="mx-auto mb-2" />
-            <p>No active symptoms</p>
+            <p>All is well right now</p>
           </div>
         ) : (
           <div className="flex flex-wrap gap-2">
@@ -930,16 +928,16 @@ function TimelineEventCard({ event, index }: { event: TimelineEvent; index: numb
 
   return (
     <div
-      className="bg-white border-2 border-apple-border-light rounded-xl p-6 animate-fade-in"
+      className="bg-white border-2 border-border rounded-xl p-6 animate-fade-in"
       style={{ animationDelay: `${index * 0.1}s` }}
     >
       <div className="flex items-start gap-4">
         {/* Icon */}
-        <div className={`p-3 rounded-xl ${isExperience ? 'bg-red-500/20' : 'bg-apple-blue-600/20'} flex-shrink-0`}>
+        <div className={`p-3 rounded-xl ${isExperience ? 'bg-red-500/20' : 'bg-deep-purple/20'} flex-shrink-0`}>
           {isExperience ? (
             <Sparkles className="text-red-500" size={24} />
           ) : (
-            <Pill className="text-apple-blue-600" size={24} />
+            <Pill className="text-deep-purple" size={24} />
           )}
         </div>
 
@@ -948,31 +946,31 @@ function TimelineEventCard({ event, index }: { event: TimelineEvent; index: numb
           <div className="flex items-start justify-between mb-2">
             <div>
               <div className="flex items-center gap-3">
-                <span className="text-xl font-serif text-apple-text-primary">
+                <span className="text-xl font-display text-foreground">
                   Age {event.age}
                 </span>
-                <span className={`text-xs px-2 py-1 rounded-full ${isExperience ? 'bg-red-500/20 text-red-500' : 'bg-apple-blue-600/20 text-apple-blue-600'}`}>
+                <span className={`text-xs px-2 py-1 rounded-full ${isExperience ? 'bg-red-500/20 text-red-500' : 'bg-deep-purple/20 text-deep-purple'}`}>
                   {isExperience ? 'Experience' : event.therapy_type}
                 </span>
               </div>
-              <p className="text-apple-text-secondary text-sm mt-1">
+              <p className="text-muted-foreground text-sm mt-1">
                 Event #{event.sequence_number}
               </p>
             </div>
           </div>
 
           {/* Description */}
-          <p className="text-apple-text-primary mb-4">
-            {event.description || `Therapeutic intervention: ${event.therapy_type}`}
+          <p className="text-foreground mb-4">
+            {event.description || `Therapeutic support: ${event.therapy_type}`}
           </p>
 
           {/* Personality Snapshot */}
           {event.personality_snapshot && (
-            <div className="bg-apple-bg-tertiary/20 rounded-lg p-4">
+            <div className="bg-muted/20 rounded-lg p-4">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                 <div>
-                  <span className="text-apple-text-secondary block mb-1">Neuroticism</span>
-                  <span className="text-apple-text-primary font-medium">
+                  <span className="text-muted-foreground block mb-1">Neuroticism</span>
+                  <span className="text-foreground font-medium">
                     {Math.round(event.personality_snapshot.personality_profile.neuroticism * 100)}%
                   </span>
                 </div>
@@ -984,7 +982,7 @@ function TimelineEventCard({ event, index }: { event: TimelineEvent; index: numb
                   
                   return symptomKeys.length > 0 && (
                     <div className="col-span-2">
-                      <span className="text-apple-text-secondary block mb-1">Symptoms</span>
+                      <span className="text-muted-foreground block mb-1">Symptoms</span>
                       <div className="flex flex-wrap gap-2">
                         {Object.entries(symptoms).map(([symptom, severity]) => {
                           // Ensure severity is a number
@@ -1009,7 +1007,7 @@ function TimelineEventCard({ event, index }: { event: TimelineEvent; index: numb
   )
 }
 
-// Add modals for Experience and Intervention (simplified versions for now)
+// Add modals for Experience and Support (simplified versions for now)
 function AddExperienceModal({ personaId, currentAge, onClose, onSuccess }: any) {
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -1031,17 +1029,17 @@ function AddExperienceModal({ personaId, currentAge, onClose, onSuccess }: any) 
   }
 
   return (
-    <div className="fixed inset-0 bg-apple-bg-primary/50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-background/50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center gap-2 mb-2">
-          <h2 className="text-3xl font-serif text-apple-text-primary">Add Life Experience</h2>
+          <h2 className="text-3xl font-display text-foreground">Add a Moment That Matters</h2>
           <Tooltip content={SITE_HELP.experience.pageHelp.content} />
         </div>
         <HelpText type="info">{SITE_HELP.experience.whatIs}</HelpText>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <label className="block text-sm font-medium text-apple-text-primary">
+              <label className="block text-sm font-medium text-foreground">
                 Age at Event
               </label>
               <Tooltip content={SITE_HELP.experience.age.tooltip} />
@@ -1053,15 +1051,15 @@ function AddExperienceModal({ personaId, currentAge, onClose, onSuccess }: any) 
               max={120}
               value={formData.age_at_event}
               onChange={(e) => setFormData({ ...formData, age_at_event: parseInt(e.target.value) })}
-              className="w-full px-4 py-3 rounded-lg border-2 border-apple-border-light bg-white focus:border-apple-blue-600 focus:outline-none"
+              className="w-full px-4 py-3 rounded-lg border-2 border-border bg-white focus:border-deep-purple focus:outline-none"
             />
-            <p className="text-xs text-apple-text-secondary mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Add experiences at any age (0-120) to build complete life history
             </p>
           </div>
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <label className="block text-sm font-medium text-apple-text-primary">
+              <label className="block text-sm font-medium text-foreground">
                 What happened?
               </label>
               <Tooltip content={SITE_HELP.experience.description.tooltip} />
@@ -1071,10 +1069,10 @@ function AddExperienceModal({ personaId, currentAge, onClose, onSuccess }: any) 
               rows={6}
               value={formData.user_description}
               onChange={(e) => setFormData({ ...formData, user_description: e.target.value })}
-              className="w-full px-4 py-3 rounded-lg border-2 border-apple-border-light bg-white focus:border-apple-blue-600 focus:outline-none resize-none"
+              className="w-full px-4 py-3 rounded-lg border-2 border-border bg-white focus:border-deep-purple focus:outline-none resize-none"
               placeholder="Describe the experience in detail..."
             />
-            <p className="text-xs text-apple-text-secondary mt-2">
+            <p className="text-xs text-muted-foreground mt-2">
               AI will analyze the psychological impact based on trauma research and developmental psychology
             </p>
           </div>
@@ -1083,7 +1081,7 @@ function AddExperienceModal({ personaId, currentAge, onClose, onSuccess }: any) 
               Cancel
             </button>
             <button type="submit" disabled={loading} className="btn-primary flex-1">
-              {loading ? 'Analyzing...' : 'Add Experience'}
+              {loading ? 'Considering how this helps...' : 'Add Experience'}
             </button>
           </div>
         </form>
@@ -1109,12 +1107,12 @@ function AddInterventionModal({ personaId, currentAge, onClose, onSuccess }: any
       await api.addIntervention(personaId, formData)
       
       // Show success feedback
-      alert('✓ Intervention added successfully! Timeline updating...')
+      alert('✓ Support added successfully! Timeline updating...')
       
       onSuccess()
     } catch (error) {
-      console.error('Intervention error:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Failed to add intervention'
+      console.error('Support error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to add support'
       alert(`Error: ${errorMessage}\n\nCheck the browser console (F12) for details.`)
     } finally {
       setLoading(false)
@@ -1122,18 +1120,18 @@ function AddInterventionModal({ personaId, currentAge, onClose, onSuccess }: any
   }
 
   return (
-    <div className="fixed inset-0 bg-apple-bg-primary/50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-background/50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center gap-2 mb-2">
-          <h2 className="text-3xl font-serif text-apple-text-primary">Add Therapeutic Intervention</h2>
+          <h2 className="text-3xl font-display text-foreground">Add Support or Healing</h2>
           <Tooltip content={SITE_HELP.intervention.pageHelp.content} />
         </div>
         <HelpText type="info">{SITE_HELP.intervention.whatIs}</HelpText>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <label className="block text-sm font-medium text-apple-text-primary">
-                Age at Intervention
+              <label className="block text-sm font-medium text-foreground">
+                Age at Support
               </label>
               <Tooltip content={SITE_HELP.intervention.age.tooltip} />
             </div>
@@ -1144,23 +1142,23 @@ function AddInterventionModal({ personaId, currentAge, onClose, onSuccess }: any
               max={120}
               value={formData.age_at_intervention}
               onChange={(e) => setFormData({ ...formData, age_at_intervention: parseInt(e.target.value) })}
-              className="w-full px-4 py-3 rounded-lg border-2 border-apple-border-light bg-white focus:border-apple-blue-600 focus:outline-none"
+              className="w-full px-4 py-3 rounded-lg border-2 border-border bg-white focus:border-deep-purple focus:outline-none"
             />
-            <p className="text-xs text-apple-text-secondary mt-1">
-              Add interventions at any age (0-120) to build complete therapy history
+            <p className="text-xs text-muted-foreground mt-1">
+              Add moments of support at any age (0-120) to build complete therapy history
             </p>
           </div>
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <label className="block text-sm font-medium text-apple-text-primary">
+              <label className="block text-sm font-medium text-foreground">
                 Therapy Type
               </label>
-              <Tooltip content={SITE_HELP.intervention.therapyType.tooltip} />
+              <Tooltip content={SITE_HELP.intervention.modalityPicker.tooltip} />
             </div>
             <select
               value={formData.therapy_type}
               onChange={(e) => setFormData({ ...formData, therapy_type: e.target.value })}
-              className="w-full px-4 py-3 rounded-lg border-2 border-apple-border-light bg-white focus:border-apple-blue-600 focus:outline-none"
+              className="w-full px-4 py-3 rounded-lg border-2 border-border bg-white focus:border-deep-purple focus:outline-none"
             >
               <option value="CBT">CBT (Cognitive Behavioral Therapy)</option>
               <option value="ACT">ACT (Acceptance & Commitment Therapy)</option>
@@ -1175,15 +1173,15 @@ function AddInterventionModal({ personaId, currentAge, onClose, onSuccess }: any
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <label className="block text-sm font-medium text-apple-text-primary">
+                <label className="block text-sm font-medium text-foreground">
                   Duration
                 </label>
-                <Tooltip content={SITE_HELP.intervention.duration.tooltip} />
+                <Tooltip content={"How long the support continues"} />
               </div>
               <select
                 value={formData.duration}
                 onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border-2 border-apple-border-light bg-white focus:border-apple-blue-600 focus:outline-none"
+                className="w-full px-4 py-3 rounded-lg border-2 border-border bg-white focus:border-deep-purple focus:outline-none"
               >
                 <option value="3_months">3 months</option>
                 <option value="6_months">6 months</option>
@@ -1193,15 +1191,15 @@ function AddInterventionModal({ personaId, currentAge, onClose, onSuccess }: any
             </div>
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <label className="block text-sm font-medium text-apple-text-primary">
+                <label className="block text-sm font-medium text-foreground">
                   Intensity
                 </label>
-                <Tooltip content={SITE_HELP.intervention.intensity.tooltip} />
+                <Tooltip content={"How intensive the support is"} />
               </div>
               <select
                 value={formData.intensity}
                 onChange={(e) => setFormData({ ...formData, intensity: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border-2 border-apple-border-light bg-white focus:border-apple-blue-600 focus:outline-none"
+                className="w-full px-4 py-3 rounded-lg border-2 border-border bg-white focus:border-deep-purple focus:outline-none"
               >
                 <option value="monthly">Monthly</option>
                 <option value="weekly">Weekly</option>
@@ -1211,16 +1209,16 @@ function AddInterventionModal({ personaId, currentAge, onClose, onSuccess }: any
           </div>
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <label className="block text-sm font-medium text-apple-text-primary">
+              <label className="block text-sm font-medium text-foreground">
                 Notes (Optional)
               </label>
-              <Tooltip content={SITE_HELP.intervention.notes.tooltip} />
+              <Tooltip content={"Additional notes about the support"} />
             </div>
             <textarea
               rows={3}
               value={formData.user_notes}
               onChange={(e) => setFormData({ ...formData, user_notes: e.target.value })}
-              className="w-full px-4 py-3 rounded-lg border-2 border-apple-border-light bg-white focus:border-apple-blue-600 focus:outline-none resize-none"
+              className="w-full px-4 py-3 rounded-lg border-2 border-border bg-white focus:border-deep-purple focus:outline-none resize-none"
               placeholder="Additional context about the therapy..."
             />
           </div>
@@ -1229,7 +1227,7 @@ function AddInterventionModal({ personaId, currentAge, onClose, onSuccess }: any
               Cancel
             </button>
             <button type="submit" disabled={loading} className="btn-primary flex-1">
-              {loading ? 'Analyzing...' : 'Add Intervention'}
+              {loading ? 'Considering how this helps...' : 'Add Support'}
             </button>
           </div>
         </form>

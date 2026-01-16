@@ -87,11 +87,11 @@ export default function HomePage() {
   }
 
   return (
-    <main className="min-h-screen bg-apple-bg-tertiary gradient-apple-mesh">
-      {/* Glass Header */}
-      <header className="glass-panel">
+    <main className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b border-border bg-card">
         <div className="container-apple py-6">
-          <div className="flex items-center gap-4 mb-2 animate-fade-in-apple">
+          <div className="flex items-center gap-4 mb-2 animate-fade-in">
             <Image
               src="/logo.png"
               alt="LifeStream Labs"
@@ -99,12 +99,12 @@ export default function HomePage() {
               height={48}
               className="object-contain"
             />
-            <h1 className="text-4xl font-serif text-apple-text-primary font-bold">
+            <h1 className="text-4xl font-bold text-foreground" style={{ fontFamily: 'var(--font-display)' }}>
               Persona Evolution
             </h1>
           </div>
-          <p className="text-apple-text-secondary mt-2 animate-fade-in-apple delay-apple-100">
-            Explore psychological transformation through life experiences and therapy
+          <p className="text-muted-foreground mt-2 animate-fade-in delay-100">
+            Explore how life experiences shape who we become
           </p>
         </div>
       </header>
@@ -115,42 +115,43 @@ export default function HomePage() {
 
         {/* Quick Start Guide */}
         {personas.length === 0 && !loading && (
-          <Card variant="glass" className="mb-8 animate-scale-in">
-            <h2 className="text-lg font-semibold text-apple-text-primary mb-4">How to Use</h2>
+          <div className="mb-8 bg-card border border-border rounded-lg p-6 animate-fade-in-up">
+            <h2 className="text-lg font-semibold text-foreground mb-4" style={{ fontFamily: 'var(--font-display)' }}>
+              How This Works
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {[
-                { num: 1, title: 'Create a Persona', desc: 'Set early life context' },
-                { num: 2, title: 'Add Experiences', desc: 'Shape personality over time' },
-                { num: 3, title: 'Explore Timeline', desc: 'Snapshots & narrative' },
-                { num: 4, title: 'Chat', desc: 'Talk to the persona as they\'ve become' }
+                { num: 1, title: 'Create a Person', desc: 'Start with their early life story' },
+                { num: 2, title: 'Add Experiences', desc: 'Build their journey moment by moment' },
+                { num: 3, title: 'Explore Their Timeline', desc: 'See how they evolved over time' },
+                { num: 4, title: 'Understand the Pattern', desc: 'Watch how it all connects' }
               ].map(({ num, title, desc }) => (
                 <div key={num} className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-apple-blue-100 flex items-center justify-center text-apple-blue-600 font-bold text-sm">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm" style={{ background: 'var(--lavender)', color: 'var(--deep-purple)' }}>
                     {num}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-apple-text-primary">{title}</p>
-                    <p className="text-xs text-apple-text-secondary mt-1">{desc}</p>
+                    <p className="text-sm font-medium text-foreground">{title}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{desc}</p>
                   </div>
                 </div>
               ))}
             </div>
-          </Card>
+          </div>
         )}
 
         {/* Create New Persona & Templates */}
-        <div className="mb-12 animate-fade-in-apple delay-apple-200 flex gap-4 flex-wrap items-center">
+        <div className="mb-12 animate-fade-in delay-200 flex gap-4 flex-wrap items-center">
           <div className="relative inline-flex items-center">
             <Button
               onClick={() => router.push('/create')}
               variant="primary"
               icon={<Plus size={20} />}
-              className="shadow-apple-lg"
             >
-              Create New Persona
+              Start a New Person
             </Button>
             <div className="ml-2">
-              <Tooltip content={SITE_HELP.personasList.createPersona.tooltip} />
+              <Tooltip content={"Start creating a new person to explore"} />
             </div>
           </div>
           {templates.length > 0 && (
@@ -160,10 +161,10 @@ export default function HomePage() {
                 variant="secondary"
                 icon={<FileText size={20} />}
               >
-                Browse Clinical Templates
+                Explore Story Templates
               </Button>
               <div className="ml-2">
-                <Tooltip content={SITE_HELP.personasList.useTemplate.tooltip} />
+                <Tooltip content={"Use a pre-built story template"} />
               </div>
             </div>
           )}
@@ -173,18 +174,18 @@ export default function HomePage() {
         {/* Personas Grid */}
         {loading ? (
           <div className="text-center py-20">
-            <div className="spinner-apple w-12 h-12 mx-auto mb-4 border-apple-blue-500"></div>
-            <p className="text-apple-text-secondary">Loading personas...</p>
+            <div className="animate-spin rounded-full h-12 w-12 mx-auto mb-4 border-b-2" style={{ borderColor: 'var(--deep-purple)' }}></div>
+            <p className="text-muted-foreground">Finding their stories...</p>
           </div>
         ) : personas.length === 0 ? (
-          <div className="text-center py-20 animate-fade-in-apple delay-apple-300">
+          <div className="text-center py-20 animate-fade-in delay-300">
             <EmptyStateWithHelp
               icon="👤"
               title={SITE_HELP.personasList.emptyState.title}
-              description={SITE_HELP.personasList.emptyState.description}
-              helpItems={SITE_HELP.personasList.emptyState.helpItems}
+              description={SITE_HELP.personasList.emptyState.subtitle}
+              helpItems={SITE_HELP.personasList.emptyState.steps.map(s => s.description)}
               actionButton={{
-                text: "Create Your First Persona",
+                text: "Start Your First Story",
                 onClick: () => router.push('/create'),
                 helpKey: "personasList.createPersona"
               }}
@@ -224,10 +225,10 @@ function PersonaCard({ persona, index, onClick }: {
     >
       {/* Name & Age */}
       <div className="mb-4">
-        <h3 className="text-2xl font-serif text-apple-text-primary mb-1 font-semibold">
+        <h3 className="text-2xl text-foreground mb-1 font-semibold" style={{ fontFamily: 'var(--font-display)' }}>
           {persona.name}
         </h3>
-        <p className="text-apple-text-secondary text-sm flex items-center gap-1">
+        <p className="text-muted-foreground text-sm flex items-center gap-1">
           <Clock size={14} />
           Age {persona.current_age}
         </p>
@@ -237,14 +238,14 @@ function PersonaCard({ persona, index, onClick }: {
       <div className="space-y-3 mb-4">
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-1">
-            <span className="text-apple-text-secondary">Experiences</span>
+            <span className="text-muted-foreground">Life Moments</span>
             <Tooltip content={SITE_HELP.personasList.personaCard.experiences} />
           </div>
-          <Badge color="blue">{persona.experiences_count}</Badge>
+          <Badge color="purple">{persona.experiences_count}</Badge>
         </div>
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-1">
-            <span className="text-apple-text-secondary">Age</span>
+            <span className="text-muted-foreground">Current Age</span>
             <Tooltip content={SITE_HELP.personasList.personaCard.age} />
           </div>
           <Badge color="gray">{persona.current_age} years</Badge>
@@ -252,17 +253,20 @@ function PersonaCard({ persona, index, onClick }: {
       </div>
 
       {/* Personality Preview */}
-      <div className="border-t border-apple-border-light pt-4">
+      <div className="border-t border-border pt-4">
         <div className="flex items-center justify-between text-xs mb-2">
-          <span className="text-apple-text-secondary">Emotional Stability</span>
-          <span className="text-apple-text-primary font-medium">
+          <span className="text-muted-foreground">How They Feel</span>
+          <span className="text-foreground font-medium">
             {Math.round((1 - neuroticism) * 100)}%
           </span>
         </div>
-        <div className="bg-apple-bg-tertiary rounded-full h-2 overflow-hidden">
+        <div className="bg-muted rounded-full h-2 overflow-hidden">
           <div
-            className="bg-apple-blue-500 h-full rounded-full transition-all duration-500"
-            style={{ width: `${(1 - neuroticism) * 100}%` }}
+            className="h-full rounded-full transition-all duration-500"
+            style={{
+              width: `${(1 - neuroticism) * 100}%`,
+              background: 'linear-gradient(to right, var(--lavender), var(--deep-purple))'
+            }}
           />
         </div>
       </div>
@@ -284,10 +288,10 @@ function PersonaCard({ persona, index, onClick }: {
       )}
 
       {/* View Timeline Button */}
-      <div className="mt-4 pt-4 border-t border-apple-border-light">
-        <div className="flex items-center gap-2 text-apple-blue-500 text-sm font-medium hover:text-apple-blue-600 transition-colors">
+      <div className="mt-4 pt-4 border-t border-border">
+        <div className="flex items-center gap-2 text-sm font-medium transition-colors" style={{ color: 'var(--deep-purple)' }}>
           <TrendingUp size={16} />
-          View Evolution Timeline
+          See Their Journey
         </div>
       </div>
     </Card>

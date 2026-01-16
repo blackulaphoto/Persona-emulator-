@@ -1,7 +1,10 @@
 /**
  * SITE-WIDE HELP CONTENT
  *
- * Tooltips, examples, and guidance for EVERY feature in the app
+ * Empathetic Modernism Voice:
+ * - Human, not clinical
+ * - Exploratory, not diagnostic
+ * - Inviting, not overwhelming
  */
 
 export const SITE_HELP = {
@@ -10,62 +13,62 @@ export const SITE_HELP = {
   // ============================================
   personaDetail: {
     pageHelp: {
-      title: "Understanding Your Persona",
-      content: "This page shows your persona's psychological profile based on their background and experiences. Add experiences to see how their symptoms and personality evolve over time."
+      title: "Exploring This Person's Journey",
+      content: "Here you can see how this person tends to think, feel, and respond to the world. As you add experiences, you'll watch their story unfold—see how moments shape who they become."
     },
 
     bigFive: {
-      tooltip: "The Big Five personality traits that shape behavior and responses",
-      whatIs: "The Big Five (OCEAN) is the most scientifically validated personality model. These traits are relatively stable but can shift with major life experiences.",
+      tooltip: "How this person tends to think, feel, and respond",
+      whatIs: "The Big Five describes how people approach life. These tendencies are fairly stable, but can shift through major experiences and growth.",
       traits: {
         openness: {
-          definition: "Openness to new experiences, creativity, intellectual curiosity",
-          high: "Imaginative, curious, adventurous, artistic",
-          low: "Practical, conventional, prefers routine"
+          definition: "How curious and imaginative they tend to be",
+          high: "Loves exploring ideas, trying new things, creating",
+          low: "Prefers what's familiar, practical, and predictable"
         },
         conscientiousness: {
-          definition: "Organization, responsibility, self-discipline, goal-orientation",
-          high: "Organized, reliable, hardworking, planful",
-          low: "Spontaneous, flexible, casual"
+          definition: "How organized and goal-focused they tend to be",
+          high: "Keeps things in order, follows through, plans ahead",
+          low: "Goes with the flow, flexible about plans and details"
         },
         extraversion: {
-          definition: "Sociability, assertiveness, energy level in social situations",
-          high: "Outgoing, talkative, energetic, seeks social interaction",
-          low: "Reserved, quiet, prefers solitude or small groups"
+          definition: "Where they get their energy—from people or from solitude",
+          high: "Energized by being around others, outgoing",
+          low: "Recharged by quiet time, keeps a smaller circle"
         },
         agreeableness: {
-          definition: "Compassion, cooperation, trust in others",
-          high: "Kind, empathetic, trusting, cooperative",
-          low: "Direct, skeptical, competitive, independent"
+          definition: "How they tend to relate to and trust others",
+          high: "Warm, empathetic, wants harmony in relationships",
+          low: "Direct, independent, questions before trusting"
         },
         neuroticism: {
-          definition: "Emotional stability, anxiety, sensitivity to stress",
-          high: "Anxious, moody, sensitive to stress, worries frequently",
-          low: "Calm, resilient, emotionally stable"
+          definition: "How they experience and manage emotions",
+          high: "Feels things deeply, sensitive to stress and worry",
+          low: "Stays steady through ups and downs, less reactive"
         }
       }
     },
 
     symptoms: {
-      tooltip: "Current mental health symptoms and diagnoses based on experiences",
-      whatIs: "These symptoms are generated based on the persona's background and experiences using evidence-based psychology. They follow DSM-5 diagnostic criteria.",
+      tooltip: "What they're navigating right now",
+      whatIs: "Based on what this person has been through, here's what they might be dealing with emotionally and mentally. This reflects realistic patterns you'd see in real life.",
       howGenerated: [
-        "Experiences are analyzed for trauma, neglect, loss, etc.",
-        "Age at experience affects severity (earlier = greater impact)",
-        "Multiple experiences compound to create complex presentations",
-        "Symptoms reflect realistic clinical patterns and comorbidities"
+        "We look at what happened to them and when",
+        "Earlier experiences shape us more deeply",
+        "Multiple challenges can build on each other",
+        "The patterns mirror what clinicians see in real cases"
       ],
-      clickToExpand: "Click any symptom to see detailed breakdown and onset age"
+      clickToExpand: "Click any symptom to understand when it started and why"
     },
 
     timeline: {
-      tooltip: "Visual representation of the persona's life experiences over time",
-      whatIs: "The timeline shows key experiences in chronological order, helping you understand how their psychological development unfolded.",
+      tooltip: "See how their life story has unfolded",
+      whatIs: "This timeline shows the moments that shaped them. You can trace how experiences led to who they are now.",
       howToUse: [
-        "Each point represents a significant experience",
-        "Color indicates category (trauma, achievement, relationship, etc.)",
-        "Size indicates severity of impact",
-        "Click any experience to see details"
+        "Each point is a significant moment in their life",
+        "Colors show different types of experiences",
+        "Bigger moments had more impact",
+        "Click any experience to explore it deeper"
       ]
     }
   },
@@ -75,16 +78,16 @@ export const SITE_HELP = {
   // ============================================
   experience: {
     pageHelp: {
-      title: "Adding Life Experiences",
-      content: "Experiences shape psychological development. Add specific events with ages to see how they affect symptoms, personality, and functioning over time."
+      title: "Adding Moments That Matter",
+      content: "Life experiences shape us. Add specific moments—with context about when and how they happened—and see how they influence this person's journey."
     },
-    tooltip: "Add a life experience that shaped this persona's development",
-    whatIs: "Experiences are the building blocks of psychological development. Each experience affects symptoms, personality traits, and functioning based on its type, severity, and age of occurrence.",
+    tooltip: "Add a moment that shaped this person's path",
+    whatIs: "Experiences are how we become who we are. Each one affects how someone sees themselves, relates to others, and moves through the world.",
     age: {
-      tooltip: "Earlier experiences tend to have greater developmental impact, especially in childhood."
+      tooltip: "When something happens matters—earlier experiences shape us more deeply."
     },
     description: {
-      tooltip: "Include context, duration, and emotional impact for the most accurate analysis."
+      tooltip: "Tell the story: What happened? How long did it last? How did it feel?"
     }
   },
 
@@ -93,258 +96,136 @@ export const SITE_HELP = {
   // ============================================
   intervention: {
     pageHelp: {
-      title: "Adding Therapeutic Interventions",
-      content: "Track therapy, medication, or other interventions to see how they affect symptoms over time. Different modalities have different effectiveness for different conditions."
+      title: "Exploring Support and Healing",
+      content: "Track therapy or other support to see how it helps. Different approaches work better for different challenges."
     },
-    tooltip: "Add therapy or treatment to track symptom changes",
-    whatIs: "Interventions represent therapeutic treatments that can reduce symptoms and improve functioning. The effectiveness depends on the modality, duration, and match to symptoms.",
-    age: {
-      tooltip: "Age at intervention affects developmental sensitivity and expected outcomes."
-    },
-    therapyType: {
-      tooltip: "Different therapy modalities target different symptom clusters and goals."
+    tooltip: "Add therapy or support to see how it helps",
+    whatIs: "Support comes in many forms—therapy, medication, community. Here you can explore how different kinds of help affect this person's wellbeing over time.",
+    modalityPicker: {
+      tooltip: "Different therapy approaches work better for different challenges",
+      whatIs: "There are many ways to approach healing. Some focus on changing thoughts, others on processing trauma, others on building skills. The best fit depends on what someone's dealing with."
     },
     duration: {
-      tooltip: "Longer durations typically increase effectiveness, especially for chronic symptoms."
+      tooltip: "Therapy takes time. Longer engagement often means deeper change."
     },
-    intensity: {
-      tooltip: "Session frequency influences speed and stability of change."
-    },
-    notes: {
-      tooltip: "Add relevant context such as treatment goals or special considerations."
+    age: {
+      tooltip: "When someone gets support matters, especially for earlier wounds"
     }
+  },
+
+  // ============================================
+  // NARRATIVE VIEW
+  // ============================================
+  narrative: {
+    pageHelp: {
+      title: "Their Story So Far",
+      content: "This is their life as a narrative—not a list of symptoms, but a story of how experiences shaped a person."
+    },
+    tooltip: "See how their story unfolds",
+    whatIs: "The narrative weaves together everything you know about this person into a coherent story. It helps you understand them holistically, not just diagnostically.",
+    howGenerated: "We look at their background, what they've been through, and how it all connects into who they've become.",
+    readingTime: "Take your time with this. These are real human complexities."
+  },
+
+  // ============================================
+  // PERSONAS LIST PAGE
+  // ============================================
+  personasList: {
+    pageHelp: {
+      title: "Welcome to Your Collection",
+      content: "Each persona represents a unique psychological journey. Create new ones to explore different life paths, or continue developing existing stories."
+    },
+    emptyState: {
+      title: "Start Exploring Human Development",
+      subtitle: "Create your first persona to see how experiences shape personality, symptoms, and growth over time.",
+      steps: [
+        {
+          title: "Create a Person",
+          description: "Start with basics—name, age, and their early life context"
+        },
+        {
+          title: "Add Experiences",
+          description: "Build their story with moments that shaped who they became"
+        },
+        {
+          title: "Explore Their Timeline",
+          description: "See how personality and wellbeing evolved across their life"
+        },
+        {
+          title: "Understand the Pattern",
+          description: "Watch how early experiences, relationships, and support interweave"
+        }
+      ]
+    },
+    personaCard: {
+      age: "How old they are right now",
+      experiences: "Moments that have shaped their journey",
+      symptoms: "What they're currently navigating"
+    }
+  },
+
+  // ============================================
+  // CREATE PERSONA PAGE
+  // ============================================
+  createPersona: {
+    pageHelp: {
+      title: "Creating a New Person",
+      content: "You're about to shape a life story. Start with who they are and what their early years were like—this sets the foundation for everything that follows."
+    },
+    backgroundStory: {
+      tooltip: "Describe their early life—family, environment, formative experiences",
+      whatIs: "Early life sets the stage. Family dynamics, stability, early relationships—these shape the lens through which someone sees the world.",
+      examples: [
+        "Raised by a single parent who worked two jobs",
+        "Grew up in a chaotic household with addiction issues",
+        "Had a stable, supportive family in a tight-knit community",
+        "Moved frequently, struggled to form lasting friendships"
+      ]
+    },
+    initialPersonality: {
+      tooltip: "How would you describe their natural temperament?",
+      whatIs: "Some of who we are is there from the start. Think of this as their baseline—before life experiences shape them further."
+    }
+  },
+
+  // ============================================
+  // TEMPLATES PAGE
+  // ============================================
+  templates: {
+    pageHelp: {
+      title: "Explore Real Psychological Patterns",
+      content: "These templates represent real clinical presentations and developmental trajectories. Use them to learn, teach, or as starting points for your own explorations."
+    },
+    whatAreTemplates: "Templates are pre-built personas based on real psychological patterns—complex trauma, developmental journeys, treatment response examples.",
+    howToUse: [
+      "Browse patterns you want to understand better",
+      "Use as teaching examples for students or colleagues",
+      "Start from a template and modify to explore 'what ifs'",
+      "Compare how different interventions affect similar starting points"
+    ]
   },
 
   // ============================================
   // SNAPSHOT FEATURE
   // ============================================
   snapshot: {
-    tooltip: "Capture the persona's current psychological state at a specific point in time",
-    whatIs: "A snapshot freezes the persona's current symptoms, functioning, and psychological presentation. Use this to track progress over time or compare before/after interventions.",
-    create: {
-      labelTooltip: "Use a short label to describe the milestone or period you are capturing.",
-      descriptionTooltip: "Optional context for why this snapshot matters or what changed."
-    },
-    whenToUse: [
-      "Before starting a new intervention (baseline)",
-      "After completing therapy (to measure change)",
-      "At major life transitions",
-      "To document symptom progression",
-      "To compare effectiveness of different interventions"
-    ]
-  },
-
-  // ============================================
-  // NARRATIVE FEATURE
-  // ============================================
-  narrative: {
-    tooltip: "AI-generated comprehensive psychological narrative based on all experiences and background",
-    whatIs: "The narrative is a professionally-written developmental psychology report that synthesizes the persona's background, experiences, and current presentation into a cohesive story.",
-    whatItIncludes: [
-      "Developmental history organized by life stages",
-      "Analysis of attachment patterns and family dynamics",
-      "Impact of trauma and adverse experiences",
-      "Personality development over time",
-      "Current psychological presentation and symptoms",
-      "Risk and protective factors",
-      "Therapeutic implications and recommendations"
-    ]
-  },
-
-  // ============================================
-  // CHAT FEATURE
-  // ============================================
-  chat: {
-    tooltip: "Have a conversation with the AI persona as if they were a real person",
-    whatIs: "The chat feature lets you interact with the persona in character. They'll respond based on their background, experiences, personality traits, and current symptoms.",
-    howItWorks: [
-      "Persona responds as if they're a real person with this history",
-      "Answers reflect their personality traits (e.g., low extraversion = brief responses)",
-      "Symptoms influence conversation (e.g., depression = low energy, hopelessness)",
-      "Background shapes perspectives and beliefs"
-    ]
-  },
-
-  // ============================================
-  // CLINICAL TEMPLATES PAGE
-  // ============================================
-  templates: {
-    pageHelp: {
-      title: "Clinical Templates",
-      content: "Browse evidence-based disorder development pathways. Templates provide pre-configured personas with realistic symptom progressions based on clinical research."
-    },
-
-    whatAreTemplates: {
-      tooltip: "Pre-built persona configurations based on common clinical presentations",
-      whatIs: "Clinical templates are evidence-based disorder development pathways that simulate realistic psychological presentations. Each template includes a baseline profile and predefined experiences that lead to specific diagnoses.",
-      howTheyWork: [
-        "Each template represents a common clinical presentation",
-        "Background and experiences are based on research and clinical patterns",
-        "Symptoms develop realistically based on developmental psychology",
-        "You can apply all experiences at once or manually add them",
-        "Templates can be customized after creation"
-      ]
-    },
-
-    templateBrowser: {
-      tooltip: "Browse templates by disorder category or severity",
-      categories: {
-        mood: "Depression, Bipolar Disorder, Dysthymia",
-        anxiety: "Generalized Anxiety, Panic Disorder, Social Anxiety, OCD, PTSD",
-        trauma: "PTSD, Complex PTSD, Developmental Trauma",
-        personality: "Borderline, Avoidant, Narcissistic Personality Disorders",
-        psychotic: "Schizophrenia, Schizoaffective Disorder",
-        developmental: "ADHD, Autism Spectrum Disorder",
-        substance: "Substance Use Disorders, Co-occurring Disorders"
-      }
-    },
-
-    createFromTemplate: {
-      tooltip: "Create a new persona with this template's baseline configuration",
-      whatHappens: [
-        "A new persona is created with the template's background",
-        "Baseline personality traits and demographics are set",
-        "Predefined experiences are available to apply",
-        "You choose whether to apply all experiences or add manually",
-        "Once created, you can customize the persona further"
-      ]
-    },
-
-    applyExperiences: {
-      tooltip: "Apply the template's predefined experiences to see symptom development",
-      whatIs: "Templates come with carefully designed experiences that lead to the target diagnosis. You can apply them all at once or review and add them individually.",
-      whenToApplyAll: [
-        "When you want to quickly create a realistic case example",
-        "For educational demonstrations",
-        "When studying typical disorder development pathways"
-      ],
-      whenToApplyManually: [
-        "When you want to understand each experience's impact",
-        "To customize the timeline or severity",
-        "For learning case conceptualization step-by-step"
-      ]
-    },
-
-    vsCreatePersona: {
-      tooltip: "Templates vs. creating from scratch",
-      templates: "Quick start with evidence-based presentation, ideal for education and research",
-      createNew: "Full control over all aspects, ideal for specific cases or creative exploration",
-      whenToUseTemplates: [
-        "Learning about disorder development pathways",
-        "Need a realistic example quickly",
-        "Teaching or demonstrating clinical concepts",
-        "Studying typical symptom progressions"
-      ],
-      whenToCreateNew: [
-        "Simulating a specific client case (de-identified)",
-        "Exploring unique combinations of experiences",
-        "Testing hypotheses about protective/risk factors",
-        "Creating personalized educational scenarios"
-      ]
-    }
-  },
-
-  // ============================================
-  // PERSONAS LIST / HOME PAGE
-  // ============================================
-  personasList: {
-    pageHelp: {
-      title: "Your Personas",
-      content: "Manage your collection of psychological personas. Create new personas from scratch, use clinical templates, or remix existing ones to explore different developmental pathways."
-    },
-
-    emptyState: {
-      title: "No personas yet",
-      description: "Get started by creating a persona, using a clinical template, or exploring the remix feature.",
-      helpItems: [
-        "Create Custom: Build a persona from scratch with full control",
-        "Use Template: Start with evidence-based disorder presentations",
-        "Remix: Create variations of existing personas to explore 'what if' scenarios"
-      ]
-    },
-
-    createPersona: {
-      tooltip: "Create a new persona from scratch with complete customization",
-      whatIs: "Build a persona by defining their background, demographics, and initial state. Then add experiences and interventions to see how they evolve.",
-      bestFor: [
-        "Simulating specific client cases (de-identified)",
-        "Custom learning scenarios",
-        "Exploring unique developmental pathways",
-        "Research and hypothesis testing"
-      ]
-    },
-
-    useTemplate: {
-      tooltip: "Start with a pre-configured clinical template",
-      whatIs: "Templates provide evidence-based disorder development pathways with realistic symptom progressions. Quick way to create educational examples.",
-      bestFor: [
-        "Learning disorder development patterns",
-        "Teaching clinical concepts",
-        "Quick demonstrations",
-        "Studying typical presentations"
-      ]
-    },
-
-    remixPersona: {
-      tooltip: "Create variations of existing personas to explore different outcomes",
-      whatIs: "Remix lets you duplicate a persona and modify specific elements to answer 'what if' questions about different experiences or interventions.",
-      examples: [
-        "What if they had received therapy earlier?",
-        "What if the trauma had been reported?",
-        "What if they had a supportive teacher?",
-        "How would different parenting have changed outcomes?"
-      ],
-      bestFor: [
-        "Understanding protective vs. risk factors",
-        "Comparing intervention effectiveness",
-        "Teaching clinical decision-making",
-        "Research on developmental trajectories"
-      ]
-    },
-
-    personaCard: {
-      age: "Current age in the simulation",
-      experiences: "Number of life experiences added",
-      symptoms: "Number of active symptoms/diagnoses",
-      lastUpdated: "Last time the persona was modified"
-    }
+    tooltip: "Capture who they are at this moment in time",
+    whatIs: "Snapshots freeze a moment in their development. Later, you can compare snapshots to see how they've changed—what's shifted, what's grown, what's healed.",
+    whyUseful: "Growth isn't always obvious day-to-day. Snapshots let you step back and see the journey.",
+    howToUse: "Save snapshots at key moments—before major life changes, before/after therapy, at different life stages."
   },
 
   // ============================================
   // REMIX FEATURE
   // ============================================
   remix: {
-    tooltip: "Create variations of this persona to explore 'what if' scenarios",
-    whatIs: "Remix lets you create a new persona based on this one, then modify specific elements to see how different experiences or interventions would change outcomes.",
-    pageHelp: {
-      title: "Remix a Persona",
-      content: "Create a variation of an existing persona to explore alternative developmental pathways and intervention outcomes."
-    },
-    whatYouCanChange: [
-      "Add or remove specific experiences",
-      "Change severity of existing experiences",
-      "Add different interventions",
-      "Modify timing of events",
-      "Adjust baseline traits"
-    ],
+    tooltip: "Explore an alternate path for this person's story",
+    whatIs: "Remix creates a new version of this persona so you can explore 'what if' scenarios. What if they'd gotten support earlier? What if a key experience had been different?",
     useCases: [
-      "Explore 'What if they had therapy earlier?'",
-      "Compare 'What if abuse was reported vs unreported?'",
-      "Test 'What if they had a supportive teacher?'",
-      "Examine 'What if they received different treatment?'"
+      "See how earlier intervention changes outcomes",
+      "Explore how one changed experience ripples forward",
+      "Compare different therapy approaches",
+      "Understand protective vs. risk factors by toggling them"
     ]
   }
-};
-
-// Helper function to get help content
-export function getHelp(path: string) {
-  const parts = path.split('.');
-  let content: any = SITE_HELP;
-
-  for (const part of parts) {
-    content = content?.[part];
-    if (!content) return null;
-  }
-
-  return content;
 }

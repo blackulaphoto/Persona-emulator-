@@ -44,18 +44,18 @@ export default function CreatePersonaPage() {
   }
 
   return (
-    <main className="min-h-screen bg-apple-bg-tertiary gradient-apple-mesh">
+    <main className="min-h-screen bg-muted gradient-apple-mesh">
       {/* Glass Header */}
       <header className="glass-panel">
         <div className="max-w-4xl mx-auto px-6 py-6">
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-2 text-apple-text-secondary hover:text-apple-blue-500 transition-colors mb-4 font-medium"
+            className="flex items-center gap-2 text-muted-foreground hover:text-soft-purple transition-colors mb-4 font-medium"
           >
             <ArrowLeft size={20} />
             Back to Personas
           </button>
-          <h1 className="text-4xl font-serif text-apple-text-primary font-bold animate-fade-in-apple">
+          <h1 className="text-4xl font-display text-foreground font-bold animate-fade-in-apple">
             Create New Persona
           </h1>
         </div>
@@ -67,14 +67,14 @@ export default function CreatePersonaPage() {
           <div className="lg:col-span-3">
             <Card className="animate-scale-in">
               <div className="flex items-center gap-3 mb-8">
-                <div className="bg-apple-blue-100 p-3 rounded-apple-lg">
-                  <User className="text-apple-blue-600" size={24} />
+                <div className="bg-lavender/20 p-3 rounded-apple-lg">
+                  <User className="text-deep-purple" size={24} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-serif text-apple-text-primary font-bold">
+                  <h2 className="text-2xl font-display text-foreground font-bold">
                     Baseline Profile
                   </h2>
-                  <p className="text-apple-text-secondary text-sm">
+                  <p className="text-muted-foreground text-sm">
                     Define the starting point for this persona's journey
                   </p>
                 </div>
@@ -159,7 +159,7 @@ export default function CreatePersonaPage() {
                     <span className="text-xs text-apple-text-tertiary">
                       {formData.baseline_background.length} characters
                     </span>
-                    <span className="text-xs text-apple-blue-600 font-medium">
+                    <span className="text-xs text-deep-purple font-medium">
                       More detail = Better results (aim for 200-500 words)
                     </span>
                   </div>
@@ -211,20 +211,20 @@ export default function CreatePersonaPage() {
           {/* Sidebar Guide - 1 column */}
           <div className="lg:col-span-1">
             <SidebarHelp title="Quick Guide">
-              <div className="bg-apple-blue-50 border-l-4 border-apple-blue-500 p-3 rounded">
+              <div className="bg-apple-blue-50 border-l-4 border-soft-purple p-3 rounded">
                 <p className="text-sm font-semibold text-apple-blue-800 mb-1">
                   Pro Tip
                 </p>
-                <p className="text-xs text-apple-text-secondary">
+                <p className="text-xs text-muted-foreground">
                   Think of this as writing a client intake form. Include both challenges AND strengths!
                 </p>
               </div>
 
               <div>
-                <h4 className="text-sm font-semibold text-apple-text-primary mb-2">
+                <h4 className="text-sm font-semibold text-foreground mb-2">
                   Essential Information
                 </h4>
-                <ul className="space-y-2 text-xs text-apple-text-secondary">
+                <ul className="space-y-2 text-xs text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="text-apple-green">✓</span>
                     <span>Family background & parenting</span>
@@ -248,8 +248,8 @@ export default function CreatePersonaPage() {
                 </ul>
               </div>
 
-              <div className="border-t border-apple-border pt-4">
-                <h4 className="text-sm font-semibold text-apple-text-primary mb-2">
+              <div className="border-t border-border pt-4">
+                <h4 className="text-sm font-semibold text-foreground mb-2">
                   Common Questions
                 </h4>
                 <FAQ items={HELP_CONTENT.faq.general.slice(0, 3)} />

@@ -151,11 +151,11 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
       {/* Header with generate button */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-apple-text-primary font-['Crimson_Pro']">
-            Persona Narrative
+          <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: 'var(--font-display)' }}>
+            {personaName}'s Story
           </h2>
-          <p className="text-sm text-apple-text-secondary font-['Outfit']">
-            AI-generated comprehensive psychological summary
+          <p className="text-sm text-muted-foreground">
+            See how their life has unfolded—the whole picture, woven together
           </p>
         </div>
 
@@ -163,12 +163,12 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
           {narrativeHistory.length > 0 && (
             <button
               onClick={() => setShowHistory(!showHistory)}
-              className="px-4 py-2 text-apple-text-secondary hover:text-apple-text-primary font-['Outfit']"
+              className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               {showHistory ? 'Hide' : 'Show'} History ({narrativeHistory.length})
             </button>
           )}
-          
+
           <button
             onClick={generateNarrative}
             disabled={generating}
@@ -180,10 +180,10 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
                 </svg>
-                Generating...
+                Weaving their story...
               </span>
             ) : (
-              '✨ Generate Narrative'
+              'See How Their Story Unfolds'
             )}
           </button>
         </div>
@@ -209,7 +209,7 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
                 onClick={() => setNarrative(n)}
                 className={`w-full text-left p-3 rounded-lg transition-colors font-['Outfit'] ${
                   narrative?.id === n.id
-                    ? 'bg-apple-blue-600/20 border border-apple-blue-200'
+                    ? 'bg-deep-purple/20 border border-lavender'
                     : 'bg-white hover:bg-apple-bg-tertiary/30 border border-apple-border-light'
                 }`}
               >
@@ -236,31 +236,31 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
       {narrative ? (
         <div className="space-y-6">
           {/* Metadata bar */}
-          <div className="bg-apple-blue-100/20 border border-apple-border/30 rounded-xl p-4">
+          <div className="bg-lavender/10 border border-lavender/30 rounded-lg p-4">
             <div className="grid grid-cols-4 gap-4 text-center">
               <div>
-                <div className="text-2xl font-bold text-apple-text-primary font-['Crimson_Pro']">
-                  #{narrative.generation_number}
-                </div>
-                <div className="text-xs text-apple-text-secondary font-['Outfit']">Generation</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-apple-text-primary font-['Crimson_Pro']">
+                <div className="text-2xl font-bold text-foreground" style={{ fontFamily: 'var(--font-display)' }}>
                   {narrative.persona_age_at_generation}
                 </div>
-                <div className="text-xs text-apple-text-secondary font-['Outfit']">Age</div>
+                <div className="text-xs text-muted-foreground">years old</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-apple-text-primary font-['Crimson_Pro']">
-                  {narrative.word_count}
+                <div className="text-2xl font-bold text-foreground" style={{ fontFamily: 'var(--font-display)' }}>
+                  {narrative.total_experiences_count}
                 </div>
-                <div className="text-xs text-apple-text-secondary font-['Outfit']">Words</div>
+                <div className="text-xs text-muted-foreground">life moments</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-apple-text-primary font-['Crimson_Pro']">
-                  {narrative.generation_time_seconds || '–'}s
+                <div className="text-2xl font-bold text-foreground" style={{ fontFamily: 'var(--font-display)' }}>
+                  {Math.ceil(narrative.word_count / 200)}
                 </div>
-                <div className="text-xs text-apple-text-secondary font-['Outfit']">Generated</div>
+                <div className="text-xs text-muted-foreground">min read</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-foreground" style={{ fontFamily: 'var(--font-display)' }}>
+                  #{narrative.generation_number}
+                </div>
+                <div className="text-xs text-muted-foreground">version</div>
               </div>
             </div>
           </div>
@@ -269,21 +269,21 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
           <div className="space-y-6">
             {/* Executive Summary */}
             <NarrativeSection
-              title="📖 Executive Summary"
+              title="The Whole Picture"
               content={narrative.executive_summary}
               icon="summary"
             />
 
             {/* Developmental Timeline */}
             <NarrativeSection
-              title="🌱 Developmental Timeline"
+              title="How They Got Here"
               content={narrative.developmental_timeline}
               icon="timeline"
             />
 
             {/* Current Presentation */}
             <NarrativeSection
-              title="🧭 Current Presentation"
+              title="Where They Are Now"
               content={narrative.current_presentation}
               icon="presentation"
             />
@@ -291,7 +291,7 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
             {/* Treatment Response (if exists) */}
             {narrative.treatment_response && (
               <NarrativeSection
-                title="💊 Treatment Response"
+                title="How Support Has Helped"
                 content={narrative.treatment_response}
                 icon="treatment"
               />
@@ -299,7 +299,7 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
 
             {/* Prognosis */}
             <NarrativeSection
-              title="🔮 Prognosis & Recommendations"
+              title="Looking Ahead"
               content={narrative.prognosis}
               icon="prognosis"
             />
@@ -317,13 +317,13 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
         </div>
       ) : (
         !generating && (
-          <div className="text-center py-12 bg-white border border-apple-border-light rounded-xl">
+          <div className="text-center py-12 bg-card border border-border rounded-lg">
             <div className="text-6xl mb-4">📖</div>
-            <h3 className="text-lg font-semibold text-apple-text-primary mb-2 font-['Crimson_Pro']">
-              No Narrative Generated Yet
+            <h3 className="text-lg font-semibold text-foreground mb-2" style={{ fontFamily: 'var(--font-display)' }}>
+              Their Story Awaits
             </h3>
-            <p className="text-apple-text-secondary mb-4 font-['Outfit']">
-              Click "Generate Narrative" to create a comprehensive AI-powered summary
+            <p className="text-muted-foreground mb-4">
+              Click above to weave together everything you know about this person into one cohesive narrative
             </p>
           </div>
         )
@@ -331,13 +331,13 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
 
       {/* Generating state */}
       {generating && (
-        <div className="text-center py-12 bg-apple-blue-100/10 border border-apple-border/30 rounded-xl">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-apple-blue-600 mx-auto mb-4"></div>
-          <h3 className="text-lg font-semibold text-apple-blue-600 mb-2 font-['Crimson_Pro']">
-            Generating Narrative...
+        <div className="text-center py-12 bg-lavender/10 border border-lavender/30 rounded-lg">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: 'var(--deep-purple)' }}></div>
+          <h3 className="text-lg font-semibold mb-2" style={{ fontFamily: 'var(--font-display)', color: 'var(--deep-purple)' }}>
+            Weaving Their Story...
           </h3>
-          <p className="text-apple-text-secondary font-['Outfit']">
-            Analyzing timeline and crafting comprehensive summary (15-30 seconds)
+          <p className="text-muted-foreground">
+            Looking at their whole journey—the moments that shaped them, where they are now (15-30 seconds)
           </p>
         </div>
       )}

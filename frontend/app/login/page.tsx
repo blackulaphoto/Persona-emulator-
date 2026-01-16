@@ -72,16 +72,16 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-apple-bg-tertiary gradient-apple-mesh flex items-center justify-center px-6">
+    <div className="min-h-screen bg-muted gradient-apple-mesh flex items-center justify-center px-6">
       <div className="max-w-md w-full animate-fade-in-up">
         {/* Glass Card Container */}
         <div className="glass-card p-8 space-y-6">
           {/* Header */}
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-apple-text-primary font-serif mb-2">
+            <h1 className="text-4xl font-bold text-foreground font-display mb-2">
               Welcome Back
             </h1>
-            <p className="text-apple-text-secondary">
+            <p className="text-muted-foreground">
               Log in to continue your simulations
             </p>
           </div>
@@ -118,7 +118,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={handleForgotPassword}
-                  className="text-sm text-apple-blue-500 hover:text-apple-blue-600 font-medium transition-colors"
+                  className="text-sm text-soft-purple hover:text-deep-purple font-medium transition-colors"
                 >
                   Forgot password?
                 </button>
@@ -146,10 +146,10 @@ export default function LoginPage() {
           {/* Divider */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-apple-border-light"></div>
+              <div className="w-full border-t border-border"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-3 bg-white text-apple-text-secondary font-medium">
+              <span className="px-3 bg-white text-muted-foreground font-medium">
                 Or continue with
               </span>
             </div>
@@ -159,7 +159,7 @@ export default function LoginPage() {
           <button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full bg-white hover:bg-apple-bg-tertiary border border-apple-border rounded-apple py-3 px-4 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-apple-sm hover:shadow-apple-md"
+            className="w-full bg-white hover:bg-muted border border-border rounded-apple py-3 px-4 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-apple-sm hover:shadow-apple-md"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -172,11 +172,11 @@ export default function LoginPage() {
 
           {/* Sign Up Link */}
           <div className="text-center pt-2">
-            <p className="text-apple-text-secondary text-sm">
+            <p className="text-muted-foreground text-sm">
               Don't have an account?{' '}
               <Link
                 href="/signup"
-                className="text-apple-blue-500 hover:text-apple-blue-600 font-semibold transition-colors"
+                className="text-soft-purple hover:text-deep-purple font-semibold transition-colors"
               >
                 Sign up
               </Link>

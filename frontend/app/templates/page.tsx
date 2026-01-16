@@ -62,25 +62,25 @@ export default function TemplatesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-apple-bg-tertiary">
+    <div className="min-h-screen bg-muted">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-apple-border sticky top-0 z-40">
+      <header className="bg-white/80 backdrop-blur-md border-b border-border sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-3xl font-serif font-bold text-apple-text-primary">Clinical Templates</h1>
-                  <Tooltip content={SITE_HELP.templates.whatAreTemplates.tooltip} />
+                  <h1 className="text-3xl font-display font-bold text-foreground">Clinical Templates</h1>
+                  <Tooltip content={SITE_HELP.templates.whatAreTemplates} />
                 </div>
-                <p className="mt-1 text-sm text-apple-text-secondary">
+                <p className="mt-1 text-sm text-muted-foreground">
                   Evidence-based disorder development pathways for psychological research and education
                 </p>
               </div>
             </div>
             <button
               onClick={() => router.push('/')}
-              className="flex items-center gap-2 px-4 py-2 text-apple-text-secondary hover:text-apple-blue-600 transition-colors font-medium rounded-lg hover:bg-apple-bg-secondary"
+              className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-deep-purple transition-colors font-medium rounded-lg hover:bg-card"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -113,8 +113,8 @@ export default function TemplatesPage() {
       {creatingPersona && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-apple-lg p-8 max-w-md shadow-apple-xl">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-apple-blue-600 mx-auto"></div>
-            <p className="mt-4 text-center text-apple-text-secondary font-medium">Creating persona from template...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-deep-purple mx-auto"></div>
+            <p className="mt-4 text-center text-muted-foreground font-medium">Creating persona from template...</p>
           </div>
         </div>
       )}
@@ -181,24 +181,24 @@ function SuccessModal({ persona, onViewPersona, onApplyExperiences, onClose }: S
 
         {/* Content */}
         <div className="mt-4 text-center">
-          <h3 className="text-lg font-serif font-semibold text-apple-text-primary">Persona Created Successfully!</h3>
-          <p className="mt-2 text-sm text-apple-text-secondary">
+          <h3 className="text-lg font-display font-semibold text-foreground">Persona Created Successfully!</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
             "{persona.name}" has been created from the template "{persona.templateName}".
           </p>
         </div>
 
         {/* Info box */}
-        <div className="mt-6 bg-apple-blue-50 border border-apple-blue-200 rounded-lg p-4">
+        <div className="mt-6 bg-apple-blue-50 border border-lavender rounded-lg p-4">
           <div className="flex items-start">
-            <svg className="h-5 w-5 text-apple-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="h-5 w-5 text-deep-purple mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
             </svg>
             <div className="ml-3 flex-1">
               <h4 className="text-sm font-semibold text-apple-blue-800 mb-1">Next Steps</h4>
-              <p className="mt-1 text-sm text-apple-text-secondary">
+              <p className="mt-1 text-sm text-muted-foreground">
                 The persona has been created with the baseline configuration. You have <strong>{persona.experienceCount} predefined experiences</strong> available to apply.
               </p>
-              <p className="mt-2 text-sm text-apple-text-secondary">
+              <p className="mt-2 text-sm text-muted-foreground">
                 You can apply these experiences all at once or manually add them one by one.
               </p>
             </div>
@@ -209,13 +209,13 @@ function SuccessModal({ persona, onViewPersona, onApplyExperiences, onClose }: S
         <div className="mt-6 grid grid-cols-2 gap-3">
           <button
             onClick={() => onViewPersona(persona.id)}
-            className="px-4 py-2 bg-apple-bg-secondary text-apple-text-primary hover:bg-apple-bg-tertiary rounded-lg font-medium transition-colors"
+            className="px-4 py-2 bg-card text-foreground hover:bg-muted rounded-lg font-medium transition-colors"
           >
             View Persona
           </button>
           <button
             onClick={() => onApplyExperiences(persona.id)}
-            className="px-4 py-2 bg-apple-blue-600 text-white hover:bg-apple-blue-700 rounded-lg font-medium transition-colors"
+            className="px-4 py-2 bg-deep-purple text-white hover:bg-apple-blue-700 rounded-lg font-medium transition-colors"
           >
             Apply Experiences
           </button>
@@ -225,7 +225,7 @@ function SuccessModal({ persona, onViewPersona, onApplyExperiences, onClose }: S
         <div className="mt-4 text-center">
           <button
             onClick={onClose}
-            className="text-sm text-apple-text-secondary hover:text-apple-text-primary transition-colors"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             Close
           </button>
