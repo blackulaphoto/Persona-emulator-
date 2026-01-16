@@ -8,10 +8,8 @@
  * - Timeline snapshots and comparisons
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-if (!API_BASE_URL) {
-  throw new Error('NEXT_PUBLIC_API_URL is not configured. Set it to your backend URL.');
-}
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+const API_ROOT = API_BASE_URL ? `${API_BASE_URL}/api/v1` : '/api/v1';
 
 // Error handling helper
 class APIError extends Error {
@@ -92,7 +90,7 @@ export const templatesAPI = {
    */
   async list(disorderType?: string): Promise<Template[]> {
     const params = disorderType ? `?disorder_type=${disorderType}` : '';
-    const response = await fetch(`${API_BASE_URL}/api/v1/templates${params}`);
+    const response = await fetch(`${API_ROOT}/templates${params}`);
     return handleResponse<Template[]>(response);
   },
 
@@ -100,7 +98,7 @@ export const templatesAPI = {
    * Get template details by ID
    */
   async get(templateId: string): Promise<TemplateDetails> {
-    const response = await fetch(`${API_BASE_URL}/api/v1/templates/${templateId}`);
+    const response = await fetch(`${API_ROOT}/templates/${templateId}`);
     return handleResponse<TemplateDetails>(response);
   },
 
@@ -108,7 +106,7 @@ export const templatesAPI = {
    * Get list of disorder types
    */
   async getDisorderTypes(): Promise<string[]> {
-    const response = await fetch(`${API_BASE_URL}/api/v1/templates/meta/disorder-types`);
+    const response = await fetch(`${API_ROOT}/templates/meta/disorder-types`);
     return handleResponse<string[]>(response);
   },
 
@@ -126,7 +124,7 @@ export const templatesAPI = {
     suggested_interventions_available: number;
     message: string;
   }> {
-    const response = await fetch(`${API_BASE_URL}/api/v1/templates/create-persona`, {
+    const response = await fetch(`${API_ROOT}/templates/create-persona`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -154,7 +152,7 @@ export const templatesAPI = {
     current_age: number;
   }> {
     const response = await fetch(
-      `${API_BASE_URL}/api/v1/templates/personas/${personaId}/apply-experiences`,
+      `${API_ROOT}/templates/personas/${personaId}/apply-experiences`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -232,7 +230,7 @@ export const remixAPI = {
     description?: string,
     templateId?: string
   ): Promise<TimelineSnapshot> {
-    const response = await fetch(`${API_BASE_URL}/api/v1/remix/snapshots`, {
+    const response = await fetch(`${API_ROOT}/remix/snapshots`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -251,7 +249,7 @@ export const remixAPI = {
    */
   async listSnapshots(personaId: string): Promise<TimelineSnapshot[]> {
     const response = await fetch(
-      `${API_BASE_URL}/api/v1/remix/personas/${personaId}/snapshots`
+      `${API_ROOT}/remix/personas/${personaId}/snapshots`
     );
     return handleResponse<TimelineSnapshot[]>(response);
   },
@@ -260,7 +258,7 @@ export const remixAPI = {
    * Get snapshot details
    */
   async getSnapshot(snapshotId: string): Promise<TimelineSnapshot> {
-    const response = await fetch(`${API_BASE_URL}/api/v1/remix/snapshots/${snapshotId}`);
+    const response = await fetch(`${API_ROOT}/remix/snapshots/${snapshotId}`);
     return handleResponse<TimelineSnapshot>(response);
   },
 
@@ -271,7 +269,7 @@ export const remixAPI = {
     snapshotId1: string,
     snapshotId2: string
   ): Promise<SnapshotComparison> {
-    const response = await fetch(`${API_BASE_URL}/api/v1/remix/snapshots/compare`, {
+    const response = await fetch(`${API_ROOT}/remix/snapshots/compare`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -287,7 +285,7 @@ export const remixAPI = {
    */
   async getInterventionImpact(personaId: string, baselineSnapshotId: string): Promise<any> {
     const response = await fetch(
-      `${API_BASE_URL}/api/v1/remix/personas/${personaId}/intervention-impact?baseline_snapshot_id=${baselineSnapshotId}`
+      `${API_ROOT}/remix/personas/${personaId}/intervention-impact?baseline_snapshot_id=${baselineSnapshotId}`
     );
     return handleResponse(response);
   },
@@ -304,7 +302,7 @@ export const remixAPI = {
   }> {
     const params = templateId ? `?template_id=${templateId}` : '';
     const response = await fetch(
-      `${API_BASE_URL}/api/v1/remix/personas/${personaId}/suggestions${params}`
+      `${API_ROOT}/remix/personas/${personaId}/suggestions${params}`
     );
     return handleResponse(response);
   },
@@ -313,7 +311,7 @@ export const remixAPI = {
    * Delete snapshot
    */
   async deleteSnapshot(snapshotId: string): Promise<{ message: string }> {
-    const response = await fetch(`${API_BASE_URL}/api/v1/remix/snapshots/${snapshotId}`, {
+    const response = await fetch(`${API_ROOT}/remix/snapshots/${snapshotId}`, {
       method: 'DELETE',
     });
     return handleResponse(response);

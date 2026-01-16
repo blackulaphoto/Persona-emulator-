@@ -1,5 +1,5 @@
 ---
-description: Technical specifications for therapeutic intervention matching algorithms and efficacy scoring systems
+description: Specifications for therapeutic intervention matching algorithms and efficacy scoring systems
 ---
 
 # === USER INSTRUCTIONS ===
@@ -129,51 +129,40 @@ The therapeutic matching system implements:
 
 # therapeutic-matching
 
-The therapeutic matching system implements evidence-based therapy pairing algorithms through multiple specialized components:
-
-## Intervention Engine
+## Core Matching Algorithm
+Path: backend/app/utils/therapy_database.py
 Importance Score: 95/100
 
-Located in: backend/app/services/intervention_engine.py
-- Calculates therapy match scores based on symptom profiles and developmental stages
-- Implements age-appropriate intervention filtering
-- Applies developmental impact multipliers for therapy efficacy
-- Models therapy duration requirements and effectiveness patterns
-- Maps specific symptoms to appropriate therapeutic modalities
+Implements evidence-based therapy matching system with:
+- Treatment efficacy calculations based on symptom profiles
+- Therapy duration and intensity impact modeling
+- Therapeutic intervention scoring based on patient characteristics
 
-## Therapy Database
+## Intervention Analysis Engine
+Path: backend/app/services/intervention_engine.py
 Importance Score: 90/100
 
-Located in: backend/app/utils/therapy_database.py
-- Evidence-based therapy classification system
-- Maps disorders to recommended therapeutic approaches
-- Implements therapy limitations and contraindications
-- Maintains efficacy scores for different intervention types
-- Models therapy duration patterns and success indicators
+Handles therapeutic intervention analysis through:
+- Age-appropriate impact multipliers for treatment outcomes
+- Developmental stage-based therapy effectiveness calculations
+- Realistic therapy limitation modeling
+- Partial improvement trajectory analysis
 
-## Assessment Engine 
+## Symptom-Based Matching
+Path: backend/app/utils/symptom_assessment_engine.py
 Importance Score: 85/100
 
-Located in: backend/app/utils/symptom_assessment_engine.py
-- Calculates intervention effectiveness based on disorder type
-- Maps experiences to disorder probabilities
-- Models symptom progression patterns
-- Evaluates therapy response likelihood
-- Implements severity-based intervention matching
+Manages symptom-to-therapy correlation through:
+- Complex trauma-to-disorder mapping with weighted risk factors
+- Custom severity calculation algorithms
+- Therapy effectiveness scoring based on symptom patterns
+- Treatment response prediction models
 
-Core Matching Logic:
-1. Symptom severity assessment
-2. Developmental stage evaluation
-3. Intervention efficacy scoring
-4. Therapy modality mapping
-5. Duration/intensity calculations
-
-The system prioritizes clinical accuracy through:
-- Evidence-based therapy matching
-- Age-appropriate interventions
-- Symptom severity considerations
-- Developmental stage alignment
-- Contraindication checking
+Key Features:
+1. Evidence-based efficacy calculations using DSM-5/ICD-11 criteria
+2. Development-sensitive intervention matching
+3. Treatment outcome modeling with partial response consideration
+4. Therapy intensity optimization based on symptom severity
 
 $END$
 

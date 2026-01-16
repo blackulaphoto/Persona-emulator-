@@ -1,0 +1,5 @@
+[requestfailed] http://localhost:3001/ net::ERR_CONNECTION_REFUSED
+[navigation error] page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/
+=========================== logs ===========================
+navigating to "http://localhost:3001/", waiting until "networkidle"
+============================================================

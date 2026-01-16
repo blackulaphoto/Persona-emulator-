@@ -1,5 +1,5 @@
 ---
-description: Specification for data modeling in psychological simulation and therapy systems
+description: Specifies core data structures and models for psychological analysis, therapy, and developmental tracking
 ---
 
 # === USER INSTRUCTIONS ===
@@ -158,53 +158,59 @@ Key Constraints:
 
 # data-models
 
-## Core Data Models
+Key Data Model Components:
 
-### Personality Development Model
+1. Personality Trait Schema
+Path: backend/app/utils/foundational_baseline.py
 Importance Score: 95/100
-- Big Five personality trait framework with trauma-influenced modifiers
-- Developmental stage mappings with age-specific vulnerability factors
-- Therapeutic intervention impact tracking
-- Weighted trait evolution based on experiences
+- Core personality dimensions with bounded ranges (0-100)
+- Developmental stage constraints on trait malleability
+- Environmental impact multipliers
+- Trauma sensitivity coefficients
+- Attachment style correlations
 
-### Clinical Symptom Taxonomy
+2. Developmental Stage Model
+Path: backend/app/utils/developmental_stages.py
 Importance Score: 90/100
-- DSM-5/ICD-11 based disorder classification system
-- Severity scoring with developmental stage multipliers
-- Comorbidity relationship mappings
-- Treatment response prediction models
+- Age-mapped developmental vulnerabilities
+- Critical period markers and sensitivity windows
+- Stage-specific coping capacity metrics
+- Therapeutic intervention compatibility flags
+- Developmental milestone tracking
 
-### Therapeutic Intervention Schema
+3. Trauma Impact Schema
+Path: backend/app/utils/symptom_assessment_engine.py
 Importance Score: 85/100
-- Evidence-based therapy type definitions
-- Efficacy scoring by disorder and developmental stage
-- Contraindication mappings
+- Weighted risk factors for disorder development
+- Age-sensitive impact calculations
+- Cumulative trauma load tracking
+- Symptom severity progression rules
+- Therapy response prediction metrics
+
+4. Therapeutic Intervention Model
+Path: backend/app/utils/therapy_database.py
+Importance Score: 80/100
+- Evidence-based therapy efficacy mappings
+- Treatment compatibility matrices
 - Duration and intensity parameters
-- Expected outcome models
+- Outcome prediction coefficients
+- Contraindication flags
 
-### Developmental Stage Framework
-Importance Score: 90/100
-- Age-based psychological development stages
-- Trauma impact multipliers per stage
-- Coping capacity calculations
-- Intervention appropriateness mappings
-- Vulnerability/resilience factor tracking
+5. Symptom Taxonomy Model
+Path: backend/app/utils/symptom_taxonomy.py
+Importance Score: 75/100
+- DSM-5/ICD-11 aligned disorder classification
+- Symptom severity scales
+- Comorbidity relationship mappings
+- Progressive development patterns
+- Treatment response indicators
 
-### Experience-Symptom Mapping
-Importance Score: 85/100
-- Trauma type classifications
-- Weighted psychological impact scores
-- Age-specific manifestation patterns
-- Clinical symptom correlations
-- Trigger relationship modeling
-
-## Relationships and Constraints
-
-- Personality traits modulated by developmental stage
-- Symptom severity influenced by trauma timing
-- Therapy efficacy constrained by developmental appropriateness
-- Experience impacts weighted by developmental vulnerability
-- Treatment outcomes bounded by symptom patterns
+Data Relationships:
+- Personality traits influence therapy effectiveness
+- Developmental stages constrain trait modifications
+- Trauma impacts map to symptom manifestations
+- Therapy types link to specific symptom targets
+- Development stage affects trauma sensitivity
 
 $END$
 
