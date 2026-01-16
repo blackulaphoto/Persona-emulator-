@@ -9,12 +9,12 @@ interface BadgeProps {
 }
 
 const colorClasses = {
-  blue: 'badge-apple-blue',
-  green: 'badge-apple-green',
-  orange: 'badge-apple-orange',
-  red: 'badge-apple-red',
-  purple: 'badge-apple-purple',
-  gray: 'badge-apple bg-primary-200 text-primary-700',
+  blue: 'badge-purple',        // Purple is the new primary
+  green: 'badge-green',
+  orange: 'badge-coral',       // Orange/red mapped to coral
+  red: 'badge-coral',
+  purple: 'badge-purple',
+  gray: 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-soft-gray text-slate',
 }
 
 export function Badge({

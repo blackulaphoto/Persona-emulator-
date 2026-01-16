@@ -8,93 +8,110 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        serif: ['Crimson Pro', 'Georgia', 'serif'],
-        sans: ['Outfit', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
-        mono: ['SF Mono', 'Monaco', 'Menlo', 'monospace'],
+        // Empathetic Modernism Typography
+        display: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+        body: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+        serif: ['Plus Jakarta Sans', 'Georgia', 'serif'], // Override for display
+        mono: ['SF Mono', 'Consolas', 'Monaco', 'monospace'],
       },
       colors: {
-        // OLD THEME (keep for compatibility)
-        cream: '#F8F6F1',
-        clay: '#E8DCC4',
-        terracotta: '#C17B5C',
-        sage: '#8B9D83',
-        moss: '#5B6B4D',
-        charcoal: '#2D3136',
+        // PRIMARY PURPLE PALETTE - Trust & Wisdom
+        'deep-purple': '#6B46C1',
+        'soft-purple': '#9F7AEA',
+        'lavender': '#D6BCFA',
+        'periwinkle': '#B794F4',
 
-        // Splash page palette (avoid arbitrary hex classes)
-        'splash-bg-1': '#0F1115',
-        'splash-bg-2': '#1F2632',
-        'splash-bg-3': '#101216',
-        'splash-bg-4': '#0c0d0f',
-        'splash-card': '#14161B',
-        'splash-accent': '#6366F1',
-        'splash-text': '#C7D2FE',
+        // SUPPORTING COLORS - Emotional States
+        'sage-green': '#9AE6B4',
+        'muted-coral': '#FC8181',
+        'warm-rose': '#FBB6CE',
 
-        // APPLE-INSPIRED THEME (new)
-        // Backgrounds
-        'apple-bg': {
-          primary: '#1D1D1F',      // Deep almost-black (Apple dark)
-          secondary: '#2C2C2E',    // Elevated surfaces
-          tertiary: '#F5F5F7',     // Light background
-          card: '#FFFFFF',         // White cards
-        },
+        // NEUTRALS - Canvas & Text
+        'warm-cream': '#FEFCF9',
+        'soft-gray': '#E2E8F0',
+        'light-gray': '#F7FAFC',
+        'slate': '#4A5568',
+        'charcoal': '#2D3748',
 
-        // iOS System Blue (vibrant, not corporate)
-        'apple-blue': {
-          50: '#E5F2FF',
-          100: '#CCE5FF',
-          200: '#99CCFF',
-          300: '#66B2FF',
-          400: '#3399FF',
-          500: '#007AFF',          // iOS system blue
-          600: '#0051D5',
-          700: '#0040AA',
-          800: '#003080',
-          900: '#002055',
-        },
+        // SEMANTIC MAPPINGS
+        growth: '#9AE6B4',      // Sage green
+        challenge: '#FC8181',    // Muted coral
+        'neutral-event': '#B794F4', // Periwinkle
 
-        // iOS System Colors
-        'apple-teal': '#5AC8FA',
-        'apple-purple': '#AF52DE',
-        'apple-pink': '#FF2D55',
-        'apple-green': '#34C759',
-        'apple-orange': '#FF9500',
-        'apple-red': '#FF3B30',
-
-        // Text colors (high contrast)
-        'apple-text': {
-          primary: '#1D1D1F',      // Deep black
-          secondary: '#86868B',    // Apple secondary gray
-          tertiary: '#C7C7CC',     // Muted
-          inverse: '#F5F5F7',      // Light on dark
-        },
-
-        // Borders
-        'apple-border': {
-          light: 'rgba(0, 0, 0, 0.1)',
-          DEFAULT: 'rgba(0, 0, 0, 0.2)',
-          dark: 'rgba(0, 0, 0, 0.3)',
-        },
+        // THEME TOKENS
+        background: '#FEFCF9',   // Warm cream
+        foreground: '#2D3748',   // Charcoal
+        card: '#FFFFFF',
+        'card-foreground': '#2D3748',
+        popover: '#FFFFFF',
+        'popover-foreground': '#2D3748',
+        primary: '#6B46C1',      // Deep purple
+        'primary-foreground': '#FFFFFF',
+        secondary: '#D6BCFA',    // Lavender
+        'secondary-foreground': '#2D3748',
+        muted: '#E2E8F0',        // Soft gray
+        'muted-foreground': '#4A5568', // Slate
+        accent: '#D6BCFA',       // Lavender
+        'accent-foreground': '#2D3748',
+        destructive: '#E53E3E',
+        'destructive-foreground': '#FFFFFF',
+        border: '#E2E8F0',       // Soft gray
+        input: '#E2E8F0',
+        ring: '#6B46C1',         // Deep purple
       },
 
       boxShadow: {
-        // Apple-style soft shadows
-        'apple-sm': '0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06)',
-        'apple-md': '0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04)',
-        'apple-lg': '0 12px 40px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06)',
-        'apple-xl': '0 20px 60px rgba(0, 0, 0, 0.16), 0 8px 16px rgba(0, 0, 0, 0.08)',
-        'apple-blue': '0 4px 12px rgba(0, 122, 255, 0.3)',
-        'apple-blue-lg': '0 6px 20px rgba(0, 122, 255, 0.4)',
+        // Purple-tinted shadows for brand consistency
+        sm: '0 1px 2px 0 rgba(107, 70, 193, 0.05)',
+        DEFAULT: '0 4px 6px -1px rgba(107, 70, 193, 0.1), 0 2px 4px -1px rgba(107, 70, 193, 0.06)',
+        md: '0 4px 6px -1px rgba(107, 70, 193, 0.1), 0 2px 4px -1px rgba(107, 70, 193, 0.06)',
+        lg: '0 10px 15px -3px rgba(107, 70, 193, 0.1), 0 4px 6px -2px rgba(107, 70, 193, 0.05)',
+        xl: '0 20px 25px -5px rgba(107, 70, 193, 0.1), 0 10px 10px -5px rgba(107, 70, 193, 0.04)',
+        '2xl': '0 25px 50px -12px rgba(107, 70, 193, 0.12)',
+        purple: '0 4px 14px rgba(107, 70, 193, 0.2)',
+        'purple-lg': '0 8px 24px rgba(107, 70, 193, 0.25)',
       },
 
       borderRadius: {
-        'apple': '12px',      // Standard Apple radius
-        'apple-lg': '16px',   // Cards
-        'apple-xl': '20px',   // Large cards
+        sm: '0.375rem',      // 6px
+        DEFAULT: '0.5rem',   // 8px
+        md: '0.5rem',        // 8px
+        lg: '0.75rem',       // 12px
+        xl: '1rem',          // 16px
+        '2xl': '1.5rem',     // 24px
+        full: '9999px',
       },
 
-      backdropBlur: {
-        'apple': '20px',
+      spacing: {
+        xs: '0.25rem',       // 4px
+        sm: '0.5rem',        // 8px
+        md: '1rem',          // 16px
+        lg: '1.5rem',        // 24px
+        xl: '2rem',          // 32px
+        '2xl': '3rem',       // 48px
+        '3xl': '4rem',       // 64px
+      },
+
+      animation: {
+        'fade-in': 'fadeIn 0.3s ease-out',
+        'slide-in': 'slideIn 0.3s ease-out',
+        'fade-in-up': 'fadeInUp 0.4s ease-out',
+      },
+
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideIn: {
+          '0%': { transform: 'translateX(-20px)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+        fadeInUp: {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
       },
     },
   },
