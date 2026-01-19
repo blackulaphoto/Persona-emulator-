@@ -1,5 +1,5 @@
 ---
-description: Documentation for core psychological algorithms including personality evolution, trauma impact calculations, and symptom modeling
+description: Specifies algorithms and formulas for psychological trait evolution, trauma impact calculations, and symptom development
 ---
 
 # === USER INSTRUCTIONS ===
@@ -179,52 +179,71 @@ description: Core psychological calculation algorithms including personality evo
 
 # psychological-algorithms
 
-Core Algorithms:
+Core Psychological Calculation Components:
 
-1. Trauma Analysis & Personality Evolution
-Path: backend/app/utils/symptom_assessment_engine.py
-- Complex trauma-to-disorder mapping with weighted risk factors
-- Age-sensitive trauma impact assessment formulas
-- Developmental stage multipliers for trauma processing
-- Therapy effectiveness scoring based on symptom patterns
+1. Developmental Psychology System (backend/app/utils/developmental_stages.py)
 Importance Score: 95
+- Age-based trauma impact multipliers using developmental stage weighting 
+- Psychological vulnerability mapping across life stages
+- Adaptive coping capacity formulas based on developmental level
+- Stage-appropriate therapeutic intervention calculations
 
-2. Developmental Psychology Engine
-Path: backend/app/utils/developmental_stages.py
-- Age-specific vulnerability calculations
-- Developmental stage-based trauma multipliers
-- Coping capacity assessment formulas
-- Therapeutic intervention mapping by stage
+2. Symptom Assessment Engine (backend/app/utils/symptom_assessment_engine.py)
 Importance Score: 90
+- DSM-5 criteria mapping to quantified disorder probabilities
+- Multi-factor trauma response calculations
+- Age-weighted vulnerability coefficients
+- Treatment efficacy prediction formulas
 
-3. Personality Baseline Analysis
-Path: backend/app/utils/foundational_baseline.py
-- Environmental signal analysis for personality formation
-- Childhood experience to trait translation algorithms
-- Bounded personality trait calculations
-- Developmental constraint modeling
+3. Symptom Taxonomy (backend/app/utils/symptom_taxonomy.py)
 Importance Score: 85
+- Complete DSM-5/ICD-11 disorder classification system
+- Symptom severity quantification formulas
+- Comorbidity probability calculations
+- Diagnostic criteria weighting algorithms
 
-4. Mental Health Symptom Taxonomy
-Path: backend/app/utils/symptom_taxonomy.py
-- DSM-5/ICD-11 disorder classification system
-- Symptom severity progression modeling
-- Comorbidity relationship calculations
-- Disorder interaction matrices
+4. Baseline Personality System (backend/app/utils/foundational_baseline.py)
 Importance Score: 85
+- Environmental impact coefficients for trait development
+- Early experience weighting formulas
+- Personality modification algorithms
+- Trait stability calculations across development
 
-Core Formulas:
+5. Therapy Impact Calculator (backend/app/utils/therapy_database.py)
+Importance Score: 75
+- Treatment modality effectiveness scoring
+- Symptom-specific response prediction
+- Evidence-based outcome probability formulas
+- Contraindication risk calculations
 
-Trauma Impact Score = Base Severity * Age Multiplier * Development Stage Factor * Resilience Coefficient
+Key Algorithms:
 
-Personality Trait Evolution:
-Trait(t+1) = Trait(t) + Σ(Experience Impact * Stage Multiplier) + Therapeutic Effect
+Trauma Impact Formula:
+```
+impact_score = base_severity * age_multiplier * resilience_factor
+where:
+- base_severity: 1-10 scale of event intensity
+- age_multiplier: developmental stage coefficient (0.5-2.0)
+- resilience_factor: calculated from protective factors (0.1-1.0)
+```
 
-Symptom Severity:
-Severity = Base Intensity * Trauma Accumulation * Age Factor * Treatment Response
+Personality Evolution:
+```
+trait_change = (experience_intensity * vulnerability_coefficient) / stability_factor
+where:
+- experience_intensity: normalized impact score (0-1)
+- vulnerability_coefficient: age/trait specific multiplier
+- stability_factor: increases with age (1.0-3.0)
+```
 
-Development Stage Impact:
-Stage Impact = Base Vulnerability * Age-Specific Risk * Environmental Factors * Support System Coefficient
+Symptom Development:
+```
+symptom_probability = (trauma_exposure * genetic_loading) + environmental_risk
+where:
+- trauma_exposure: cumulative weighted trauma score
+- genetic_loading: familial risk factor (0-1)
+- environmental_risk: calculated stress index
+```
 
 $END$
 

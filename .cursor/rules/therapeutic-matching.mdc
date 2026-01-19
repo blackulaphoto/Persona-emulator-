@@ -1,5 +1,5 @@
 ---
-description: Specifications for therapeutic intervention matching algorithms and efficacy scoring systems
+description: Specifications for therapeutic intervention matching algorithms, scoring systems, and treatment efficacy calculations
 ---
 
 # === USER INSTRUCTIONS ===
@@ -129,40 +129,46 @@ The therapeutic matching system implements:
 
 # therapeutic-matching
 
-## Core Matching Algorithm
+The therapeutic matching system consists of two core components:
+
+1. Therapy Efficacy System
 Path: backend/app/utils/therapy_database.py
-Importance Score: 95/100
+Importance Score: 95
 
-Implements evidence-based therapy matching system with:
-- Treatment efficacy calculations based on symptom profiles
-- Therapy duration and intensity impact modeling
-- Therapeutic intervention scoring based on patient characteristics
+Maps therapeutic approaches to specific symptoms and disorders through:
+- Evidence-based treatment effectiveness metrics for each modality
+- Symptom-to-therapy match scoring using clinical weightings
+- Contraindication detection and limitation handling
+- Treatment combination optimization algorithms
 
-## Intervention Analysis Engine
+2. Intervention Analysis Engine 
 Path: backend/app/services/intervention_engine.py
-Importance Score: 90/100
+Importance Score: 90
 
-Handles therapeutic intervention analysis through:
-- Age-appropriate impact multipliers for treatment outcomes
-- Developmental stage-based therapy effectiveness calculations
-- Realistic therapy limitation modeling
-- Partial improvement trajectory analysis
+Calculates therapy effectiveness based on:
+- Patient developmental stage and age factors
+- Symptom profile alignment with treatment type
+- Duration impact coefficients
+- Age-appropriate coping capacity metrics
+- Previous intervention response patterns
 
-## Symptom-Based Matching
-Path: backend/app/utils/symptom_assessment_engine.py
-Importance Score: 85/100
+Key Domain Features:
+- DSM-5/ICD-11 based disorder classification mapping
+- Clinical evidence weighting system (0-100 scale)
+- Therapeutic modality effectiveness scoring
+- Multi-dimensional match calculation incorporating:
+  * Symptom severity
+  * Patient characteristics
+  * Treatment history
+  * Environmental factors
+  * Support system availability
 
-Manages symptom-to-therapy correlation through:
-- Complex trauma-to-disorder mapping with weighted risk factors
-- Custom severity calculation algorithms
-- Therapy effectiveness scoring based on symptom patterns
-- Treatment response prediction models
-
-Key Features:
-1. Evidence-based efficacy calculations using DSM-5/ICD-11 criteria
-2. Development-sensitive intervention matching
-3. Treatment outcome modeling with partial response consideration
-4. Therapy intensity optimization based on symptom severity
+The match scoring algorithm produces:
+- Primary therapy recommendations (ranked 0-100)
+- Alternative treatment suggestions
+- Contraindication warnings
+- Expected efficacy projections
+- Treatment duration estimates
 
 $END$
 

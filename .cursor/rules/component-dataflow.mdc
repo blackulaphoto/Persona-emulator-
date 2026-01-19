@@ -1,5 +1,5 @@
 ---
-description: Specification for analyzing data flow patterns between major psychological analysis and intervention components
+description: Documents data flow patterns between psychological analysis, intervention, and supporting framework components
 ---
 
 # === USER INSTRUCTIONS ===
@@ -163,56 +163,42 @@ Key Data Exchange Patterns:
 
 # component-dataflow
 
-Core Data Flow Pathways:
+Core Data Flow Components:
 
 1. Psychology Engine → Intervention Engine
-- Symptom profiles and severity scores transmitted
-- Developmental stage markers passed for age-appropriate intervention matching
-- Personality trait baselines provided for therapy customization
-- Trauma impact assessments delivered for intervention planning
-Importance Score: 95/100
+Paths: backend/app/services/psychology_engine.py → backend/app/services/intervention_engine.py
+- Transmits trauma impact calculations and developmental stage data
+- Forwards symptom assessments for intervention matching
+- Passes personality trait modifications based on therapeutic progress
+- Streams real-time psychological state updates
+Importance Score: 95
 
-2. Intervention Engine → Psychology Engine 
-- Treatment efficacy scores returned
-- Updated symptom severity measurements
-- Personality trait modification data
-- New coping mechanism indicators
-Importance Score: 90/100
+2. Developmental Stages System → Symptom Assessment
+Paths: backend/app/utils/developmental_stages.py → backend/app/utils/symptom_assessment_engine.py
+- Maps age-based vulnerabilities to disorder risk calculations
+- Provides developmental context for symptom severity scoring
+- Transmits stage-appropriate coping capacity metrics
+Importance Score: 90
 
-3. Personality Baseline → Symptom Taxonomy
-- Early environment signals mapped to trait formations
-- Childhood experience translations into risk factors
-- Developmental constraint parameters
-- Personality attribute bounds
-Importance Score: 85/100
+3. Backstory Analysis → Symptom Taxonomy 
+Paths: backend/app/utils/backstory_symptom_mapper.py → backend/app/utils/symptom_taxonomy.py
+- Feeds trauma markers into disorder classification system
+- Maps early life experiences to potential symptom manifestations
+- Streams severity scores for diagnostic categorization
+Importance Score: 85
 
-4. Symptom Taxonomy → Therapeutic Intervention
-- DSM-5/ICD-11 classifications provided
-- Comorbidity relationship data
-- Disorder interaction mappings
-- Severity tracking metrics
-Importance Score: 80/100
+4. Clinical Templates → Therapy Efficacy System
+Paths: frontend/components/templates/TemplateDetailsModal.tsx → backend/app/utils/therapy_database.py
+- Transmits evidence-based treatment patterns
+- Forwards therapy matching criteria
+- Streams outcome measurement data
+Importance Score: 80
 
-5. Chat Persona → Experience Impact
-- Trauma-informed response patterns
-- Age-appropriate language markers
-- Personality-driven conversation flows
-- Trigger detection signals
-Importance Score: 75/100
-
-Critical Integration Points:
-- Psychology/Intervention bidirectional feedback loop
-- Taxonomy-driven intervention selection
-- Experience-based personality evolution
-- Age-sensitive developmental tracking
-- Trauma-informed response generation
-
-Data Model Dependencies:
-- Symptom severity scales
-- Personality trait matrices
-- Developmental stage markers
-- Therapy efficacy metrics
-- Trauma impact indicators
+Key Integration Points:
+- Psychology Engine serves as central hub for state management
+- Intervention Engine provides feedback loops to update psychological models
+- Developmental data flows inform all assessment and treatment decisions
+- Bidirectional flows between analysis and intervention components maintain therapeutic consistency
 
 $END$
 
