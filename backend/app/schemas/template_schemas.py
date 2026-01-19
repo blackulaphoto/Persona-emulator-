@@ -5,7 +5,7 @@ Following the pattern from app/schemas/__init__.py (T7)
 Add these to your existing schemas file or create templates_schemas.py
 """
 from pydantic import BaseModel, Field, field_validator
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from datetime import datetime
 
 
@@ -62,7 +62,8 @@ class ClinicalTemplateResponse(BaseModel):
     
     predefined_experiences: List[Dict]
     predefined_interventions: Optional[List[Dict]] = None
-    expected_outcomes: Dict[str, Dict]
+    # expected_outcomes can be a scenario map or a single outcomes map from seed data.
+    expected_outcomes: Dict[str, Any]
     
     citations: Optional[List[str]] = None
     remix_suggestions: Optional[List[Dict]] = None
