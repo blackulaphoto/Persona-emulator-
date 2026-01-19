@@ -42,7 +42,11 @@ Narrative/
 # Build and temp files
 nul
 backend/nul
+
+# Ignore splash/ globally, but allow frontend splash assets for deployment
 splash/
+!frontend/public/splash/
+!frontend/public/splash/**
 
 # Claude settings (local only)
 .claude/settings.local.json
