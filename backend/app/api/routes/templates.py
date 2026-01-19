@@ -104,10 +104,7 @@ async def list_templates(
     - disorder_type: Filter by disorder type (e.g., "BPD", "C-PTSD")
     """
     # Ensure templates are loaded in database
-    template_count = db.query(ClinicalTemplate).count()
-    if template_count == 0:
-        # First time - populate database from JSON files
-        populate_templates_database(db)
+    populate_templates_database(db)
     
     # Query templates
     query = db.query(ClinicalTemplate)
@@ -170,9 +167,7 @@ async def get_disorder_types(db: Session = Depends(get_db)):
     Returns: ["BPD", "C-PTSD", "Social_Anxiety", ...]
     """
     # Ensure templates loaded
-    template_count = db.query(ClinicalTemplate).count()
-    if template_count == 0:
-        populate_templates_database(db)
+    populate_templates_database(db)
     
     disorder_types = get_all_disorder_types(db)
     return disorder_types
@@ -388,4 +383,3 @@ async def apply_experience_set(
         symptoms_developed=list(persona.current_trauma_markers),
         current_age=persona.current_age
     )
-

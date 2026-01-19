@@ -34,6 +34,51 @@ def get_template_json_directory() -> Path:
         return FALLBACK_TEMPLATE_DIR
 
 
+def _get_seed_template_creators():
+    try:
+        from scripts import seed_psych_templates as seed_module
+    except Exception as exc:
+        logger.warning("Seed templates unavailable: %s", exc)
+        return []
+
+    return [
+        seed_module.create_npd_template,
+        seed_module.create_schizophrenia_template,
+        seed_module.create_sud_template,
+        seed_module.create_mdd_template,
+        seed_module.create_anorexia_template,
+        seed_module.create_ocd_template,
+    ]
+
+
+def _load_seed_templates(db: Session) -> int:
+    creators = _get_seed_template_creators()
+    if not creators:
+        return 0
+
+    existing_names = {name for (name,) in db.query(ClinicalTemplate.name).all()}
+    loaded_count = 0
+
+    for create_template in creators:
+        try:
+            template = create_template()
+        except Exception as exc:
+            logger.error("Error building seed template: %s", exc)
+            continue
+
+        if template.name in existing_names:
+            continue
+
+        db.add(template)
+        existing_names.add(template.name)
+        loaded_count += 1
+
+    if loaded_count:
+        db.commit()
+
+    return loaded_count
+
+
 def load_template_from_json(json_path: Path) -> Dict:
     """
     Load a template from a JSON file.
@@ -108,29 +153,27 @@ def populate_templates_database(db: Session) -> int:
         Number of templates loaded
     """
     template_dir = get_template_json_directory()
-    
-    if not template_dir.exists():
-        logger.warning(f"Template directory {template_dir} does not exist. Creating empty database.")
-        return 0
-    
-    json_files = list(template_dir.glob("*.json"))
-    
-    if not json_files:
-        logger.warning(f"No JSON template files found in {template_dir}")
-        return 0
-    
+    json_files = list(template_dir.glob("*.json")) if template_dir.exists() else []
     loaded_count = 0
-    
-    for json_file in json_files:
-        try:
-            template_data = load_template_from_json(json_file)
-            create_template_from_dict(db, template_data)
-            loaded_count += 1
-            logger.info(f"Loaded template: {template_data.get('name', json_file.name)}")
-        except Exception as e:
-            logger.error(f"Error loading template from {json_file}: {e}")
-            continue
-    
+
+    if not json_files:
+        if template_dir.exists():
+            logger.warning(f"No JSON template files found in {template_dir}")
+        else:
+            logger.warning(f"Template directory {template_dir} does not exist. Skipping JSON templates.")
+    else:
+        for json_file in json_files:
+            try:
+                template_data = load_template_from_json(json_file)
+                create_template_from_dict(db, template_data)
+                loaded_count += 1
+                logger.info(f"Loaded template: {template_data.get('name', json_file.name)}")
+            except Exception as e:
+                logger.error(f"Error loading template from {json_file}: {e}")
+                continue
+
+    loaded_count += _load_seed_templates(db)
+
     return loaded_count
 
 
@@ -276,9 +319,7 @@ def get_all_disorder_types(db: Session) -> List[str]:
         List of disorder type strings (e.g., ["BPD", "C-PTSD", "Social_Anxiety"])
     """
     # Ensure templates are loaded
-    template_count = db.query(ClinicalTemplate).count()
-    if template_count == 0:
-        populate_templates_database(db)
+    populate_templates_database(db)
     
     disorder_types = db.query(ClinicalTemplate.disorder_type).distinct().all()
     return [dt[0] for dt in disorder_types] if disorder_types else []
@@ -296,9 +337,7 @@ def get_templates_by_disorder(db: Session, disorder_type: str) -> List[ClinicalT
         List of ClinicalTemplate objects
     """
     # Ensure templates are loaded
-    template_count = db.query(ClinicalTemplate).count()
-    if template_count == 0:
-        populate_templates_database(db)
+    populate_templates_database(db)
     
     templates = db.query(ClinicalTemplate).filter(
         ClinicalTemplate.disorder_type == disorder_type
