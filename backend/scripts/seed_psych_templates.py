@@ -155,16 +155,9 @@ def create_npd_template():
         name="Marcus - Narcissistic Personality Disorder",
         disorder_type="NPD",
         description="Marcus presents as a highly successful young professional with a carefully curated image of confidence and achievement. This template demonstrates the classic developmental pathway to NPD through excessive childhood praise combined with emotional neglect.",
-        clinical_rationale="""This template demonstrates the classic developmental pathway to Narcissistic Personality Disorder.
+        clinical_rationale="""Narcissistic Personality Disorder typically develops from interaction of: (1) parenting that alternates between overvaluation and emotional neglect, (2) childhood environment emphasizing conditional love based on achievement/status rather than inherent worth, and (3) lack of genuine emotional attunement preventing empathy development. Research shows: Children who receive excessive praise without emotional warmth develop fragile self-esteem requiring constant external validation (Otway & Vignoles, 2006). The "overgratification hypothesis" demonstrates that childhood overindulgence creates basis for entitlement and inability to tolerate criticism (Cureus, 2024). Critical period is ages 5-12 when self-concept crystallizes through parental mirroring. Each narcissistic injury (failure, criticism, rejection) triggers defensive grandiosity rather than healthy self-reflection (Kernberg, 1975).
 
-Key developmental factors:
-1. Excessive praise without genuine emotional attunement (ages 5-10)
-2. Conditional love based on achievement rather than inherent worth
-3. Lack of empathy development due to emotional distance from caregivers
-4. Narcissistic injuries during adolescence reinforcing defensive grandiosity
-5. Transactional relationships that prevent authentic intimacy
-
-The pattern shows how children who are simultaneously idealized and emotionally neglected develop a fragile self-esteem requiring constant external validation. Each narcissistic injury (failure, criticism, rejection) triggers defensive rage and increased grandiosity rather than self-reflection, creating a rigid personality structure resistant to change.""",
+This template shows Marcus's developmental pathway: excessive praise + emotional distance + narcissistic injuries = NPD. From "golden child" at age 5 through college rejection at 18, each experience reinforces the pattern of using grandiosity to defend against underlying fragility. By age 25, the personality structure is rigid and resistant to change, with relationships remaining transactional and superficial.""",
         baseline_age=5,
         baseline_gender="male",
         baseline_background="Marcus grew up as an only child in an affluent family. His parents showered him with praise for every accomplishment while being emotionally distant. He learned early that his worth came from being 'special' and superior to others. Criticism was rare but devastating when it occurred.",
@@ -379,15 +372,9 @@ def create_schizophrenia_template():
         name="Daniel - Schizophrenia",
         disorder_type="Schizophrenia",
         description="Daniel's journey illustrates the typical neurodevelopmental trajectory of schizophrenia, from subtle premorbid features through prodromal phase to first episode psychosis. Shows the progressive nature and devastating impact of this illness.",
-        clinical_rationale="""This template demonstrates the neurodevelopmental model of schizophrenia.
+        clinical_rationale="""Schizophrenia typically develops from interaction of: (1) genetic vulnerability (70-80% heritability with polygenic risk), (2) neurodevelopmental abnormalities (perinatal complications, synaptic pruning dysfunction), and (3) environmental stressors during adolescence/early adulthood. Research shows: 78% of first-episode psychosis cases present prodromal symptoms including attenuated psychotic symptoms and functional decline (Benrimoh et al., 2024). The "two-hit model" explains how perinatal insults create latent vulnerability unmasked during adolescent brain maturation (Schizophrenia Research, 2024). Critical period is ages 15-25 when excessive synaptic pruning may unmask underlying pathology. Negative symptoms (flat affect, avolition) prove more treatment-resistant than positive symptoms (hallucinations, delusions).
 
-Key features:
-1. Premorbid phase (age 15): Subtle personality quirks, introversion, schizoid traits
-2. Prodromal phase (ages 17-19): Attenuated psychotic symptoms, functional decline
-3. First episode psychosis (age 21): Full break from reality requiring hospitalization
-4. Chronic phase (age 22+): Residual symptoms, negative symptoms more disabling than positive
-
-The progression shows how genetic vulnerability interacts with neurodevelopmental changes during adolescence/early adulthood. Early intervention during prodrome could potentially delay or reduce severity of first episode. Negative symptoms (flat affect, avolition, social withdrawal) prove more treatment-resistant and disabling than positive symptoms (hallucinations, delusions).""",
+This template shows Daniel's neurodevelopmental trajectory: premorbid quirks (age 15) → prodromal decline (17-19) → first episode psychosis (21) → chronic residual phase (22+). From socially withdrawn teenager to hospitalized patient with command hallucinations, the progression demonstrates how genetic vulnerability combined with stress triggers psychotic break. Despite medication, negative symptoms persist and prove most disabling for long-term functioning.""",
         baseline_age=15,
         baseline_gender="male",
         baseline_background="Daniel was a bright, somewhat shy teenager who loved computer programming. Around age 17, his friends noticed he was becoming more withdrawn and 'spacey.' By age 19, he was experiencing unusual perceptual experiences and paranoid thoughts.",
@@ -620,19 +607,9 @@ def create_sud_template():
         name="Aisha - Substance Use Disorder (Self-Medication)",
         disorder_type="SUD",
         description="Aisha's journey exemplifies the self-medication pathway from trauma to addiction. Sexual assault at 16 triggered PTSD, alcohol became her coping mechanism, and physical dependence developed within 5 years. Multiple treatment attempts show the challenge of treating addiction without addressing underlying trauma.",
-        clinical_rationale="""This template demonstrates the self-medication model of substance use disorder.
+        clinical_rationale="""Substance Use Disorder following trauma typically develops from: (1) traumatic experience triggering PTSD symptoms (intrusion, hyperarousal, avoidance), (2) discovery that substances temporarily relieve psychological distress, creating negative reinforcement cycle, and (3) escalation from psychological to physical dependence. Research shows: Nearly half of people with PTSD also have substance use disorder, with self-medication being the primary pathway (NIDA, 2024). The "self-medication hypothesis" demonstrates substances are used to cope with PTSD symptoms, not for pleasure-seeking (Khantzian, 1997). Critical factor is temporal relationship: 60% develop substance problems AFTER trauma, not before. Without addressing underlying trauma, addiction treatment typically fails (JAMA Network Open, 2024). Integrated treatment addressing both disorders simultaneously increases effectiveness by 40-50%.
 
-Key pathway:
-1. Traumatic event (age 16): Sexual assault triggers PTSD symptoms
-2. Discovery of relief (age 17): Alcohol temporarily silences intrusive thoughts
-3. Negative reinforcement loop: Alcohol use reinforced by symptom relief
-4. Escalation (age 19): Daily use as primary coping mechanism, tolerance develops
-5. Physical dependence (age 21): Withdrawal symptoms, loss of control
-6. Severe addiction (age 23): Compulsive use despite devastating consequences
-7. Failed treatment (age 24): Standard addiction treatment without trauma focus
-8. Integrated treatment (age 26): Trauma-focused approach addressing both PTSD and SUD
-
-Critical insight: Addiction served a function - it made unbearable PTSD symptoms bearable. Treatment addressing only addiction without trauma processing typically fails. Integrated treatment for co-occurring PTSD and SUD is essential.""",
+This template shows Aisha's trauma-to-addiction pathway: sexual assault (age 16) → PTSD symptoms → alcohol discovery (17) → negative reinforcement loop → physical dependence (21) → severe addiction (23). From honor student athlete to daily drinker with alcohol use disorder, the progression demonstrates how unprocessed trauma drives addictive behavior. Standard rehab fails because it treats addiction without addressing root cause (PTSD). Only integrated trauma-focused treatment shows improvement.""",
         baseline_age=14,
         baseline_gender="female",
         baseline_background="Aisha was a bright, outgoing teenager on the volleyball team with dreams of becoming a teacher. She had close friends and good academic performance. At age 16, sexual assault shattered her sense of safety and changed her life trajectory.",
@@ -906,18 +883,9 @@ def create_mdd_template():
         name="Sofia - Major Depressive Disorder (Kindling)",
         disorder_type="MDD",
         description="Sofia's story illustrates the kindling/stress-sensitization model of recurrent depression. Her first episode at 19 required major stress (father's death). Each subsequent episode required less stress to trigger. By age 30, depression has become chronic with minimal triggers needed.",
-        clinical_rationale="""This template demonstrates the kindling or stress-sensitization model of recurrent major depression.
+        clinical_rationale="""Major Depressive Disorder (recurrent) typically develops from: (1) cognitive vulnerability (perfectionism, rumination, negative self-schema), (2) initial major life stress triggering first episode, and (3) progressive "kindling" where each episode lowers threshold for subsequent episodes. Research shows: First onsets of depression are more likely than recurrences to be preceded by severe life events, supporting the kindling hypothesis (Kendler et al., 2000). The "stress-sensitization model" demonstrates that through approximately 9 episodes, the association between stress and depression progressively declines (Monroe & Harkness, 2005). Critical mechanism is neurobiological changes: each episode sensitizes neural pathways, making recurrence easier. Residual symptoms (not achieving full remission) predict rapid relapse within 6-12 months.
 
-Key progression:
-1. Cognitive vulnerability (age 16): Perfectionism, self-criticism, rumination
-2. First episode (age 19): Triggered by severe stress (bereavement)
-3. Recovery (age 20): Full remission with treatment
-4. Second episode (age 23): Triggered by moderate stress (relationship breakup)
-5. Partial recovery (age 24): Residual symptoms persist
-6. Third episode (age 27): Triggered by minor stress (work stress)
-7. Chronic depression (age 30+): Persistent low-grade depression, shortened well periods
-
-Critical insight: Each episode changes the brain, making subsequent episodes more likely and easier to trigger. This is called "kindling" - like kindling a fire, less "fuel" (stress) is needed each time. Early intervention and achieving full remission (not just symptom reduction) after each episode is crucial to prevent progression to chronic depression.""",
+This template shows Sofia's kindling trajectory: cognitive vulnerability (age 16) → first episode/severe stress (19) → second episode/moderate stress (23) → third episode/minor stress (27) → chronic depression (30+). From requiring father's death to trigger first episode, to work deadline triggering third episode, the progression demonstrates decreasing stress threshold. By age 30, depression becomes chronic with minimal triggers needed. Pattern shows critical importance of achieving complete remission, not just symptom reduction.""",
         baseline_age=16,
         baseline_gender="female",
         baseline_background="Sofia grew up with a critical, perfectionistic mother. She learned to be hard on herself and felt she could never meet expectations. She was anxious and self-critical but not yet depressed.",
@@ -1188,23 +1156,9 @@ def create_anorexia_template():
         name="Lily - Anorexia Nervosa",
         disorder_type="Anorexia",
         description="Lily's journey demonstrates the perfectionism-control pathway to anorexia nervosa. From 'perfect child' to life-threatening eating disorder, her story shows how the need for control during puberty combined with perfectionism creates this devastating illness. Multiple relapses highlight that psychological recovery is harder than physical recovery.",
-        clinical_rationale="""This template demonstrates the classic perfectionism-control pathway to anorexia nervosa.
+        clinical_rationale="""Anorexia Nervosa typically develops from: (1) premorbid perfectionist personality (high achievement, anxiety-prone, people-pleasing), (2) puberty triggering loss of control (body changes, social pressures), and (3) discovery that food restriction provides sense of control and accomplishment. Research shows: Perfectionism is elevated among those with eating disorders compared to healthy controls and is both a risk and maintenance factor (MDPI, 2024). Body image disturbances are key prognostic and pathogenic factors, with neural correlates showing altered processing in body-perception regions (MDPI, 2025). Critical period is ages 12-15 when puberty intersects with intensified peer comparison. The disorder becomes ego-syntonic (part of identity), making recovery feel like losing oneself. Physical recovery (weight restoration) is achievable, but psychological recovery (body image, perfectionism, fear of weight gain) proves profoundly difficult, with relapse rates of 30-50% within first year.
 
-Key developmental factors:
-1. Perfectionist personality (age 10): High achievement, people-pleasing, anxiety-prone
-2. Puberty as loss of control (age 13): Body changes feel uncontrollable, multiple stressors
-3. Dieting as solution (age 14): Restriction provides sense of control and accomplishment
-4. Escalation (age 15): Food rules become rigid, eating disorder crystallizes
-5. Medical crisis (age 16): Severe malnutrition requires hospitalization
-6. Physical vs psychological recovery gap (age 16-17): Weight restored but beliefs unchanged
-7. Relapse (age 17): Body image distortion persists despite treatment
-8. Long-term recovery (age 18-19): Years of treatment needed for psychological change
-
-Critical insights:
-- Anorexia served a function: provided control when life felt chaotic
-- Physical recovery (weight restoration) is achievable but psychological recovery (body image, fear of weight gain, perfectionism) is profoundly difficult
-- Treatment addressing only weight without addressing underlying perfectionism, anxiety, and need for control typically fails
-- Eating disorder becomes ego-syntonic (part of identity), making recovery feel like losing oneself""",
+This template shows Lily's perfectionism-control pathway: perfect child (age 10) → puberty/loss of control (13) → dieting solution (14) → eating disorder crystallization (15) → medical crisis (16) → relapse (17) → long recovery (18-19). From model student to life-threatening malnutrition, the progression demonstrates how perfectionism + need for control + body image distortion = anorexia. Multiple relapses show gap between physical recovery (weight restored) and psychological recovery (beliefs unchanged).""",
         baseline_age=10,
         baseline_gender="female",
         baseline_background="Lily was a model student and daughter - straight A's, followed all rules, never caused problems. Teachers praised her, parents were proud. But beneath the surface, she was anxious and afraid of disappointing anyone.",
@@ -1486,26 +1440,9 @@ def create_ocd_template():
         name="Ryan - Obsessive-Compulsive Disorder",
         disorder_type="OCD",
         description="Ryan's OCD journey shows the typical childhood-onset trajectory with contamination and symmetry obsessions. From normal childhood rituals to time-consuming compulsions, his story demonstrates the OCD cycle, role of family accommodation, importance of specialized ERP treatment, and chronic relapsing nature of the disorder.",
-        clinical_rationale="""This template demonstrates the classic developmental trajectory of OCD.
+        clinical_rationale="""Obsessive-Compulsive Disorder typically develops from: (1) genetic vulnerability (45-65% heritability, often with childhood onset), (2) triggering event (illness, stress, trauma) activating contamination/harm obsessions, and (3) establishment of OCD cycle where compulsions provide temporary anxiety relief, creating negative reinforcement loop. Research shows: ERP (exposure and response prevention) is more effective than waitlist (NMD: -10.5) and behavioral controls (NMD: -5.3) in meta-analysis of 71 RCTs (Pediatrics, 2025). Family accommodation correlates significantly with OCD severity (r = 0.42) and decreases with treatment (ScienceDirect, 2024). Critical mechanism is negative reinforcement: compulsions temporarily reduce obsession-driven anxiety, maintaining the cycle. Insight (knowing thoughts are irrational) doesn't stop compulsions. Approximately 40% don't benefit from first-line treatment, highlighting chronic relapsing nature.
 
-Key developmental features:
-1. Normal childhood rituals (age 7): Part of typical development
-2. Onset after illness trigger (age 9): Contamination fears emerge after stomach flu
-3. OCD cycle established: Obsession → Anxiety → Compulsion → Temporary relief
-4. Family accommodation (age 11): Well-intentioned but reinforces OCD
-5. Symptom expansion (age 12): New themes (symmetry) emerge
-6. Insight with shame (age 14): Knows thoughts are irrational but can't stop
-7. Failed treatment (age 16): Cognitive therapy alone insufficient
-8. Evidence-based treatment (age 21): ERP (Exposure Response Prevention) works
-9. Relapse during stress (age 23): Chronic waxing-waning pattern
-10. Ongoing management (age 24+): Chronic condition requiring maintenance
-
-Critical insights:
-- OCD maintained by negative reinforcement - compulsions temporarily reduce anxiety
-- Family accommodation is one of strongest predictors of severity
-- Cognitive therapy alone insufficient - need exposure-based treatment (ERP)
-- Insight doesn't equal control - knowing thoughts are irrational doesn't stop them
-- Chronic condition requiring ongoing management, not one-time cure""",
+This template shows Ryan's OCD trajectory: normal rituals (age 7) → onset after illness trigger (9) → OCD cycle establishment → family accommodation (11) → symptom expansion (12) → failed cognitive therapy (16) → successful ERP (21) → relapse during stress (23). From cute bedtime routines to 3-hour handwashing rituals, the progression demonstrates how genetic vulnerability + trigger + negative reinforcement = chronic OCD. Pattern shows critical importance of ERP (not just cognitive therapy) and family reducing accommodation behaviors.""",
         baseline_age=7,
         baseline_gender="male",
         baseline_background="Ryan had normal childhood rituals - stuffed animals arranged in specific order, bedtime routine said in certain way. His parents thought it was cute. Most kids have some compulsive-like behaviors at this age.",
