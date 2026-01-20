@@ -272,34 +272,91 @@ The pattern shows how children who are simultaneously idealized and emotionally 
         ],
         predefined_interventions=[],
         expected_outcomes={
-            'personality_changes': {
-                'openness': 0.55,
-                'conscientiousness': 0.75,
-                'extraversion': 0.80,
-                'agreeableness': 0.25,
-                'neuroticism': 0.85
+            'age_25_untreated': {
+                'personality': {
+                    'openness': 0.55,
+                    'conscientiousness': 0.75,
+                    'extraversion': 0.80,
+                    'agreeableness': 0.25,
+                    'neuroticism': 0.85
+                },
+                'symptoms': [
+                    'grandiosity',
+                    'need_for_admiration',
+                    'lack_of_empathy',
+                    'interpersonal_exploitation',
+                    'envy_of_others',
+                    'arrogant_behavior'
+                ],
+                'symptom_severity': {
+                    'grandiosity': 9,
+                    'need_for_admiration': 9,
+                    'lack_of_empathy': 8,
+                    'interpersonal_exploitation': 7,
+                    'envy': 6,
+                    'rage_at_criticism': 8
+                },
+                'dsm_criteria_met': 7,
+                'note': 'Meets full DSM-5 criteria for Narcissistic Personality Disorder. Functioning appears successful externally, but relationships are exploitative and fragile. Vulnerability to criticism and shame drives defensive grandiosity.'
             },
-            'symptoms_developed': [
-                'Grandiosity',
-                'Need for admiration',
-                'Lack of empathy',
-                'Interpersonal exploitation',
-                'Envy of others',
-                'Arrogant behavior'
-            ],
-            'attachment_changes': 'anxious',
-            'trauma_markers': [
-                'Narcissistic vulnerability to criticism',
-                'Inability to form intimate relationships',
-                'Defensive rage patterns',
-                'Exploitative interpersonal style'
-            ]
+            'age_30_with_long_term_psychotherapy': {
+                'personality': {
+                    'openness': 0.55,
+                    'conscientiousness': 0.70,
+                    'extraversion': 0.65,
+                    'agreeableness': 0.40,
+                    'neuroticism': 0.65
+                },
+                'symptoms': [
+                    'moderate_grandiosity',
+                    'sensitivity_to_criticism',
+                    'improved_empathy',
+                    'less_exploitative_relationships',
+                    'reduced_rage_outbursts'
+                ],
+                'symptom_severity': {
+                    'grandiosity': 5,
+                    'need_for_admiration': 6,
+                    'lack_of_empathy': 5,
+                    'interpersonal_exploitation': 4,
+                    'rage_at_criticism': 5
+                },
+                'dsm_criteria_met': 4,
+                'note': 'Long-term psychodynamic or schema-focused therapy reduces interpersonal volatility and improves reflective capacity. Grandiosity persists but is less rigid; relationships stabilize with ongoing work.'
+            },
+            'age_30_with_early_empathy_intervention': {
+                'personality': {
+                    'openness': 0.55,
+                    'conscientiousness': 0.70,
+                    'extraversion': 0.70,
+                    'agreeableness': 0.50,
+                    'neuroticism': 0.60
+                },
+                'symptoms': [
+                    'milder_need_for_admiration',
+                    'situational_grandiosity',
+                    'better_empathy',
+                    'more_reciprocal_relationships'
+                ],
+                'symptom_severity': {
+                    'grandiosity': 4,
+                    'need_for_admiration': 5,
+                    'lack_of_empathy': 3,
+                    'interpersonal_exploitation': 3,
+                    'rage_at_criticism': 4
+                },
+                'dsm_criteria_met': 3,
+                'note': 'Earlier emphasis on empathy development and relational attunement reduces severity. Narcissistic traits remain but are less impairing, with better social reciprocity and reduced defensiveness.'
+            }
         },
         citations=[
             "Kernberg, O. (1975). Borderline Conditions and Pathological Narcissism",
             "Kohut, H. (1971). The Analysis of the Self",
             "Miller, A. (1981). The Drama of the Gifted Child",
-            "Ronningstam, E. (2005). Identifying and Understanding the Narcissistic Personality"
+            "Ronningstam, E. (2005). Identifying and Understanding the Narcissistic Personality",
+            "Cureus (2024). Impact of Parental Narcissistic Personality Disorder on Parent-Child Relationship Quality and Child Well-Being: A Systematic Review",
+            "PMC (2024). Tracing the Link Between Narcissistic Personality Disorder and Childhood Overgratification",
+            "APA (2024). Development of Narcissism Across the Life Span: A Meta-Analytic Review"
         ],
         remix_suggestions=[
             {
@@ -458,35 +515,94 @@ The progression shows how genetic vulnerability interacts with neurodevelopmenta
             }
         ],
         expected_outcomes={
-            'personality_changes': {
-                'openness': 0.70,
-                'conscientiousness': 0.20,
-                'extraversion': 0.10,
-                'agreeableness': 0.50,
-                'neuroticism': 0.85
+            'age_22_untreated': {
+                'personality': {
+                    'openness': 0.70,
+                    'conscientiousness': 0.20,
+                    'extraversion': 0.10,
+                    'agreeableness': 0.50,
+                    'neuroticism': 0.85
+                },
+                'symptoms': [
+                    'auditory_hallucinations',
+                    'paranoid_delusions',
+                    'disorganized_thinking',
+                    'flat_affect',
+                    'avolition',
+                    'social_withdrawal',
+                    'cognitive_deficits'
+                ],
+                'symptom_severity': {
+                    'hallucinations': 8,
+                    'delusions': 8,
+                    'disorganized_thinking': 7,
+                    'negative_symptoms': 8,
+                    'social_withdrawal': 9,
+                    'cognitive_impairment': 7
+                },
+                'dsm_criteria_met': 'Meets full DSM-5 criteria for schizophrenia',
+                'note': 'Without treatment, functional decline accelerates. Positive symptoms remain prominent and negative symptoms deepen, driving long-term disability.'
             },
-            'symptoms_developed': [
-                'Auditory hallucinations',
-                'Paranoid delusions',
-                'Disorganized thinking',
-                'Flat affect',
-                'Avolition',
-                'Social withdrawal',
-                'Cognitive deficits'
-            ],
-            'attachment_changes': 'fearful',
-            'trauma_markers': [
-                'Loss of reality testing capacity',
-                'Chronic negative symptoms',
-                'Significant functional impairment',
-                'Grief over lost potential'
-            ]
+            'age_24_with_early_intervention': {
+                'personality': {
+                    'openness': 0.65,
+                    'conscientiousness': 0.35,
+                    'extraversion': 0.20,
+                    'agreeableness': 0.55,
+                    'neuroticism': 0.70
+                },
+                'symptoms': [
+                    'residual_paranoia',
+                    'attenuated_hallucinations',
+                    'negative_symptoms',
+                    'cognitive_slowing',
+                    'social_withdrawal'
+                ],
+                'symptom_severity': {
+                    'hallucinations': 4,
+                    'delusions': 4,
+                    'disorganized_thinking': 4,
+                    'negative_symptoms': 6,
+                    'social_withdrawal': 6,
+                    'cognitive_impairment': 5
+                },
+                'dsm_criteria_met': 'Partial remission',
+                'note': 'Early intervention services reduce duration of untreated psychosis, lowering positive symptom severity and preserving more functioning. Negative symptoms persist and require ongoing supports.'
+            },
+            'age_26_with_medication_and_psychosocial_support': {
+                'personality': {
+                    'openness': 0.60,
+                    'conscientiousness': 0.40,
+                    'extraversion': 0.25,
+                    'agreeableness': 0.60,
+                    'neuroticism': 0.65
+                },
+                'symptoms': [
+                    'occasional_hallucinations_under_stress',
+                    'mild_paranoia',
+                    'ongoing_negative_symptoms',
+                    'improved_daily_functioning'
+                ],
+                'symptom_severity': {
+                    'hallucinations': 3,
+                    'delusions': 3,
+                    'disorganized_thinking': 3,
+                    'negative_symptoms': 5,
+                    'social_withdrawal': 5,
+                    'cognitive_impairment': 4
+                },
+                'dsm_criteria_met': 'Residual phase',
+                'note': 'Consistent medication adherence plus family psychoeducation and supported employment improves stability and quality of life. Residual negative symptoms remain the primary limitation.'
+            }
         },
         citations=[
             "McGorry, P. (1998). Preventive strategies in early psychosis",
             "Andreasen, N. (1999). A unitary model of schizophrenia",
             "Tandon, R. et al. (2009). Schizophrenia - Just the Facts",
-            "Lieberman, J. et al. (2001). Time course and biologic correlates of treatment response in first-episode schizophrenia"
+            "Lieberman, J. et al. (2001). Time course and biologic correlates of treatment response in first-episode schizophrenia",
+            "Schizophrenia Research (2024). The schizophrenia syndrome, circa 2024: What we know and how that informs its nature - 50 international experts",
+            "Exploration in Neuroscience (2025). The Role of Neuroglia in the Development and Progression of Schizophrenia",
+            "Benrimoh et al. (2024). Meta-analysis: 78% of first-episode psychosis cases presented prodromal symptoms"
         ],
         remix_suggestions=[
             {
@@ -678,33 +794,96 @@ Critical insight: Addiction served a function - it made unbearable PTSD symptoms
             }
         ],
         expected_outcomes={
-            'personality_changes': {
-                'openness': 0.60,
-                'conscientiousness': 0.30,
-                'extraversion': 0.40,
-                'agreeableness': 0.55,
-                'neuroticism': 0.90
+            'age_23_untreated': {
+                'personality': {
+                    'openness': 0.55,
+                    'conscientiousness': 0.25,
+                    'extraversion': 0.35,
+                    'agreeableness': 0.45,
+                    'neuroticism': 0.92
+                },
+                'symptoms': [
+                    'severe_alcohol_use_disorder',
+                    'cravings',
+                    'loss_of_control',
+                    'withdrawal_symptoms',
+                    'ptsd_intrusions',
+                    'hypervigilance',
+                    'depression',
+                    'social_isolation'
+                ],
+                'symptom_severity': {
+                    'cravings': 9,
+                    'withdrawal': 9,
+                    'ptsd_intrusions': 8,
+                    'hypervigilance': 8,
+                    'depression': 7,
+                    'functional_impairment': 9
+                },
+                'dsm_criteria_met': 8,
+                'note': 'Meets severe Alcohol Use Disorder criteria with comorbid PTSD. Continued trauma-driven drinking increases medical risk, relationship loss, and legal/occupational consequences.'
             },
-            'symptoms_developed': [
-                'Alcohol dependence (in recovery)',
-                'Cravings',
-                'PTSD symptoms (improving)',
-                'Anxiety',
-                'Depression'
-            ],
-            'attachment_changes': 'fearful',
-            'trauma_markers': [
-                'Self-medication pattern',
-                'Physical dependence history',
-                'Trauma-addiction cycle',
-                'Recovery fragility'
-            ]
+            'age_26_with_standard_rehab': {
+                'personality': {
+                    'openness': 0.58,
+                    'conscientiousness': 0.35,
+                    'extraversion': 0.40,
+                    'agreeableness': 0.50,
+                    'neuroticism': 0.80
+                },
+                'symptoms': [
+                    'early_recovery',
+                    'intermittent_cravings',
+                    'persistent_ptsd_symptoms',
+                    'anxiety',
+                    'relapse_risk'
+                ],
+                'symptom_severity': {
+                    'cravings': 6,
+                    'withdrawal': 2,
+                    'ptsd_intrusions': 7,
+                    'hypervigilance': 7,
+                    'depression': 6,
+                    'functional_impairment': 6
+                },
+                'dsm_criteria_met': 5,
+                'note': 'Standard rehab improves sobriety short-term but leaves trauma untreated, keeping relapse risk high. PTSD symptoms remain a major trigger.'
+            },
+            'age_28_with_integrated_trauma_treatment': {
+                'personality': {
+                    'openness': 0.60,
+                    'conscientiousness': 0.45,
+                    'extraversion': 0.50,
+                    'agreeableness': 0.55,
+                    'neuroticism': 0.65
+                },
+                'symptoms': [
+                    'sustained_sobriety',
+                    'manageable_cravings',
+                    'reduced_ptsd_symptoms',
+                    'improved_sleep',
+                    'better_emotion_regulation'
+                ],
+                'symptom_severity': {
+                    'cravings': 3,
+                    'withdrawal': 0,
+                    'ptsd_intrusions': 4,
+                    'hypervigilance': 4,
+                    'depression': 3,
+                    'functional_impairment': 3
+                },
+                'dsm_criteria_met': 2,
+                'note': 'Integrated PTSD and SUD treatment reduces trauma-driven drinking. Recovery remains fragile but functioning improves with sustained supports and relapse prevention.'
+            }
         },
         citations=[
             "Khantzian, E. (1997). The self-medication hypothesis of substance use disorders",
             "Najavits, L. (2002). Seeking Safety: A treatment manual for PTSD and substance abuse",
             "Brady, K. et al. (2004). Comorbidity of psychiatric disorders and posttraumatic stress disorder",
-            "Ouimette, P. & Brown, P. (2003). Trauma and Substance Abuse: Causes, Consequences, and Treatment"
+            "Ouimette, P. & Brown, P. (2003). Trauma and Substance Abuse: Causes, Consequences, and Treatment",
+            "JAMA Network Open (2024). Advancing Integrated Treatment for Posttraumatic Stress Disorder and Substance Use Disorders",
+            "NIDA (2024). Trauma and Stress: Nearly half of people with PTSD also have a substance use disorder",
+            "Social Psychiatry (2023). Predictors of alcohol and substance use among people with PTSD: NESARC-III study"
         ],
         remix_suggestions=[
             {
@@ -900,34 +1079,93 @@ Critical insight: Each episode changes the brain, making subsequent episodes mor
             }
         ],
         expected_outcomes={
-            'personality_changes': {
-                'openness': 0.65,
-                'conscientiousness': 0.40,
-                'extraversion': 0.35,
-                'agreeableness': 0.70,
-                'neuroticism': 0.85
+            'age_30_untreated': {
+                'personality': {
+                    'openness': 0.60,
+                    'conscientiousness': 0.35,
+                    'extraversion': 0.30,
+                    'agreeableness': 0.70,
+                    'neuroticism': 0.88
+                },
+                'symptoms': [
+                    'persistent_depressed_mood',
+                    'anhedonia',
+                    'fatigue',
+                    'worthlessness',
+                    'sleep_disturbance',
+                    'concentration_problems',
+                    'social_withdrawal'
+                ],
+                'symptom_severity': {
+                    'depressed_mood': 8,
+                    'anhedonia': 8,
+                    'fatigue': 7,
+                    'worthlessness': 8,
+                    'sleep_disturbance': 7,
+                    'concentration': 7
+                },
+                'dsm_criteria_met': 6,
+                'note': 'Meets full DSM-5 criteria for Major Depressive Disorder with recurrent episodes and emerging chronicity. Kindling effect leads to episodes triggered by minor stress.'
             },
-            'symptoms_developed': [
-                'Chronic depressed mood',
-                'Anhedonia',
-                'Fatigue',
-                'Worthlessness',
-                'Concentration problems',
-                'Social withdrawal'
-            ],
-            'attachment_changes': 'anxious',
-            'trauma_markers': [
-                'Recurrent depressive episodes',
-                'Stress sensitization',
-                'Chronic residual symptoms',
-                'Treatment resistance'
-            ]
+            'age_32_with_maintenance_treatment': {
+                'personality': {
+                    'openness': 0.62,
+                    'conscientiousness': 0.45,
+                    'extraversion': 0.40,
+                    'agreeableness': 0.72,
+                    'neuroticism': 0.70
+                },
+                'symptoms': [
+                    'residual_low_mood',
+                    'reduced_anhedonia',
+                    'improved_sleep',
+                    'better_functioning',
+                    'relapse_vulnerability'
+                ],
+                'symptom_severity': {
+                    'depressed_mood': 4,
+                    'anhedonia': 4,
+                    'fatigue': 4,
+                    'worthlessness': 4,
+                    'sleep_disturbance': 3,
+                    'concentration': 3
+                },
+                'dsm_criteria_met': 3,
+                'note': 'Maintenance CBT and medication reduce episode frequency and intensity, but residual symptoms persist. Ongoing relapse prevention remains necessary.'
+            },
+            'age_23_with_full_remission_after_first_episode': {
+                'personality': {
+                    'openness': 0.65,
+                    'conscientiousness': 0.65,
+                    'extraversion': 0.55,
+                    'agreeableness': 0.75,
+                    'neuroticism': 0.60
+                },
+                'symptoms': [
+                    'transient_low_mood_under_stress',
+                    'good_coping_skills',
+                    'stable_functioning'
+                ],
+                'symptom_severity': {
+                    'depressed_mood': 2,
+                    'anhedonia': 1,
+                    'fatigue': 2,
+                    'worthlessness': 1,
+                    'sleep_disturbance': 2,
+                    'concentration': 1
+                },
+                'dsm_criteria_met': 0,
+                'note': 'Full remission after the first episode reduces kindling risk. With sustained coping skills and early intervention, recurrent episodes are less likely.'
+            }
         },
         citations=[
             "Post, R. (1992). Transduction of psychosocial stress into the neurobiology of recurrent affective disorder",
             "Monroe, S. & Harkness, K. (2005). Life stress, the 'kindling' hypothesis, and the recurrence of depression",
             "Kendler, K. et al. (2000). Stressful life events and previous episodes in the etiology of major depression",
-            "Judd, L. et al. (1998). A prospective 12-year study of subsyndromal and syndromal depressive symptoms"
+            "Judd, L. et al. (1998). A prospective 12-year study of subsyndromal and syndromal depressive symptoms",
+            "American Journal of Psychiatry (2000). Stressful Life Events and Previous Episodes in the Etiology of Major Depression in Women: Kindling Hypothesis",
+            "PMC (2015). Life Stress and Kindling in Bipolar Disorder: Integration with Emerging Biopsychosocial Theories",
+            "PMC (2016). Questioning kindling: An analysis of cycle acceleration in unipolar depression"
         ],
         remix_suggestions=[
             {
@@ -1142,34 +1380,90 @@ Critical insights:
             }
         ],
         expected_outcomes={
-            'personality_changes': {
-                'openness': 0.60,
-                'conscientiousness': 0.95,
-                'extraversion': 0.30,
-                'agreeableness': 0.75,
-                'neuroticism': 0.85
+            'age_16_untreated': {
+                'personality': {
+                    'openness': 0.60,
+                    'conscientiousness': 0.95,
+                    'extraversion': 0.30,
+                    'agreeableness': 0.75,
+                    'neuroticism': 0.88
+                },
+                'symptoms': [
+                    'restrictive_eating',
+                    'fear_of_weight_gain',
+                    'body_image_distortion',
+                    'amenorrhea',
+                    'anxiety',
+                    'medical_instability'
+                ],
+                'symptom_severity': {
+                    'restriction': 9,
+                    'fear_of_weight_gain': 9,
+                    'body_image_distortion': 8,
+                    'anxiety': 7,
+                    'medical_risk': 9
+                },
+                'dsm_criteria_met': 'Meets DSM-5 criteria for anorexia nervosa',
+                'note': 'Severe restriction and medical risk dominate functioning. Psychologically, perfectionism and fear of weight gain are rigid and ego-syntonic.'
             },
-            'symptoms_developed': [
-                'Eating disorder thoughts',
-                'Fear of weight gain',
-                'Body image concerns',
-                'Anxiety',
-                'Perfectionism'
-            ],
-            'attachment_changes': 'anxious',
-            'trauma_markers': [
-                'Body image distortion',
-                'Fear of weight gain',
-                'Control-seeking behavior',
-                'Perfectionism',
-                'Recovery fragility'
-            ]
+            'age_18_with_family_based_treatment': {
+                'personality': {
+                    'openness': 0.60,
+                    'conscientiousness': 0.85,
+                    'extraversion': 0.40,
+                    'agreeableness': 0.75,
+                    'neuroticism': 0.70
+                },
+                'symptoms': [
+                    'weight_restoration',
+                    'persistent_body_image_concerns',
+                    'fear_of_weight_gain',
+                    'improving_anxiety'
+                ],
+                'symptom_severity': {
+                    'restriction': 3,
+                    'fear_of_weight_gain': 6,
+                    'body_image_distortion': 6,
+                    'anxiety': 5,
+                    'medical_risk': 2
+                },
+                'dsm_criteria_met': 'Partial remission',
+                'note': 'Family-based treatment restores weight and reduces acute medical risk, but cognitive symptoms remain. Continued therapy is required to address fear of weight gain and identity issues.'
+            },
+            'age_20_with_long_term_cbt': {
+                'personality': {
+                    'openness': 0.62,
+                    'conscientiousness': 0.80,
+                    'extraversion': 0.45,
+                    'agreeableness': 0.78,
+                    'neuroticism': 0.60
+                },
+                'symptoms': [
+                    'stable_weight',
+                    'manageable_body_image_concerns',
+                    'reduced_perfectionism',
+                    'improved_social_functioning'
+                ],
+                'symptom_severity': {
+                    'restriction': 1,
+                    'fear_of_weight_gain': 3,
+                    'body_image_distortion': 3,
+                    'anxiety': 3,
+                    'medical_risk': 0
+                },
+                'dsm_criteria_met': 'Remission achieved',
+                'note': 'Extended CBT and support group work reduce eating disorder beliefs and build identity beyond the disorder. Residual body image sensitivity remains but no longer drives behavior.'
+            }
         },
         citations=[
             "Fairburn, C. & Harrison, P. (2003). Eating disorders",
             "Lock, J. & Le Grange, D. (2012). Treatment Manual for Anorexia Nervosa: A Family-Based Approach",
             "Kaye, W. et al. (2004). Neurobiology of anorexia and bulimia nervosa",
-            "Schmidt, U. & Treasure, J. (2006). Anorexia nervosa: Valued and visible"
+            "Schmidt, U. & Treasure, J. (2006). Anorexia nervosa: Valued and visible",
+            "Eating Disorders Journal (2025). Updates in the treatment of eating disorders in 2024: a year in review",
+            "MDPI (2024). Perfectionism in Children and Adolescents with Eating-Related Symptoms: Systematic Review and Meta-Analysis",
+            "MDPI (2025). The Neural Correlates of Body Image Processing in Anorexia Nervosa: fMRI Meta-Analysis",
+            "CNS Drugs (2025). Approved and Pipeline Pharmacological Interventions for Eating Disorders (2010-2025): 15 Years of Progress"
         ],
         remix_suggestions=[
             {
@@ -1405,33 +1699,93 @@ Critical insights:
             }
         ],
         expected_outcomes={
-            'personality_changes': {
-                'openness': 0.55,
-                'conscientiousness': 0.85,
-                'extraversion': 0.40,
-                'agreeableness': 0.65,
-                'neuroticism': 0.80
+            'age_18_untreated': {
+                'personality': {
+                    'openness': 0.55,
+                    'conscientiousness': 0.90,
+                    'extraversion': 0.35,
+                    'agreeableness': 0.65,
+                    'neuroticism': 0.85
+                },
+                'symptoms': [
+                    'contamination_obsessions',
+                    'washing_compulsions',
+                    'symmetry_obsessions',
+                    'ordering_compulsions',
+                    'checking_compulsions',
+                    'time_consuming_rituals'
+                ],
+                'symptom_severity': {
+                    'contamination_obsessions': 8,
+                    'washing_compulsions': 9,
+                    'symmetry_obsessions': 7,
+                    'ordering_compulsions': 7,
+                    'checking_compulsions': 6,
+                    'functional_impairment': 8
+                },
+                'dsm_criteria_met': 'Meets DSM-5 criteria for OCD',
+                'note': 'Symptoms are time-consuming and impairing, with significant distress and interference in school and social development.'
             },
-            'symptoms_developed': [
-                'Contamination obsessions',
-                'Washing compulsions',
-                'Symmetry obsessions',
-                'Ordering compulsions',
-                'Time consumed by rituals'
-            ],
-            'attachment_changes': 'secure',
-            'trauma_markers': [
-                'Chronic OCD pattern',
-                'Stress sensitivity',
-                'Need for ongoing management',
-                'Insight without control'
-            ]
+            'age_22_with_erp': {
+                'personality': {
+                    'openness': 0.55,
+                    'conscientiousness': 0.80,
+                    'extraversion': 0.45,
+                    'agreeableness': 0.70,
+                    'neuroticism': 0.65
+                },
+                'symptoms': [
+                    'reduced_compulsions',
+                    'residual_obsessions',
+                    'improved_functioning',
+                    'manageable_anxiety'
+                ],
+                'symptom_severity': {
+                    'contamination_obsessions': 4,
+                    'washing_compulsions': 4,
+                    'symmetry_obsessions': 4,
+                    'ordering_compulsions': 3,
+                    'checking_compulsions': 3,
+                    'functional_impairment': 4
+                },
+                'dsm_criteria_met': 'Partial remission',
+                'note': 'ERP reduces compulsions and improves daily functioning. Obsessions persist but are less intrusive, and distress is more manageable.'
+            },
+            'age_24_with_erp_and_ssri': {
+                'personality': {
+                    'openness': 0.55,
+                    'conscientiousness': 0.78,
+                    'extraversion': 0.50,
+                    'agreeableness': 0.70,
+                    'neuroticism': 0.60
+                },
+                'symptoms': [
+                    'occasional_intrusive_thoughts',
+                    'low_compulsion_frequency',
+                    'good_functioning',
+                    'relapse_vulnerability_under_stress'
+                ],
+                'symptom_severity': {
+                    'contamination_obsessions': 2,
+                    'washing_compulsions': 2,
+                    'symmetry_obsessions': 3,
+                    'ordering_compulsions': 2,
+                    'checking_compulsions': 2,
+                    'functional_impairment': 2
+                },
+                'dsm_criteria_met': 'Remission achieved',
+                'note': 'Maintenance ERP plus SSRI reduces symptom intensity and frequency. Residual vulnerability persists, requiring ongoing skills use during stress.'
+            }
         },
         citations=[
             "Abramowitz, J. et al. (2009). Exposure and response prevention for OCD",
             "Foa, E. et al. (2012). Randomized trial of prolonged exposure for OCD",
             "Piacentini, J. & Langley, A. (2004). Cognitive-behavioral therapy for children who have OCD",
-            "Calvocoressi, L. et al. (1995). Family accommodation in OCD"
+            "Calvocoressi, L. et al. (1995). Family accommodation in OCD",
+            "Pediatrics (2025). Treatment of Obsessive-Compulsive Disorder in Children and Youth: Meta-Analysis of 71 RCTs",
+            "JMIR (2025). Effectiveness of Video Teletherapy in Treating OCD in Children and Adolescents With ERP",
+            "ScienceDirect (2024). Family accommodation in obsessive-compulsive disorder: Updated systematic review and meta-analysis",
+            "PMC (2024). Efficacy of a parent-based treatment for children and adolescents with OCD: SPACE protocol study"
         ],
         remix_suggestions=[
             {

@@ -51,12 +51,18 @@ def _get_seed_template_creators():
     ]
 
 
+def _has_scenario_outcomes(expected_outcomes: object) -> bool:
+    if not isinstance(expected_outcomes, dict):
+        return False
+    first_value = next(iter(expected_outcomes.values()), None)
+    return isinstance(first_value, dict) and "personality" in first_value and "symptoms" in first_value
+
+
 def _load_seed_templates(db: Session) -> int:
     creators = _get_seed_template_creators()
     if not creators:
         return 0
 
-    existing_names = {name for (name,) in db.query(ClinicalTemplate.name).all()}
     loaded_count = 0
 
     for create_template in creators:
@@ -66,11 +72,16 @@ def _load_seed_templates(db: Session) -> int:
             logger.error("Error building seed template: %s", exc)
             continue
 
-        if template.name in existing_names:
+        existing = db.query(ClinicalTemplate).filter(ClinicalTemplate.name == template.name).first()
+        if existing:
+            if not _has_scenario_outcomes(existing.expected_outcomes):
+                existing.expected_outcomes = template.expected_outcomes
+                if not existing.citations:
+                    existing.citations = template.citations
+                loaded_count += 1
             continue
 
         db.add(template)
-        existing_names.add(template.name)
         loaded_count += 1
 
     if loaded_count:
