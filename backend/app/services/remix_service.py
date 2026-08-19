@@ -19,6 +19,9 @@ from app.models.experience import Experience
 from app.models.intervention import Intervention
 from app.models.timeline_snapshot import TimelineSnapshot
 from app.models.clinical_template import ClinicalTemplate
+from app.models.adaptation_pattern import AdaptationPattern
+from app.models.clinical_pattern_hypothesis import ClinicalPatternHypothesis
+from app.services.evidence_accumulator import evidence_strength_label
 
 logger = logging.getLogger(__name__)
 
@@ -101,12 +104,44 @@ def create_timeline_snapshot(
                 # Keep highest severity for each symptom
                 if symptom not in symptom_severity_snapshot or severity > symptom_severity_snapshot[symptom]:
                     symptom_severity_snapshot[symptom] = severity
-    
+
+    # Step 9: frozen copies of pattern/hypothesis state at this moment - see
+    # app/models/timeline_snapshot.py's docstring for why these are point-in-
+    # time copies rather than live references. Always live queries (this
+    # function runs against a real DB); they return empty lists in
+    # production today only because nothing populates AdaptationPattern/
+    # ClinicalPatternHypothesis yet (steps 2-5 aren't wired into a creation
+    # route) - see docs/MIGRATION_MAP.md.
+    adaptation_patterns = db.query(AdaptationPattern).filter(
+        AdaptationPattern.persona_id == persona_id
+    ).all()
+    adaptation_patterns_snapshot = [
+        {
+            "pattern_name": p.pattern_name,
+            "adaptation_strategy": p.adaptation_strategy,
+            "status": p.status,
+            "evidence_strength": p.evidence_strength,
+        }
+        for p in adaptation_patterns
+    ]
+
+    clinical_pattern_hypotheses = db.query(ClinicalPatternHypothesis).filter(
+        ClinicalPatternHypothesis.persona_id == persona_id
+    ).all()
+    clinical_pattern_hypotheses_snapshot = [
+        {
+            "pattern_key": h.pattern_key,
+            "tier": h.tier,
+            "evidence_strength": h.evidence_strength,
+        }
+        for h in clinical_pattern_hypotheses
+    ]
+
     # Note: Persona model doesn't store baseline_personality separately
     # The baseline is the initial current_personality when persona was created
     # For comparison purposes, we'll store None and compare snapshots to each other instead
     personality_difference = None
-    
+
     # Create snapshot
     snapshot = TimelineSnapshot(
         id=str(uuid.uuid4()),
@@ -119,6 +154,9 @@ def create_timeline_snapshot(
         personality_snapshot=dict(persona.current_personality),
         trauma_markers_snapshot=list(persona.current_trauma_markers) if persona.current_trauma_markers else None,
         symptom_severity_snapshot=symptom_severity_snapshot if symptom_severity_snapshot else None,
+        adaptation_patterns_snapshot=adaptation_patterns_snapshot if adaptation_patterns_snapshot else None,
+        clinical_pattern_hypotheses_snapshot=clinical_pattern_hypotheses_snapshot if clinical_pattern_hypotheses_snapshot else None,
+        state_profile_snapshot=dict(persona.current_state) if persona.current_state else None,
         personality_difference=personality_difference,
         symptom_difference=None
     )
@@ -149,6 +187,84 @@ def get_persona_snapshots(
     ).order_by(TimelineSnapshot.created_at).all()
     
     return snapshots
+
+
+def _diff_pattern_lists(list_1: List[Dict], list_2: List[Dict], key_field: str) -> Dict:
+    """
+    Pure diff between two frozen pattern-snapshot lists (adaptation_patterns_
+    snapshot or clinical_pattern_hypotheses_snapshot), keyed on key_field
+    ("adaptation_strategy" or "pattern_key" - the controlled-vocabulary
+    fields, not the evocative pattern_name, so the diff is exact rather than
+    fuzzy-matched on a name an AI might phrase slightly differently across
+    two generations).
+    """
+    list_1 = list_1 or []
+    list_2 = list_2 or []
+    by_key_1 = {p[key_field]: p for p in list_1 if p.get(key_field)}
+    by_key_2 = {p[key_field]: p for p in list_2 if p.get(key_field)}
+
+    new_keys = set(by_key_2) - set(by_key_1)
+    resolved_keys = set(by_key_1) - set(by_key_2)
+    shared_keys = set(by_key_1) & set(by_key_2)
+
+    changed = []
+    unchanged = []
+    for key in shared_keys:
+        p1, p2 = by_key_1[key], by_key_2[key]
+        strength_1, strength_2 = p1.get("evidence_strength"), p2.get("evidence_strength")
+        status_1, status_2 = p1.get("status"), p2.get("status")
+        if strength_1 != strength_2 or status_1 != status_2:
+            changed.append({
+                key_field: key,
+                "snapshot_1": p1,
+                "snapshot_2": p2,
+                "evidence_strength_change": (
+                    (strength_2 - strength_1) if (strength_1 is not None and strength_2 is not None) else None
+                ),
+            })
+        else:
+            unchanged.append(key)
+
+    return {
+        "new": [by_key_2[k] for k in new_keys],
+        "resolved": [by_key_1[k] for k in resolved_keys],
+        "changed": changed,
+        "unchanged": unchanged,
+    }
+
+
+def _diff_state_profile(state_1: Optional[Dict[str, float]], state_2: Optional[Dict[str, float]]) -> Dict:
+    """
+    Step 11f: diffs the State tier (Persona.current_state, frozen as
+    TimelineSnapshot.state_profile_snapshot) between two snapshots, the same
+    way personality_differences below diffs the Trait tier. Unlike
+    current_personality (which always carries all five Big Five keys),
+    current_state doesn't always carry every STATE_VARIABLES key - a
+    variable only appears once something has actually moved it - so this is
+    keyed on the UNION of keys present in either snapshot: a variable
+    present in only one snapshot is reported as newly/no-longer tracked
+    rather than silently skipped or treated as an unearned 0.0.
+    """
+    state_1 = state_1 or {}
+    state_2 = state_2 or {}
+    differences = {}
+    for key in set(state_1) | set(state_2):
+        val_1, val_2 = state_1.get(key), state_2.get(key)
+        if val_1 is None or val_2 is None:
+            differences[key] = {
+                "snapshot_1": val_1,
+                "snapshot_2": val_2,
+                "difference": None,
+                "change_direction": "newly_tracked" if val_1 is None else "no_longer_tracked",
+            }
+            continue
+        differences[key] = {
+            "snapshot_1": val_1,
+            "snapshot_2": val_2,
+            "difference": val_2 - val_1,
+            "change_direction": "increased" if val_2 > val_1 else "decreased" if val_2 < val_1 else "unchanged",
+        }
+    return differences
 
 
 def compare_snapshots(
@@ -219,7 +335,19 @@ def compare_snapshots(
             "snapshot_2": sev_2,
             "difference": sev_2 - sev_1
         }
-    
+
+    # Step 9: diff patterns and adaptations, not just Big Five deltas.
+    adaptation_pattern_differences = _diff_pattern_lists(
+        snapshot_1.adaptation_patterns_snapshot, snapshot_2.adaptation_patterns_snapshot, "adaptation_strategy"
+    )
+    clinical_pattern_differences = _diff_pattern_lists(
+        snapshot_1.clinical_pattern_hypotheses_snapshot, snapshot_2.clinical_pattern_hypotheses_snapshot, "pattern_key"
+    )
+
+    # Step 11f: diff the State tier too - the fast-moving counterpart to
+    # personality_differences above.
+    state_differences = _diff_state_profile(snapshot_1.state_profile_snapshot, snapshot_2.state_profile_snapshot)
+
     # Generate natural language summary
     summary_parts = []
     
@@ -248,6 +376,21 @@ def compare_snapshots(
     else:
         summary_parts.append("No significant personality changes observed.")
     
+    # State summary (Step 11f) - only variables actually present in both
+    # snapshots participate in a "changed" comparison; newly/no-longer-
+    # tracked variables are real information but not a "moved by X" claim.
+    significant_state_changes = [
+        key for key, diff in state_differences.items()
+        if diff["difference"] is not None and abs(diff["difference"]) >= 0.1
+    ]
+    if significant_state_changes:
+        state_descriptions = []
+        for key in significant_state_changes:
+            diff = state_differences[key]
+            direction = "increased" if diff["difference"] > 0 else "decreased"
+            state_descriptions.append(f"{key} {direction} ({diff['difference']:+.2f})")
+        summary_parts.append(f"State changes: {', '.join(state_descriptions)}.")
+
     # Symptom summary
     if symptoms_only_in_2:
         summary_parts.append(f"New symptoms in {snapshot_2.label}: {', '.join(symptoms_only_in_2)}.")
@@ -267,25 +410,58 @@ def compare_snapshots(
     
     if severity_worsened:
         summary_parts.append(f"Symptom severity worsened for: {', '.join(severity_worsened)}.")
-    
+
+    # Pattern summary - this is the "explain why the trajectories diverge"
+    # material the product spec asks for (section 13), not just a number
+    # going up or down.
+    if adaptation_pattern_differences["new"]:
+        names = ", ".join(f'"{p["pattern_name"]}"' for p in adaptation_pattern_differences["new"])
+        summary_parts.append(f"New pattern(s) emerged in {snapshot_2.label}: {names}.")
+
+    if adaptation_pattern_differences["resolved"]:
+        names = ", ".join(f'"{p["pattern_name"]}"' for p in adaptation_pattern_differences["resolved"])
+        summary_parts.append(f"Pattern(s) no longer present in {snapshot_2.label}: {names}.")
+
+    for change in adaptation_pattern_differences["changed"]:
+        p1, p2 = change["snapshot_1"], change["snapshot_2"]
+        delta = change["evidence_strength_change"]
+        direction = "strengthened" if (delta or 0) > 0 else "weakened" if (delta or 0) < 0 else "shifted status"
+        summary_parts.append(
+            f'"{p2["pattern_name"]}" {direction} ({p1["status"]} → {p2["status"]}, '
+            f"evidence: {evidence_strength_label(p1.get('evidence_strength'))} → {evidence_strength_label(p2.get('evidence_strength'))})."
+        )
+
+    if not any([adaptation_pattern_differences["new"], adaptation_pattern_differences["resolved"], adaptation_pattern_differences["changed"]]) \
+            and (snapshot_1.adaptation_patterns_snapshot or snapshot_2.adaptation_patterns_snapshot):
+        summary_parts.append("Developmental patterns remain consistent between the two scenarios.")
+
     summary = " ".join(summary_parts)
-    
+
     return {
         "snapshot_1": {
             "id": snapshot_1.id,
             "label": snapshot_1.label,
             "personality": snapshot_1.personality_snapshot,
+            "state": snapshot_1.state_profile_snapshot or {},
             "symptoms": list(symptoms_1),
-            "symptom_severity": severity_1
+            "symptom_severity": severity_1,
+            "adaptation_patterns": snapshot_1.adaptation_patterns_snapshot or [],
+            "clinical_pattern_hypotheses": snapshot_1.clinical_pattern_hypotheses_snapshot or [],
         },
         "snapshot_2": {
             "id": snapshot_2.id,
             "label": snapshot_2.label,
             "personality": snapshot_2.personality_snapshot,
+            "state": snapshot_2.state_profile_snapshot or {},
             "symptoms": list(symptoms_2),
-            "symptom_severity": severity_2
+            "symptom_severity": severity_2,
+            "adaptation_patterns": snapshot_2.adaptation_patterns_snapshot or [],
+            "clinical_pattern_hypotheses": snapshot_2.clinical_pattern_hypotheses_snapshot or [],
         },
         "personality_differences": personality_differences,
+        "state_differences": state_differences,
+        "adaptation_pattern_differences": adaptation_pattern_differences,
+        "clinical_pattern_differences": clinical_pattern_differences,
         "symptom_differences": {
             "only_in_snapshot_1": list(symptoms_only_in_1),
             "only_in_snapshot_2": list(symptoms_only_in_2),
@@ -481,7 +657,34 @@ def get_remix_suggestions_for_persona(
             ],
             "hypothesis": "One consistent supportive relationship could provide resilience buffer and reduce symptom severity."
         })
-    
+
+    # Suggestion 4 (step 9): target the dominant established pattern
+    # directly, not just a generic protective-factor placeholder. Only
+    # fires once AdaptationPattern rows actually exist for a persona -
+    # currently that's never, in production, since steps 2-5 aren't wired
+    # into a creation route yet (see docs/MIGRATION_MAP.md).
+    established_patterns = db.query(AdaptationPattern).filter(
+        AdaptationPattern.persona_id == persona_id,
+        AdaptationPattern.status == "established"
+    ).order_by(AdaptationPattern.evidence_strength.desc()).all()
+
+    if established_patterns:
+        dominant = established_patterns[0]
+        age_phrase = f"age {dominant.first_emerged_age}" if dominant.first_emerged_age is not None else "the pattern's origin"
+        suggestions.append({
+            "title": f'Interrupt "{dominant.pattern_name}" - What if a protective factor arrived earlier?',
+            "changes": [
+                f"Add a protective factor active from {age_phrase}, buffering the domains this pattern draws on",
+                "Keep the original exposures that gave rise to the pattern",
+            ],
+            "hypothesis": (
+                f'"{dominant.pattern_name}" (adaptive strategy: {dominant.adaptation_strategy}) is currently '
+                f"established with {evidence_strength_label(dominant.evidence_strength)} evidence. A protective "
+                f"factor present from its origin might change the interpretation that produced it, not just "
+                f"soften its later severity."
+            ),
+        })
+
     return suggestions
 
 

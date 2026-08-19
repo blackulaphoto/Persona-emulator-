@@ -42,11 +42,19 @@ class PersonaResponse(BaseModel):
     current_personality: Dict[str, float]
     current_attachment_style: str
     current_trauma_markers: List[str]
+    # Step 11f (docs/MIGRATION_MAP.md): the State tier (app/services/
+    # state_trait_engine.py) - fast-moving, reactive psychological state,
+    # distinct from current_personality (the slow, gated Trait tier). Has
+    # been written to the DB since Step 11c; this is the first route that
+    # actually exposes it. Optional/nullable because current_state starts
+    # at {} and a persona with no earned State movement yet has nothing to
+    # show - not the same as an unearned 0.5 baseline for every variable.
+    current_state: Optional[Dict[str, float]] = None
     experiences_count: int
     interventions_count: int
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True
 

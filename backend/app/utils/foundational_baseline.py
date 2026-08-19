@@ -1,7 +1,22 @@
 """
 Foundational baseline utilities for persona creation.
 
-Applies a one-time, bounded baseline bias from early environment signals.
+IMPORTANT - read before touching or displaying these numbers: the Big Five
+scores this module produces are SIMULATION STATE, not a validated
+psychometric assessment. No population norms, no administered instrument,
+no calibration against real outcome data sits behind them - they are a
+model's best estimate given a text description, nothing more. Display them
+(they're intuitive and useful for the product), but never present them, in
+code comments, UI copy, or generated narrative, as if they were the result
+of an actual personality test. See docs/MIGRATION_MAP.md, "Hard rules".
+
+This also means: a flat, near-neutral profile is a legitimate result, not a
+failure state. Earlier versions of this module detected a flat AI response
+and force-nudged it toward more spread specifically to make the simulation
+"more interesting" (see git history / docs/MIGRATION_MAP.md) - that
+behavior has been removed. If a described environment doesn't clearly push
+personality in any direction, the honest output is a profile close to 0.5,
+and that's what this module now returns.
 """
 import re
 import os
@@ -19,8 +34,14 @@ openai_service = OpenAIService(
 )
 
 BASELINE_SCORE = 50
-TRAIT_MIN = 20  # Expanded from 40 to allow more variation
-TRAIT_MAX = 80  # Expanded from 60 to allow more variation
+# A wide plausibility bound, not a target range for "enough variation." Its
+# only job is to keep a single estimate from landing on a degenerate literal
+# 0.0/1.0 extreme - implausible for any simulated person regardless of how
+# severe or idealized the described environment is. It should almost never
+# actually bind for a well-reasoned AI response; if it's binding often,
+# that's a sign the prompt needs attention, not that the bound is wrong.
+TRAIT_MIN = 10
+TRAIT_MAX = 90
 
 SIGNAL_MIN = -4
 SIGNAL_MAX = 4
@@ -40,26 +61,6 @@ def _keyword_hits(text: str, keywords: List[str]) -> int:
         pattern = r"\b" + re.escape(keyword) + r"\b"
         hits += len(re.findall(pattern, text))
     return hits
-
-
-def _is_flat_profile(traits: Dict[str, float]) -> bool:
-    values = list(traits.values())
-    if not values:
-        return True
-    return max(values) - min(values) < 0.04 and all(0.45 <= value <= 0.55 for value in values)
-
-
-def _apply_signal_nudge(
-    baseline: Dict[str, float],
-    deltas: Dict[str, int],
-    scale: float = 0.005
-) -> Dict[str, float]:
-    nudged = {}
-    for trait, value in baseline.items():
-        delta = deltas.get(trait, 0)
-        nudged_value = value + (delta * scale)
-        nudged[trait] = _clamp_float(nudged_value, TRAIT_MIN / 100.0, TRAIT_MAX / 100.0)
-    return nudged
 
 
 def infer_foundational_signals(early_environment: str) -> Dict[str, int]:
@@ -193,7 +194,8 @@ def _calculate_trait_deltas(signals: Dict[str, int]) -> Dict[str, int]:
 
 def clamp_personality_range(personality: Dict[str, float]) -> Dict[str, float]:
     """
-    Clamp traits to the 20-80 range (0.2-0.8).
+    Clamp traits to [TRAIT_MIN, TRAIT_MAX] (currently 0.1-0.9) - a degenerate-
+    extreme guard, not a target spread. See module docstring.
     """
     return {
         trait: _clamp_float(value, TRAIT_MIN / 100.0, TRAIT_MAX / 100.0)
@@ -234,9 +236,9 @@ IMPORTANT GUIDELINES:
 2. **Consider protective factors** - Resilience, supportive relationships, natural temperament
 3. **Age matters** - At age {baseline_age}, some personality traits are still developing
 4. **Avoid stereotypes** - Abuse doesn't automatically mean neuroticism = 0.9
-5. **Use full range** - Traits can realistically range from 0.2 to 0.8
+5. **Use full range when the evidence supports it** - Traits can realistically range from 0.1 to 0.9, but do not manufacture spread the description doesn't earn
 6. **Context is key** - A loving but strict household is different from an abusive one
-7. **Avoid flat profiles** - If the background is clearly adverse or clearly supportive, at least two traits should deviate by >= 0.1 from 0.5
+7. **A flat, near-neutral profile is a legitimate answer** - If the described environment doesn't clearly push personality in a direction (ambiguous, sparse, or genuinely balanced), traits near 0.5 are the honest result. Do not force at least some traits to deviate just to make the profile look more differentiated - that would be fabricating precision you don't have.
 
 TRAIT DEFINITIONS:
 - **Openness** (0.0-1.0): Imagination, curiosity, creativity, openness to new experiences
@@ -280,12 +282,10 @@ Respond ONLY with valid JSON."""
             "neuroticism": _clamp_float(response.get("neuroticism", 0.5), TRAIT_MIN / 100.0, TRAIT_MAX / 100.0)
         }
 
-        if _is_flat_profile(baseline_personality):
-            signals = infer_foundational_signals(early_environment)
-            deltas = _calculate_trait_deltas(signals)
-            baseline_personality = _apply_signal_nudge(baseline_personality, deltas)
-            logger.info("AI baseline was flat; applied signal nudge. signals=%s deltas=%s", signals, deltas)
-
+        # No flat-profile detection or nudging here by design - see the
+        # module docstring. Whatever the AI returns (including a flat,
+        # near-neutral profile) is the estimate, clamped only against
+        # degenerate extremes.
         logger.info(f"AI baseline analysis: {response.get('reasoning', 'No reasoning provided')}")
 
         return baseline_personality

@@ -235,7 +235,22 @@ class SymptomAssessmentEngine:
     ) -> float:
         """
         Calculate how much an intervention reduces symptom severity.
-        
+
+        LEGACY, KEPT LIVE - NOT ENDORSED (see docs/MIGRATION_MAP.md, step 7):
+        this hardcoded disorder x therapy effectiveness table is the same
+        arbitrary-numbers problem the migration is replacing everywhere else.
+        It duplicated logic that also lived in app/services/
+        intervention_engine.py (match_disorders_to_therapies,
+        calculate_comprehensive_therapy_efficacy, get_disorder_specific_
+        recommendations) - those duplicates were dead code (never called
+        from anywhere) and were removed. This function itself was NOT
+        removed, because app/api/routes/symptoms.py's live
+        POST /interventions/effectiveness endpoint calls it directly, and
+        retiring it means either breaking that route or migrating it to the
+        pattern-aware system in intervention_engine.py - a route-level
+        decision that deserves its own explicit sign-off, not a silent
+        casualty of a cleanup pass.
+
         Returns: Reduction amount (0-1 scale)
         """
         # Intervention effectiveness by disorder type

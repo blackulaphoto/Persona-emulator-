@@ -398,10 +398,11 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
             <div className="text-center py-20 bg-muted/20 rounded-2xl">
               <Sparkles size={48} className="mx-auto text-muted-foreground mb-4" />
               <h3 className="text-2xl font-display text-foreground mb-2">
-                Begin The Journey
+                Now Build Their Story
               </h3>
               <p className="text-muted-foreground mb-6">
-                Add experiences and moments of support to watch this persona evolve
+                You set their starting point. Now add specific life events, one at a time —
+                each one gets its own analysis and shifts who they become.
               </p>
               <div className="flex gap-3 justify-center flex-wrap">
                 <button

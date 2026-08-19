@@ -19,15 +19,33 @@ export default function CreatePersonaPage() {
     name: '',
     baseline_age: 10,
     baseline_gender: 'female',
-    baseline_background: '',
   })
+  const [origin, setOrigin] = useState({
+    home_environment: '',
+    caregivers: '',
+    other_notes: '',
+  })
+
+  // Composes the guided answers into the single text blob the backend expects.
+  // Keeping this general (no dated events) is what keeps it distinct from Experiences.
+  function buildBaselineBackground() {
+    const parts = [
+      origin.home_environment && `Home environment: ${origin.home_environment}`,
+      origin.caregivers && `Caregivers: ${origin.caregivers}`,
+      origin.other_notes && `Additional context: ${origin.other_notes}`,
+    ].filter(Boolean)
+    return parts.join('\n')
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
 
     try {
-      const persona = await api.createPersona(formData)
+      const persona = await api.createPersona({
+        ...formData,
+        baseline_background: buildBaselineBackground(),
+      })
       router.push(`/persona/${persona.id}`)
     } catch (error: any) {
       console.error('Failed to create persona:', error)
@@ -139,29 +157,53 @@ export default function CreatePersonaPage() {
                   </select>
                 </div>
 
-                {/* Background - THE BIG ONE */}
+                {/* Starting Point - kept deliberately general; specific events belong to Experiences */}
                 <div>
                   <div className="flex items-center gap-2">
-                    <label className="label-apple">Background Story</label>
+                    <h3 className="label-apple text-base">Starting Point</h3>
                     <Tooltip content={HELP_CONTENT.persona.backstory.tooltip} />
                   </div>
-                  <textarea
-                    required
-                    value={formData.baseline_background}
-                    onChange={(e) => setFormData({ ...formData, baseline_background: e.target.value })}
-                    rows={8}
-                    placeholder="Provide comprehensive background information about childhood, family, environment, experiences, symptoms, and strengths..."
-                    className="input-apple mt-2"
-                  />
+                  <HelpText type="info">
+                    Keep this general — the overall shape of their upbringing, not a list of events.
+                    Specific moments (trauma, losses, achievements) get added next, one at a time, as{' '}
+                    <strong>Experiences</strong>, after you create this persona.
+                  </HelpText>
 
-                  {/* Character counter */}
-                  <div className="flex justify-between items-center mt-1.5">
-                    <span className="text-xs text-apple-text-tertiary">
-                      {formData.baseline_background.length} characters
-                    </span>
-                    <span className="text-xs text-deep-purple font-medium">
-                      More detail = Better results (aim for 200-500 words)
-                    </span>
+                  <div className="space-y-4 mt-4">
+                    <div>
+                      <label className="label-apple text-sm">Home environment growing up</label>
+                      <textarea
+                        required
+                        value={origin.home_environment}
+                        onChange={(e) => setOrigin({ ...origin, home_environment: e.target.value })}
+                        rows={2}
+                        placeholder="e.g., Stable and warm, but financially strained"
+                        className="input-apple mt-1.5"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="label-apple text-sm">Caregivers — who raised them, how reliable were they</label>
+                      <textarea
+                        required
+                        value={origin.caregivers}
+                        onChange={(e) => setOrigin({ ...origin, caregivers: e.target.value })}
+                        rows={2}
+                        placeholder="e.g., Raised mostly by mother; father present but emotionally distant"
+                        className="input-apple mt-1.5"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="label-apple text-sm">Anything else about their temperament or general environment (optional)</label>
+                      <textarea
+                        value={origin.other_notes}
+                        onChange={(e) => setOrigin({ ...origin, other_notes: e.target.value })}
+                        rows={2}
+                        placeholder="e.g., Naturally curious and social as a young child"
+                        className="input-apple mt-1.5"
+                      />
+                    </div>
                   </div>
 
                   {/* What to include checklist */}
@@ -170,7 +212,12 @@ export default function CreatePersonaPage() {
                     items={HELP_CONTENT.persona.backstory.whatToInclude}
                   />
 
-                  {/* Examples */}
+                  {/* What NOT to include - keeps this distinct from Experiences */}
+                  <Checklist
+                    title="Save for Experiences (don't add here):"
+                    items={HELP_CONTENT.persona.backstory.whatNotToInclude}
+                  />
+
                   <Examples
                     title="See examples"
                     examples={HELP_CONTENT.persona.backstory.examples.map(ex => ({
@@ -180,7 +227,7 @@ export default function CreatePersonaPage() {
                   />
 
                   <HelpText type="tip">
-                    Think like a therapist writing a clinical intake summary. Include BOTH challenges AND strengths!
+                    A sentence or two per question is enough — this just sets the starting point. You'll build out their actual story next.
                   </HelpText>
                 </div>
 
@@ -216,36 +263,38 @@ export default function CreatePersonaPage() {
                   Pro Tip
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Think of this as writing a client intake form. Include both challenges AND strengths!
+                  Keep it short and general here. Specific events belong on the next screen, as Experiences.
                 </p>
               </div>
 
               <div>
                 <h4 className="text-sm font-semibold text-foreground mb-2">
-                  Essential Information
+                  On This Page
                 </h4>
                 <ul className="space-y-2 text-xs text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="text-apple-green">✓</span>
-                    <span>Family background & parenting</span>
+                    <span>General home environment</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-apple-green">✓</span>
-                    <span>Early childhood experiences</span>
+                    <span>Who raised them & how reliable</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-apple-green">✓</span>
-                    <span>Trauma or adversity</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-apple-green">✓</span>
-                    <span>Current symptoms/concerns</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-apple-green">✓</span>
-                    <span>Protective factors</span>
+                    <span>Overall temperament</span>
                   </li>
                 </ul>
+              </div>
+
+              <div className="border-t border-border pt-4">
+                <h4 className="text-sm font-semibold text-foreground mb-2">
+                  Comes Next
+                </h4>
+                <p className="text-xs text-muted-foreground">
+                  Specific events — trauma, losses, achievements, relationships — get added one at a time as{' '}
+                  <strong>Experiences</strong>, right after you create this persona.
+                </p>
               </div>
 
               <div className="border-t border-border pt-4">

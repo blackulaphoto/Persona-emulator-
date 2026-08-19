@@ -21,10 +21,15 @@ class PersonalitySnapshot(Base):
     age = Column(Integer, nullable=False)
     
     # State at this point in time
-    personality_profile = Column(JSON, nullable=False)  # Big Five
+    personality_profile = Column(JSON, nullable=False)  # Big Five (Trait tier)
     attachment_style = Column(String, nullable=False)
     trauma_markers = Column(JSON, nullable=False, default=[])
     symptom_severity = Column(JSON, nullable=False, default={})
+    # Frozen copy of Persona.current_state (State tier) at snapshot time -
+    # nullable like adaptation_patterns_snapshot/clinical_pattern_hypotheses_
+    # snapshot (docs/MIGRATION_MAP.md, step 9) since old snapshots predate
+    # this column and Step 11c hasn't wired a writer yet.
+    state_profile = Column(JSON, nullable=True)
     
     # AI-generated summary
     narrative_summary = Column(Text, nullable=True)

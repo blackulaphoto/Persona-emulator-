@@ -1,0 +1,289 @@
+"""
+Tests for the Pattern/Adaptation Engine (app/services/pattern_engine.py).
+
+Key invariants:
+  - Age changes WHICH domains are implicated, not a scalar multiplier
+    (salient_domains_for_age uses real app/utils/developmental_stages.py
+    content, not a duplicated table).
+  - A single interpretation opens a pattern candidate as "emerging" with
+    evidence_strength None - recurrence is what makes something a pattern,
+    mirroring evidence_accumulator's "opening is not believing" invariant.
+  - "established" requires crossing the strength threshold, not merely being
+    reinforced more than once.
+  - Protective factors change a reinforcement's effect (weakened vs.
+    strengthened), not just a severity discount.
+  - The subject-attribution guard (from self_narration_engine) applies here
+    too, since interpretation prose is a second place this could slip.
+"""
+from app.services.pattern_engine import (
+    salient_domains_for_age,
+    interpret_experience_heuristic,
+    _validate_interpretation,
+    accumulate_patterns,
+    build_verdict,
+    name_pattern_heuristic,
+    ADAPTATION_STRATEGIES,
+    EXPOSURE_INTERPRETATION_DEFAULTS,
+    STAGE_TASK_TO_DOMAIN,
+    ESTABLISHED_THRESHOLD,
+)
+from app.services.evidence_accumulator import evidence_strength_label
+
+
+class TestSalientDomainsForAge:
+    def test_early_childhood_narrows_to_stage_relevant_domains(self):
+        # early_childhood key_tasks map to attachment_security, emotional_regulation, emotional_safety
+        result = salient_domains_for_age(3, ["attachment_security", "competence", "sexuality"])
+        assert result == ["attachment_security"]
+
+    def test_no_intersection_falls_back_to_exposure_domains(self):
+        # "sexuality" isn't a live task at early_childhood ages, and nothing else matches either
+        result = salient_domains_for_age(3, ["sexuality"])
+        assert result == ["sexuality"]
+
+    def test_none_age_returns_domains_unchanged(self):
+        domains = ["attachment_security", "stability"]
+        assert salient_domains_for_age(None, domains) == domains
+
+    def test_adolescence_surfaces_autonomy_and_identity(self):
+        result = salient_domains_for_age(15, ["autonomy", "identity", "attachment_security"])
+        assert "autonomy" in result
+        assert "identity" in result
+
+
+class TestHeuristicInterpretation:
+    def test_known_exposure_type_returns_default(self):
+        exposures = [{"exposure_type": "caregiver_absence", "developmental_domains": ["attachment_security", "stability"]}]
+        result = interpret_experience_heuristic(age=6, exposures=exposures)
+        assert result["belief_statement"] == "People leave."
+        assert result["adaptation_strategy"] == "self_reliance"
+
+    def test_no_exposures_returns_nulls(self):
+        result = interpret_experience_heuristic(age=6, exposures=[])
+        assert result["belief_statement"] is None
+        assert result["adaptation_strategy"] is None
+
+    def test_domains_narrowed_by_age(self):
+        exposures = [{"exposure_type": "caregiver_absence", "developmental_domains": ["attachment_security", "stability"]}]
+        result = interpret_experience_heuristic(age=3, exposures=exposures)
+        assert result["developmental_domains"] == ["attachment_security"]
+
+
+class TestValidateInterpretation:
+    def test_rejects_unknown_adaptation_strategy(self):
+        assert _validate_interpretation({
+            "belief_statement": "People leave.",
+            "adaptation_strategy": "made_up_strategy",
+            "reasoning": "...",
+        }) is None
+
+    def test_rejects_attribution_violation_in_belief(self):
+        assert _validate_interpretation({
+            "belief_statement": "You believe people leave.",
+            "adaptation_strategy": "self_reliance",
+            "reasoning": "...",
+        }) is None
+
+    def test_accepts_well_formed_response(self):
+        result = _validate_interpretation({
+            "belief_statement": "Michael believes people leave.",
+            "adaptation_strategy": "self_reliance",
+            "reasoning": "Repeated caregiver absence.",
+        })
+        assert result["adaptation_strategy"] == "self_reliance"
+
+    def test_empty_response(self):
+        assert _validate_interpretation(None) is None
+        assert _validate_interpretation({}) is None
+
+
+def _interp(id_, age, strategy, belief="People leave.", domains=None):
+    return {
+        "id": id_,
+        "source_event_id": f"exp-{id_}",
+        "age_at_event": age,
+        "adaptation_strategy": strategy,
+        "belief_statement": belief,
+        "developmental_domains": domains or ["attachment_security"],
+    }
+
+
+class TestAccumulatePatternsOpeningInvariant:
+    """Mirrors evidence_accumulator's core rule: one instance opens a candidate, doesn't establish it."""
+
+    def test_single_interpretation_is_emerging_with_null_strength(self):
+        result = accumulate_patterns([_interp("i1", 6, "self_reliance")])
+        pattern = result["self_reliance"]
+        assert pattern["status"] == "emerging"
+        assert pattern["evidence_strength"] is None
+        assert pattern["reinforcement_history"] == [{
+            "interpretation_id": "i1", "experience_id": "exp-i1", "age": 6, "effect": "originated",
+        }]
+
+    def test_no_interpretations_produces_no_patterns(self):
+        assert accumulate_patterns([]) == {}
+
+    def test_interpretations_without_strategy_are_ignored(self):
+        assert accumulate_patterns([{"id": "i1", "adaptation_strategy": None, "age_at_event": 5}]) == {}
+
+
+class TestAccumulatePatternsReinforcement:
+    def test_two_weak_reinforcements_stay_emerging_not_established(self):
+        # REINFORCE_INCREMENT is 0.2, ESTABLISHED_THRESHOLD is 0.5 - two
+        # reinforcements alone (0.2) must not cross into "established".
+        interpretations = [_interp("i1", 5, "hypervigilance"), _interp("i2", 9, "hypervigilance")]
+        result = accumulate_patterns(interpretations)
+        pattern = result["hypervigilance"]
+        assert pattern["evidence_strength"] < ESTABLISHED_THRESHOLD
+        assert pattern["status"] == "emerging"
+        assert pattern["reinforcement_history"][1]["effect"] == "strengthened"
+
+    def test_enough_reinforcement_crosses_into_established(self):
+        interpretations = [
+            _interp("i1", 5, "hypervigilance"),
+            _interp("i2", 8, "hypervigilance"),
+            _interp("i3", 11, "hypervigilance"),
+            _interp("i4", 14, "hypervigilance"),
+        ]
+        result = accumulate_patterns(interpretations)
+        pattern = result["hypervigilance"]
+        assert pattern["evidence_strength"] >= ESTABLISHED_THRESHOLD
+        assert pattern["status"] == "established"
+
+    def test_different_strategies_form_separate_patterns(self):
+        interpretations = [_interp("i1", 5, "hypervigilance"), _interp("i2", 9, "avoidance")]
+        result = accumulate_patterns(interpretations)
+        assert set(result.keys()) == {"hypervigilance", "avoidance"}
+        assert result["hypervigilance"]["evidence_strength"] is None
+        assert result["avoidance"]["evidence_strength"] is None
+
+
+class TestProtectiveFactorsWeakenReinforcement:
+    def test_overlapping_protective_factor_weakens_instead_of_strengthens(self):
+        interpretations = [
+            _interp("i1", 4, "self_reliance", domains=["attachment_security"]),
+            _interp("i2", 8, "self_reliance", domains=["attachment_security"]),
+        ]
+        protective = [{"factor_type": "stable_alternate_caregiver", "domains_buffered": ["attachment_security"], "active_from_age": 5}]
+        result = accumulate_patterns(interpretations, protective_factors=protective)
+        pattern = result["self_reliance"]
+        assert pattern["reinforcement_history"][1]["effect"] == "weakened"
+        assert pattern["evidence_strength"] == 0.0
+        assert pattern["status"] == "resolved"
+
+    def test_weakening_status_when_strength_positive_but_declining(self):
+        interpretations = [
+            _interp("i1", 4, "self_reliance", domains=["attachment_security"]),
+            _interp("i2", 7, "self_reliance", domains=["attachment_security"]),
+            _interp("i3", 10, "self_reliance", domains=["attachment_security"]),
+            _interp("i4", 13, "self_reliance", domains=["attachment_security"]),
+        ]
+        protective = [{"factor_type": "stable_alternate_caregiver", "domains_buffered": ["attachment_security"], "active_from_age": 12}]
+        result = accumulate_patterns(interpretations, protective_factors=protective)
+        pattern = result["self_reliance"]
+        assert pattern["reinforcement_history"][-1]["effect"] == "weakened"
+        assert pattern["evidence_strength"] > 0.0
+        assert pattern["status"] == "weakening"
+
+    def test_protective_factor_before_active_from_age_does_not_apply(self):
+        interpretations = [
+            _interp("i1", 4, "self_reliance", domains=["attachment_security"]),
+            _interp("i2", 6, "self_reliance", domains=["attachment_security"]),
+        ]
+        # Protective factor doesn't become active until age 10 - shouldn't buffer an event at age 6.
+        protective = [{"factor_type": "stable_alternate_caregiver", "domains_buffered": ["attachment_security"], "active_from_age": 10}]
+        result = accumulate_patterns(interpretations, protective_factors=protective)
+        assert result["self_reliance"]["reinforcement_history"][1]["effect"] == "strengthened"
+
+
+class TestCurrentManifestationsFromObservations:
+    def test_overlapping_concerning_observation_populates_manifestations(self):
+        interpretations = [_interp("i1", 6, "hypervigilance", domains=["emotional_safety"])]
+        observations = [{
+            "valence": "concerning", "description": "becomes visibly tense when his father is mentioned",
+            "developmental_domains": ["emotional_safety"],
+        }]
+        result = accumulate_patterns(interpretations, functional_observations=observations)
+        assert "becomes visibly tense when his father is mentioned" in result["hypervigilance"]["current_manifestations"]
+
+    def test_non_overlapping_observation_excluded(self):
+        interpretations = [_interp("i1", 6, "hypervigilance", domains=["emotional_safety"])]
+        observations = [{
+            "valence": "concerning", "description": "struggles to hold down a job",
+            "developmental_domains": ["competence"],
+        }]
+        result = accumulate_patterns(interpretations, functional_observations=observations)
+        assert result["hypervigilance"]["current_manifestations"] == []
+
+    def test_protective_observation_never_appears_in_manifestations(self):
+        interpretations = [_interp("i1", 6, "hypervigilance", domains=["emotional_safety"])]
+        observations = [{
+            "valence": "protective", "description": "feels safe at home now",
+            "developmental_domains": ["emotional_safety"],
+        }]
+        result = accumulate_patterns(interpretations, functional_observations=observations)
+        assert result["hypervigilance"]["current_manifestations"] == []
+
+    def test_no_observations_leaves_manifestations_empty(self):
+        interpretations = [_interp("i1", 6, "hypervigilance")]
+        result = accumulate_patterns(interpretations)
+        assert result["hypervigilance"]["current_manifestations"] == []
+
+
+class TestVerdictAssembly:
+    def test_build_verdict_uses_shared_evidence_strength_label(self):
+        interpretation = {
+            "belief_statement": "People leave.",
+            "reasoning": "Repeated caregiver absence.",
+            "adaptation_strategy": "self_reliance",
+            "developmental_domains": ["attachment_security"],
+        }
+        pattern_state = {
+            "supporting_interpretation_ids": ["i1", "i2", "i3", "i4"],
+            "status": "established",
+            "evidence_strength": 0.6,
+        }
+        verdict = build_verdict(interpretation, pattern_state, evidence_strength_label)
+        assert verdict["verdict"] == "People leave."
+        assert verdict["evidence_strength"] == evidence_strength_label(0.6) == "moderate"
+        assert verdict["pattern_status"] == "established"
+
+    def test_build_verdict_with_no_pattern_state(self):
+        interpretation = {"belief_statement": "X", "reasoning": "Y", "adaptation_strategy": "avoidance", "developmental_domains": []}
+        verdict = build_verdict(interpretation, None, evidence_strength_label)
+        assert verdict["evidence_strength"] == "no_evidence_yet"
+        assert verdict["pattern_status"] == "emerging"
+        assert verdict["connects_to"] == []
+
+
+class TestNamingFallback:
+    def test_heuristic_name_is_readable(self):
+        assert name_pattern_heuristic("self_reliance") == "Self Reliance Response"
+
+
+class TestTaxonomyIntegrity:
+    def test_all_default_adaptations_are_valid(self):
+        for exposure_type, default in EXPOSURE_INTERPRETATION_DEFAULTS.items():
+            assert default["adaptation"] in ADAPTATION_STRATEGIES, f"{exposure_type} -> unknown adaptation {default['adaptation']}"
+
+    def test_all_exposure_types_in_defaults_are_real(self):
+        from app.services.developmental_exposure_engine import EXPOSURE_TAXONOMY
+        missing = set(EXPOSURE_INTERPRETATION_DEFAULTS.keys()) - set(EXPOSURE_TAXONOMY.keys())
+        assert not missing, f"EXPOSURE_INTERPRETATION_DEFAULTS references unknown exposure_types: {missing}"
+
+    def test_every_exposure_type_has_a_default(self):
+        # Every exposure_type the extractor can produce should have an interpretation fallback.
+        from app.services.developmental_exposure_engine import EXPOSURE_TAXONOMY
+        missing = set(EXPOSURE_TAXONOMY.keys()) - set(EXPOSURE_INTERPRETATION_DEFAULTS.keys())
+        assert not missing, f"exposure_types with no interpretation default: {missing}"
+
+    def test_stage_task_domains_are_real(self):
+        from app.services.developmental_exposure_engine import DEVELOPMENTAL_DOMAINS
+        missing = set(STAGE_TASK_TO_DOMAIN.values()) - set(DEVELOPMENTAL_DOMAINS)
+        assert not missing, f"STAGE_TASK_TO_DOMAIN maps to unknown domains: {missing}"
+
+    def test_stage_task_keys_cover_all_real_developmental_stage_tasks(self):
+        from app.utils.developmental_stages import DEVELOPMENTAL_STAGES
+        all_tasks = {task for stage in DEVELOPMENTAL_STAGES.values() for task in stage["key_tasks"]}
+        missing = all_tasks - set(STAGE_TASK_TO_DOMAIN.keys())
+        assert not missing, f"developmental_stages.py key_tasks not bridged to a domain: {missing}"

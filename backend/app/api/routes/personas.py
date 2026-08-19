@@ -1,22 +1,22 @@
 """
 Persona API routes.
 """
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from app.core.database import get_db
 from app.core.auth import get_current_user
-from app.models import Persona, PersonaSymptom
+from app.models import Persona
 from app.utils.foundational_baseline import (
     clamp_personality_range,
     derive_foundational_baseline_async,
     infer_foundational_signals
 )
-from app.utils.backstory_symptom_mapper import (
-    analyze_backstory_for_symptoms,
-    deduplicate_symptoms
-)
+from app.services.developmental_pipeline import process_developmental_text
 from app.schemas import PersonaCreate, PersonaUpdate, PersonaResponse
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(prefix="/api/v1/personas", tags=["personas"])
@@ -80,36 +80,32 @@ async def create_persona(
     db.commit()
     db.refresh(persona)
 
-    # Assess initial symptoms from backstory
+    # Developmental pipeline (steps 2-5, docs/MIGRATION_MAP.md "wiring steps 2-5
+    # into routes"; State/Trait tiers added in Step 11): replaces the old
+    # backstory_symptom_mapper.py direct keyword-to-disorder assignment. Runs
+    # exposure extraction, self-narration (gated to persona_voice - a
+    # backstory field is case-authored, so this correctly stays dormant),
+    # evidence accumulation, interpretation, and pattern formation, then
+    # projects current_trauma_markers from earned evidence instead of a
+    # keyword hit. Also proposes and applies State movement (always) and
+    # Trait movement (gated on AdaptationPattern.status == "established") -
+    # on THIS route, unlike experiences.py, this pipeline is the only thing
+    # that touches current_personality after the one-time foundational
+    # baseline set just above, so Trait movement here is already fully
+    # gated/clean, not a transitional double-write. Failure here must not
+    # block persona creation - the persona and its baseline personality
+    # already exist and are valid without it.
     if persona.baseline_background:
-        initial_symptoms = analyze_backstory_for_symptoms(
-            backstory=persona.baseline_background,
-            baseline_age=persona.baseline_age
-        )
-
-        # Deduplicate if multiple backstory elements triggered same disorder
-        initial_symptoms = deduplicate_symptoms(initial_symptoms)
-
-        # Create PersonaSymptom records AND update current_trauma_markers
-        trauma_markers = []
-        for symptom_data in initial_symptoms:
-            persona_symptom = PersonaSymptom(
-                persona_id=persona.id,
-                symptom_name=symptom_data["disorder_name"],
-                severity=symptom_data["severity"],
-                category=symptom_data["category"],
-                first_onset_age=symptom_data["onset_age"],
-                symptom_details=symptom_data["symptom_details"]
+        try:
+            pipeline_result = await process_developmental_text(
+                db, persona, persona.baseline_background,
+                source="backstory", age=persona.baseline_age,
             )
-            db.add(persona_symptom)
-
-            # Add to current_trauma_markers for frontend display
-            trauma_markers.append(symptom_data["disorder_name"])
-
-        # Update persona's current_trauma_markers field
-        if trauma_markers:
-            persona.current_trauma_markers = trauma_markers
+            persona.current_trauma_markers = pipeline_result["trauma_markers"]
             db.commit()
+        except Exception:
+            logger.exception("Developmental pipeline failed for persona %s during creation", persona.id)
+            db.rollback()
 
     # Convert to dict and add counts
     persona_dict = {
@@ -122,6 +118,7 @@ async def create_persona(
         "current_personality": persona.current_personality,
         "current_attachment_style": persona.current_attachment_style,
         "current_trauma_markers": persona.current_trauma_markers,
+        "current_state": persona.current_state,
         "experiences_count": 0,
         "interventions_count": 0,
         "created_at": persona.created_at,
@@ -154,6 +151,7 @@ async def list_personas(
             "current_personality": persona.current_personality,
             "current_attachment_style": persona.current_attachment_style,
             "current_trauma_markers": persona.current_trauma_markers,
+            "current_state": persona.current_state,
             "experiences_count": len(persona.experiences),
             "interventions_count": len(persona.interventions),
             "created_at": persona.created_at,
@@ -192,6 +190,7 @@ async def get_persona(
         "current_personality": persona.current_personality,
         "current_attachment_style": persona.current_attachment_style,
         "current_trauma_markers": persona.current_trauma_markers,
+        "current_state": persona.current_state,
         "experiences_count": len(persona.experiences),
         "interventions_count": len(persona.interventions),
         "created_at": persona.created_at,
@@ -239,6 +238,7 @@ async def update_persona(
         "current_personality": persona.current_personality,
         "current_attachment_style": persona.current_attachment_style,
         "current_trauma_markers": persona.current_trauma_markers,
+        "current_state": persona.current_state,
         "experiences_count": len(persona.experiences),
         "interventions_count": len(persona.interventions),
         "created_at": persona.created_at,

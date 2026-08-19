@@ -1,17 +1,25 @@
 """
 Intervention API routes.
 """
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from app.core.database import get_db
 from app.core.auth import get_current_user
-from app.models import Persona, Intervention, Experience, PersonalitySnapshot
+from app.models import Persona, Intervention, Experience, PersonalitySnapshot, AdaptationPattern
 from app.schemas import InterventionCreate, InterventionResponse
-from app.services.intervention_engine import analyze_intervention
+from app.services.intervention_engine import analyze_intervention, select_targeted_pattern
+from app.services.state_trait_engine import (
+    propose_intervention_state_trait_implications_async,
+    apply_state_update,
+    apply_trait_update,
+    intervention_trait_gate_open,
+)
 
 
 router = APIRouter(prefix="/api/v1/personas", tags=["interventions"])
+logger = logging.getLogger(__name__)
 
 
 @router.post("/{persona_id}/interventions", response_model=InterventionResponse, status_code=201)
@@ -32,8 +40,6 @@ async def add_intervention(
     if not persona:
         persona = db.query(Persona).filter(Persona.id == persona_id).first()
         if persona:
-            import logging
-            logger = logging.getLogger(__name__)
             logger.warning(
                 "Persona %s not owned by user %s. Proceeding without ownership check.",
                 persona_id,
@@ -69,7 +75,27 @@ async def add_intervention(
         "2_years": 104
     }
     duration_weeks = duration_map.get(intervention_data.duration, 24)
-    
+
+    # Step 11e (docs/MIGRATION_MAP.md): pattern-aware wiring intervention_
+    # engine.py has supported since Step 7 but no route ever passed - lets
+    # analyze_intervention's baseline_efficacy calculation (and its prompt's
+    # "established developmental patterns" section) use the persona's real
+    # AdaptationPattern history instead of just current_trauma_markers, and
+    # gives select_targeted_pattern() something to pick from below for the
+    # Trait-tier gate. clinical_pattern_hypotheses (the other optional param)
+    # remains unwired - out of scope here, doesn't affect the gate.
+    adaptation_pattern_rows = db.query(AdaptationPattern).filter(AdaptationPattern.persona_id == persona_id).all()
+    adaptation_patterns = [
+        {
+            "pattern_name": p.pattern_name,
+            "adaptation_strategy": p.adaptation_strategy,
+            "status": p.status,
+            "evidence_strength": p.evidence_strength,
+            "current_manifestations": p.current_manifestations,
+        }
+        for p in adaptation_pattern_rows
+    ]
+
     # Run AI analysis
     try:
         analysis = await analyze_intervention(
@@ -77,18 +103,33 @@ async def add_intervention(
             therapy_type=intervention_data.therapy_type,
             duration=duration_weeks,
             intensity=intervention_data.intensity,
-            age_at_intervention=intervention_data.age_at_intervention
+            age_at_intervention=intervention_data.age_at_intervention,
+            adaptation_patterns=adaptation_patterns,
         )
     except Exception as e:
-        import logging
-        logger = logging.getLogger(__name__)
         logger.error(f"Intervention analysis error: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"AI analysis failed: {str(e)}"
         )
-    
-    # Create intervention record
+
+    # Step 11e: which established pattern (if any) this course of therapy is
+    # presumed aimed at, and this persona's history of OTHER interventions
+    # that targeted the same pattern - the raw material state_trait_engine.
+    # intervention_trait_gate_open needs to decide whether improvement has
+    # been documented more than once, not just this session.
+    targeted_pattern = select_targeted_pattern(adaptation_patterns)
+    targeted_strategy = targeted_pattern.get("adaptation_strategy") if targeted_pattern else None
+    prior_documented_efficacy = [
+        i.efficacy_match for i in previous_interventions
+        if targeted_strategy and i.targeted_adaptation_strategy == targeted_strategy
+    ]
+    this_efficacy_match = analysis.get("efficacy_match")
+    trait_eligible = intervention_trait_gate_open(targeted_pattern, prior_documented_efficacy, this_efficacy_match)
+
+    # Create intervention record. personality_changes is filled in AFTER the
+    # gated State/Trait update below (see Step 11e note there) - no longer
+    # the AI's raw, independently-decided Big Five values.
     intervention = Intervention(
         user_id=user_id,
         persona_id=persona_id,
@@ -104,26 +145,44 @@ async def add_intervention(
         sustained_effects=analysis.get("sustained_effects"),
         limitations=analysis.get("limitations"),
         symptom_changes=analysis.get("symptom_changes"),
-        personality_changes=analysis.get("personality_changes"),
-        coping_skills_gained=analysis.get("coping_skills_gained")
+        coping_skills_gained=analysis.get("coping_skills_gained"),
+        targeted_adaptation_strategy=targeted_strategy,
     )
-    
+
     db.add(intervention)
     db.flush()  # Flush to generate intervention.id
-    
-    # Update persona's current state
-    personality_changes = analysis.get("personality_changes", {})
-    
-    # Apply personality changes
-    if personality_changes:
-        for trait, new_value in personality_changes.items():
-            if trait in ["openness", "conscientiousness", "extraversion", "agreeableness", "neuroticism"]:
-                persona.current_personality[trait] = new_value
-        
-        # Mark as modified for SQLAlchemy to detect JSON change
-        from sqlalchemy.orm.attributes import flag_modified
-        flag_modified(persona, "current_personality")
-    
+
+    # Step 11e: State/Trait proposal + gated apply - replaces the old
+    # ungated write that set persona.current_personality directly from the
+    # AI's own analysis.get("personality_changes") absolute values (exactly
+    # the "videogame-stat psychology" this rebuild's Step 11 retired from
+    # experiences.py in Step 11d; interventions.py carried the same pattern
+    # independently and is retired here). State always updates from this
+    # intervention's proposal; Trait only updates when trait_eligible (both
+    # the targeted pattern is established AND documented efficacy_match
+    # improvement has now been recorded on >= INTERVENTION_SUSTAINED_COUNT
+    # interventions targeting it, this one included - one good round of
+    # therapy is not yet "sustained").
+    try:
+        proposal = await propose_intervention_state_trait_implications_async(
+            persona.name, intervention_data.age_at_intervention, intervention_data.therapy_type,
+            targeted_strategy, this_efficacy_match, trait_eligible,
+        )
+        state_changes = proposal.get("state_changes", {})
+        trait_changes = proposal.get("trait_changes", {})
+    except Exception:
+        logger.exception("Intervention state/trait proposal failed for persona %s, intervention %s", persona_id, intervention.id)
+        state_changes, trait_changes = {}, {}
+
+    intervention.state_implications = state_changes or None
+    intervention.trait_implications = trait_changes or None
+    persona.current_state = apply_state_update(persona.current_state, state_changes)
+    persona.current_personality = apply_trait_update(persona.current_personality, trait_changes, gate_open=trait_eligible)
+    # personality_changes now means "current_personality as of right after
+    # this call" - same honest reframing as legacy_experience_adapter.py's
+    # immediate_effects (Step 11d) - not an independent AI guess.
+    intervention.personality_changes = dict(persona.current_personality)
+
     # Update current age
     if intervention_data.age_at_intervention > persona.current_age:
         persona.current_age = intervention_data.age_at_intervention
@@ -146,7 +205,8 @@ async def add_intervention(
         personality_profile=dict(persona.current_personality),
         attachment_style=persona.current_attachment_style,
         trauma_markers=list(persona.current_trauma_markers),
-        symptom_severity=symptom_severity_value
+        symptom_severity=symptom_severity_value,
+        state_profile=dict(persona.current_state) if persona.current_state else None,
     )
     
     db.add(snapshot)
@@ -196,8 +256,6 @@ async def add_intervention(
     try:
         return InterventionResponse(**intervention_dict)
     except Exception as e:
-        import logging
-        logger = logging.getLogger(__name__)
         logger.error(f"Response serialization error: {str(e)}", exc_info=True)
         logger.error(f"intervention_dict keys: {list(intervention_dict.keys())}")
         logger.error(f"symptom_changes type: {type(symptom_changes_for_response)}, value: {symptom_changes_for_response}")

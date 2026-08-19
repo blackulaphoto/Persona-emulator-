@@ -33,10 +33,26 @@ class Persona(Base):
     
     # Current psychological state
     current_attachment_style = Column(String, nullable=False, default="secure")
+    # Projection derived from ClinicalPatternHypothesis rows above the display
+    # threshold. No module should write to this directly - see
+    # clinical_pattern_hypothesis.py.
     current_trauma_markers = Column(JSON, nullable=False, default=[])
+    # Fast-moving State tier (docs/MIGRATION_MAP.md, Step 11) - distinct from
+    # current_personality (Trait, slow-moving). Keys are STATE_VARIABLES from
+    # app/schemas/developmental_analysis_schemas.py: trust, threat_sensitivity,
+    # mood, regulation, avoidance, relational_security. Starts empty, same as
+    # current_trauma_markers, rather than seeded with a neutral baseline -
+    # unearned defaults are exactly what this rebuild has removed elsewhere.
+    # Not yet written by any pipeline - schema only until Step 11c.
+    current_state = Column(JSON, nullable=False, default={})
     current_age = Column(Integer, nullable=False)  # Updates as experiences added
     foundational_environment_signals = Column(JSON, nullable=False, default={})
     baseline_initialized = Column(Boolean, nullable=False, default=False)
+
+    # "case_subject" (default): interpretations describe the persona, never the
+    # operator. "self_authored": explicitly-confirmed autobiographical mode -
+    # must be set deliberately, never inferred from who is typing.
+    narrative_mode = Column(String, nullable=False, default="case_subject")
     
     # Metadata
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
@@ -54,3 +70,13 @@ class Persona(Base):
     narratives = relationship("PersonaNarrative", back_populates="persona", cascade="all, delete-orphan")
     detailed_symptoms = relationship("PersonaSymptom", back_populates="persona", cascade="all, delete-orphan")
     owner = relationship("User", back_populates="personas")
+
+    # Human Development Engine (see docs/MIGRATION_MAP.md)
+    narration_records = relationship("NarrationRecord", back_populates="persona", cascade="all, delete-orphan")
+    beliefs = relationship("PersonaBelief", back_populates="persona", cascade="all, delete-orphan")
+    exposures = relationship("DevelopmentalExposure", back_populates="persona", cascade="all, delete-orphan")
+    protective_factors = relationship("ProtectiveFactor", back_populates="persona", cascade="all, delete-orphan")
+    adaptation_patterns = relationship("AdaptationPattern", back_populates="persona", cascade="all, delete-orphan")
+    clinical_pattern_hypotheses = relationship("ClinicalPatternHypothesis", back_populates="persona", cascade="all, delete-orphan")
+    interpretations = relationship("Interpretation", back_populates="persona", cascade="all, delete-orphan", foreign_keys="Interpretation.persona_id")
+    functional_observations = relationship("FunctionalObservation", back_populates="persona", cascade="all, delete-orphan")

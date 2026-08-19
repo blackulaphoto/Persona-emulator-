@@ -2,8 +2,17 @@
 Test intervention analysis with AI therapy efficacy engine.
 
 T4: Intervention Analysis
-TEST: Given persona with hoarding + ACT therapy → 
+TEST: Given persona with hoarding + ACT therapy →
       assert efficacy_match > 0.8, symptoms reduced
+
+Step 7 of docs/MIGRATION_MAP.md removed three tests that were here
+(test_calculate_baseline_efficacy_match, test_apply_symptom_changes,
+test_calculate_duration_impact) - they tested functions in
+intervention_engine.py that were confirmed dead code (never called from any
+route) duplicating app/utils/symptom_assessment_engine.py's hardcoded
+effectiveness table, and were removed along with the functions themselves.
+See tests/test_intervention_engine_pattern_wiring.py for the new
+pattern-aware behavior added in the same step.
 """
 import pytest
 from unittest.mock import AsyncMock, patch
@@ -177,48 +186,6 @@ def test_generate_intervention_prompt_includes_developmental_context(persona_wit
     assert "adult" in adult_prompt.lower() or "age 30" in adult_prompt.lower()
 
 
-def test_calculate_baseline_efficacy_match():
-    """Test baseline efficacy calculation using therapy database."""
-    from app.services.intervention_engine import calculate_baseline_efficacy_match
-    
-    # Perfect match: hoarding → ACT
-    efficacy = calculate_baseline_efficacy_match("ACT", ["hoarding", "avoidance"])
-    assert efficacy > 0.7
-    
-    # Poor match: hoarding → EMDR
-    efficacy = calculate_baseline_efficacy_match("EMDR", ["hoarding"])
-    assert efficacy < 0.5
-    
-    # Good match: PTSD → EMDR
-    efficacy = calculate_baseline_efficacy_match("EMDR", ["ptsd", "trauma"])
-    assert efficacy > 0.8
-
-
-def test_apply_symptom_changes():
-    """Test applying symptom changes to persona."""
-    from app.services.intervention_engine import apply_symptom_changes
-    
-    current_severity = {
-        "anxiety": 8,
-        "hoarding": 7,
-        "depression": 6
-    }
-    
-    changes = {
-        "after": {
-            "anxiety": 5,
-            "hoarding": 4,
-            "depression": 6
-        }
-    }
-    
-    updated = apply_symptom_changes(current_severity, changes)
-    
-    assert updated["anxiety"] == 5
-    assert updated["hoarding"] == 4
-    assert updated["depression"] == 6
-
-
 @pytest.mark.asyncio
 async def test_analyze_intervention_saves_to_database(persona_with_symptoms):
     """Test that analysis results are properly structured for database."""
@@ -257,23 +224,6 @@ async def test_analyze_intervention_saves_to_database(persona_with_symptoms):
         assert "sustained_effects" in result
         assert "limitations" in result
         assert "reasoning" in result
-
-
-def test_calculate_duration_impact():
-    """Test that therapy duration affects efficacy."""
-    from app.services.intervention_engine import calculate_duration_impact
-    
-    # Short duration
-    short_impact = calculate_duration_impact(duration=4, recommended_duration=12)
-    assert short_impact < 1.0  # Reduced efficacy
-    
-    # Appropriate duration
-    appropriate_impact = calculate_duration_impact(duration=12, recommended_duration=12)
-    assert appropriate_impact == 1.0  # Full efficacy
-    
-    # Extended duration
-    extended_impact = calculate_duration_impact(duration=24, recommended_duration=12)
-    assert extended_impact > 1.0  # Enhanced efficacy
 
 
 @pytest.mark.asyncio

@@ -3,8 +3,25 @@ Intervention Engine - AI-powered therapy efficacy analysis.
 
 Uses OpenAI GPT-4 + therapy database + developmental stages to analyze
 how therapeutic interventions affect symptoms and personality.
+
+Step 7 of docs/MIGRATION_MAP.md: this file used to contain a second set of
+functions (match_disorders_to_therapies, calculate_comprehensive_therapy_
+efficacy, get_disorder_specific_recommendations, batch_analyze_interventions,
+calculate_duration_impact, apply_symptom_changes, explain_why_therapy_works_
+or_not, calculate_baseline_efficacy_match) that duplicated app/utils/
+symptom_assessment_engine.py's hardcoded disorder x therapy effectiveness
+table instead of using this file's own real, evidence-flavored matching
+(therapy_database.calculate_therapy_match_score). None of them were called
+from anywhere outside this file - confirmed by repo-wide grep - so they were
+removed rather than "consolidated," there was nothing live depending on them.
+symptom_assessment_engine.calculate_intervention_effect itself is NOT
+removed - app/api/routes/symptoms.py's POST /interventions/effectiveness
+endpoint calls it directly and is live. It's still the same arbitrary
+hardcoded table the original audit flagged, but retiring it means either
+breaking that route or migrating it to the new system, which is a route-
+level decision deserving its own explicit sign-off, not a side effect of
+this cleanup - see its own updated docstring.
 """
-import json
 import os
 from typing import Dict, List, Optional
 from app.services.openai_service import OpenAIService
@@ -16,8 +33,6 @@ from app.utils.developmental_stages import (
     get_recommended_interventions_by_age,
     get_age_appropriate_coping_capacity
 )
-from app.utils.symptom_assessment_engine import SymptomAssessmentEngine
-from app.utils.symptom_taxonomy import SYMPTOM_TAXONOMY
 
 
 # Initialize services
@@ -25,7 +40,64 @@ openai_service = OpenAIService(
     api_key=os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_KEY"),
     model="gpt-4"
 )
-symptom_engine = SymptomAssessmentEngine()
+
+
+# ============================================================
+# Bridges ClinicalPatternHypothesis.pattern_key (app/utils/symptom_taxonomy.py
+# keys, e.g. "borderline_personality") to therapy_database.py's best_for
+# vocabulary (e.g. "bpd") - the two were never aligned. Confirmed by direct
+# check: 9 of the 12 pattern_keys the evidence accumulator can actually
+# produce (see evidence_accumulator.EXPOSURE_HYPOTHESIS_PRIORS) have ZERO
+# direct match against best_for. Feeding pattern_keys into
+# calculate_therapy_match_score unaliased would silently produce near-zero
+# match scores for most patterns. Deliberately NOT exhaustive - a pattern
+# with no good alias (e.g. adjustment_disorder, prolonged_grief_disorder)
+# is left unmapped rather than forced into a clinically wrong bridge (e.g.
+# obsessive_compulsive_personality is NOT the same disorder as OCD, so it is
+# NOT aliased to ERP's "compulsive_behaviors" target even though the names
+# look similar).
+# ============================================================
+PATTERN_KEY_THERAPY_ALIASES: Dict[str, List[str]] = {
+    "reactive_attachment_disorder": ["attachment_wounds", "childhood_trauma"],
+    "complex_ptsd": ["complex_trauma", "childhood_trauma", "attachment_wounds"],
+    "generalized_anxiety": ["anxiety", "chronic_anxiety"],
+    "borderline_personality": ["bpd", "relationship_instability", "emotion_dysregulation", "self_harm"],
+    "illness_anxiety_disorder": ["health_anxiety"],
+    "avoidant_personality": ["avoidance_behaviors", "attachment_wounds"],
+}
+
+
+def _aliased_pattern_symptoms(pattern_keys: List[str]) -> List[str]:
+    """Expands pattern_keys through PATTERN_KEY_THERAPY_ALIASES for matching against therapy_database.py."""
+    aliased = []
+    for key in pattern_keys:
+        aliased.append(key)  # keep the original too, in case it does match directly (e.g. "ptsd")
+        aliased.extend(PATTERN_KEY_THERAPY_ALIASES.get(key, []))
+    return aliased
+
+
+def select_targeted_pattern(adaptation_patterns: Optional[List[Dict]]) -> Optional[Dict]:
+    """
+    Step 11e (docs/MIGRATION_MAP.md): deterministically picks the single
+    AdaptationPattern (as a dict from pattern_engine.accumulate_patterns())
+    this intervention's Trait-tier gating is evaluated against.
+
+    Only "established" patterns are eligible - an "emerging" pattern is not
+    a real enough target for a course of therapy to earn Trait credit
+    against (same evidence bar state_trait_engine.trait_gate_open already
+    requires elsewhere). Among established patterns, picks the one with the
+    highest evidence_strength, on the simple assumption that a course of
+    therapy is presumed directed at the persona's most significant
+    established issue - deliberately not a therapy-type-aware match (that
+    would require aliasing adaptation_strategy against therapy_database.py's
+    best_for vocabulary, which does not exist for that vocabulary the way
+    PATTERN_KEY_THERAPY_ALIASES does for pattern_key). Returns None if no
+    established pattern exists yet.
+    """
+    established = [p for p in (adaptation_patterns or []) if p.get("status") == "established"]
+    if not established:
+        return None
+    return max(established, key=lambda p: p.get("evidence_strength") or 0.0)
 
 
 def generate_intervention_prompt(
@@ -33,18 +105,28 @@ def generate_intervention_prompt(
     therapy_type: str,
     duration: int,
     intensity: str,
-    age_at_intervention: int
+    age_at_intervention: int,
+    adaptation_patterns: Optional[List[Dict]] = None,
+    clinical_pattern_hypotheses: Optional[List[Dict]] = None,
 ) -> str:
     """
     Generate AI prompt for intervention analysis.
-    
+
     Args:
         persona: Persona object with current symptoms
         therapy_type: Type of therapy (CBT, ACT, EMDR, etc.)
         duration: Duration in weeks
         intensity: "weekly", "twice_weekly", "monthly"
         age_at_intervention: Age when intervention begins
-        
+        adaptation_patterns: optional [{pattern_name, adaptation_strategy, status,
+            evidence_strength, current_manifestations}, ...] from
+            pattern_engine.accumulate_patterns() (step 5). When provided,
+            enriches matching and asks the model to state which patterns this
+            therapy's mechanism plausibly touches vs. leaves unresolved.
+        clinical_pattern_hypotheses: optional [{pattern_key, tier, evidence_strength,
+            current_manifestations}, ...] from evidence_accumulator.accumulate_evidence()
+            (step 4). Not yet passed by any live route - see docs/MIGRATION_MAP.md.
+
     Returns:
         Formatted prompt string for GPT-4
     """
@@ -52,17 +134,58 @@ def generate_intervention_prompt(
     therapy_info = get_therapy_info(therapy_type)
     if not therapy_info:
         raise ValueError(f"Unknown therapy type: {therapy_type}")
-    
-    # Get current symptoms from trauma markers
+
+    adaptation_patterns = adaptation_patterns or []
+    clinical_pattern_hypotheses = clinical_pattern_hypotheses or []
+
+    # Legacy symptom source, unchanged - kept so existing callers (that don't
+    # pass pattern data) behave exactly as before.
     current_symptoms = persona.current_trauma_markers if persona.current_trauma_markers else []
-    
+
+    # When pattern data IS provided, the match score is computed from the
+    # richer evidence too, bridged through PATTERN_KEY_THERAPY_ALIASES -
+    # otherwise a pattern_key like "borderline_personality" would silently
+    # fail to match DBT's best_for=["bpd", ...] and understate the match.
+    pattern_keys = [h["pattern_key"] for h in clinical_pattern_hypotheses if h.get("pattern_key")]
+    strategy_keys = [p["adaptation_strategy"] for p in adaptation_patterns if p.get("adaptation_strategy")]
+    matching_symptoms = list(current_symptoms) + _aliased_pattern_symptoms(pattern_keys) + strategy_keys
+
     # Calculate baseline efficacy match
-    baseline_efficacy = calculate_therapy_match_score(therapy_type, current_symptoms)
-    
+    baseline_efficacy = calculate_therapy_match_score(therapy_type, matching_symptoms)
+
     # Get age-appropriate context
     recommended_therapies = get_recommended_interventions_by_age(age_at_intervention)
     coping_capacity = get_age_appropriate_coping_capacity(age_at_intervention)
-    
+
+    patterns_section = ""
+    if adaptation_patterns:
+        lines = "\n".join(
+            f"- {p['pattern_name']} (strategy: {p['adaptation_strategy']}, status: {p['status']}, "
+            f"evidence: {p.get('evidence_strength')})"
+            for p in adaptation_patterns
+        )
+        patterns_section = f"""
+ESTABLISHED DEVELOPMENTAL PATTERNS (from the persona's full timeline, not just current symptoms):
+{lines}
+
+For each pattern above, state in your reasoning whether this therapy's mechanism plausibly
+touches it or leaves it unresolved - do not assume symptom improvement means the underlying
+pattern changed. Example of the standard this should meet: "DBT substantially improves emotional
+regulation and impulsive behavior, but the attachment expectation that closeness leads to
+abandonment remains only partially changed."
+"""
+
+    hypotheses_section = ""
+    if clinical_pattern_hypotheses:
+        lines = "\n".join(
+            f"- {h['pattern_key']} (tier: {h['tier']}, evidence: {h.get('evidence_strength')})"
+            for h in clinical_pattern_hypotheses
+        )
+        hypotheses_section = f"""
+CLINICAL PATTERN HYPOTHESES (tiered, not diagnoses - see docs/MIGRATION_MAP.md):
+{lines}
+"""
+
     # Build comprehensive prompt
     prompt = f"""You are a clinical psychologist analyzing therapeutic intervention outcomes.
 
@@ -71,7 +194,7 @@ Name: {persona.name}
 Current Age: {age_at_intervention}
 Baseline Background: {persona.baseline_background}
 
-CURRENT PERSONALITY (Big Five, 0.0-1.0 scale):
+CURRENT PERSONALITY (Big Five, 0.0-1.0 scale - simulation estimates, not a validated assessment):
 - Openness: {persona.current_personality.get('openness', 0.5)}
 - Conscientiousness: {persona.current_personality.get('conscientiousness', 0.5)}
 - Extraversion: {persona.current_personality.get('extraversion', 0.5)}
@@ -82,7 +205,7 @@ CURRENT ATTACHMENT STYLE: {persona.current_attachment_style}
 
 CURRENT SYMPTOMS & TRAUMA MARKERS:
 {', '.join(current_symptoms) if current_symptoms else 'None reported'}
-
+{patterns_section}{hypotheses_section}
 INTERVENTION DETAILS:
 Therapy Type: {therapy_info['name']}
 Duration: {duration} weeks
@@ -97,7 +220,7 @@ Evidence Base: {therapy_info['evidence_base']}
 Typical Duration: {therapy_info['typical_duration']}
 
 BASELINE EFFICACY MATCH: {baseline_efficacy:.2f} (0.0-1.0 scale)
-- This indicates how well the therapy targets the current symptoms
+- This indicates how well the therapy targets the current symptoms{' and established patterns' if (adaptation_patterns or clinical_pattern_hypotheses) else ''}
 - 0.8+ = Excellent match
 - 0.5-0.8 = Moderate match
 - <0.5 = Poor match (therapy not designed for these symptoms)
@@ -212,18 +335,26 @@ async def analyze_intervention(
     therapy_type: str,
     duration: int,
     intensity: str,
-    age_at_intervention: int
+    age_at_intervention: int,
+    adaptation_patterns: Optional[List[Dict]] = None,
+    clinical_pattern_hypotheses: Optional[List[Dict]] = None,
 ) -> Dict:
     """
     Analyze how a therapeutic intervention affects the persona.
-    
+
     Args:
         persona: Persona object
         therapy_type: Type of therapy (CBT, ACT, EMDR, etc.)
         duration: Duration in weeks
         intensity: "weekly", "twice_weekly", "monthly"
         age_at_intervention: Age when intervention begins
-        
+        adaptation_patterns: optional pattern_engine.accumulate_patterns() output - see
+            generate_intervention_prompt's docstring. Not yet passed by
+            app/api/routes/interventions.py; wiring it in is a deliberate next
+            step, not bundled into this one (see docs/MIGRATION_MAP.md).
+        clinical_pattern_hypotheses: optional evidence_accumulator.accumulate_evidence()
+            output - same caveat.
+
     Returns:
         Dict with analysis results (efficacy_match, symptom_changes, etc.)
     """
@@ -233,9 +364,11 @@ async def analyze_intervention(
         therapy_type=therapy_type,
         duration=duration,
         intensity=intensity,
-        age_at_intervention=age_at_intervention
+        age_at_intervention=age_at_intervention,
+        adaptation_patterns=adaptation_patterns,
+        clinical_pattern_hypotheses=clinical_pattern_hypotheses,
     )
-    
+
     # Call OpenAI
     response = await openai_service.analyze(
         prompt=prompt,
@@ -243,347 +376,6 @@ async def analyze_intervention(
         temperature=0.7,
         max_tokens=2000
     )
-    
+
     # Parse response
     return response
-
-
-def calculate_baseline_efficacy_match(therapy_type: str, symptoms: List[str]) -> float:
-    """
-    Calculate baseline efficacy match using therapy database.
-    
-    Args:
-        therapy_type: Type of therapy
-        symptoms: List of current symptoms
-        
-    Returns:
-        Efficacy score (0.0-1.0)
-    """
-    return calculate_therapy_match_score(therapy_type, symptoms)
-
-
-def apply_symptom_changes(
-    current_severity: Dict[str, int],
-    changes: Dict
-) -> Dict[str, int]:
-    """
-    Apply symptom changes to current severity.
-    
-    Args:
-        current_severity: Current symptom severity dict
-        changes: Changes dict with "after" key
-        
-    Returns:
-        Updated severity dict
-    """
-    updated = current_severity.copy()
-    
-    if "after" in changes:
-        for symptom, new_severity in changes["after"].items():
-            updated[symptom] = max(0, min(10, new_severity))
-    
-    return updated
-
-
-def calculate_duration_impact(duration: int, recommended_duration: int) -> float:
-    """
-    Calculate how therapy duration affects efficacy.
-    
-    Args:
-        duration: Actual duration in weeks
-        recommended_duration: Recommended duration in weeks
-        
-    Returns:
-        Impact multiplier (0.5-1.2)
-    """
-    ratio = duration / recommended_duration
-    
-    if ratio < 0.5:
-        # Too short - significantly reduced efficacy
-        return 0.5
-    elif ratio < 0.75:
-        # Short - moderately reduced efficacy
-        return 0.75
-    elif ratio <= 1.5:
-        # Appropriate duration
-        return 1.0
-    else:
-        # Extended duration - slightly enhanced efficacy
-        return min(1.2, 1.0 + (ratio - 1.5) * 0.1)
-
-
-def validate_intervention_response(response: Dict) -> bool:
-    """
-    Validate that AI response has all required fields.
-    
-    Args:
-        response: AI response dict
-        
-    Returns:
-        True if valid, raises ValueError if invalid
-    """
-    required_fields = [
-        "efficacy_match",
-        "symptom_changes",
-        "personality_changes",
-        "coping_skills_gained",
-        "sustained_effects",
-        "limitations",
-        "reasoning"
-    ]
-    
-    for field in required_fields:
-        if field not in response:
-            raise ValueError(f"Missing required field: {field}")
-    
-    # Validate symptom_changes structure
-    if "symptom_changes" in response:
-        required_subfields = ["before", "after", "percentage_improvement"]
-        for subfield in required_subfields:
-            if subfield not in response["symptom_changes"]:
-                raise ValueError(f"Missing symptom_changes subfield: {subfield}")
-    
-    return True
-
-
-async def batch_analyze_interventions(
-    persona,
-    interventions: List[tuple]
-) -> List[Dict]:
-    """
-    Analyze multiple interventions in sequence.
-    
-    Args:
-        persona: Persona object
-        interventions: List of (therapy_type, duration, intensity, age) tuples
-        
-    Returns:
-        List of analysis results
-    """
-    results = []
-    
-    for therapy_type, duration, intensity, age in interventions:
-        result = await analyze_intervention(
-            persona=persona,
-            therapy_type=therapy_type,
-            duration=duration,
-            intensity=intensity,
-            age_at_intervention=age
-        )
-        
-        results.append(result)
-        
-        # Update persona symptoms for next intervention
-        # (In real usage, this would update the database)
-        if "symptom_changes" in result and "after" in result["symptom_changes"]:
-            # Simulate symptom update (simplified)
-            pass
-    
-    return results
-
-
-def explain_why_therapy_works_or_not(
-    therapy_type: str,
-    symptoms: List[str],
-    efficacy_match: float
-) -> str:
-    """
-    Generate human-readable explanation of therapy efficacy.
-    
-    Args:
-        therapy_type: Type of therapy
-        symptoms: Current symptoms
-        efficacy_match: Calculated efficacy match
-        
-    Returns:
-        Explanation string
-    """
-    therapy_info = get_therapy_info(therapy_type)
-    
-    if efficacy_match >= 0.8:
-        explanation = f"{therapy_info['name']} is an excellent match (efficacy: {efficacy_match:.0%}) because it's specifically designed to treat {', '.join(symptoms)}."
-    elif efficacy_match >= 0.5:
-        explanation = f"{therapy_info['name']} is a moderate match (efficacy: {efficacy_match:.0%}). It may help with some symptoms but isn't optimized for all of them."
-    else:
-        explanation = f"{therapy_info['name']} is a poor match (efficacy: {efficacy_match:.0%}). This therapy is designed for {', '.join(therapy_info['best_for'][:3])}, not {', '.join(symptoms)}."
-    
-    return explanation
-
-
-# ============================================
-# COMPREHENSIVE SYMPTOM-BASED THERAPY MATCHING
-# ============================================
-
-def match_disorders_to_therapies(
-    disorders: Dict[str, Dict],
-    age: int
-) -> Dict[str, List[Dict]]:
-    """
-    Match disorders to appropriate therapeutic interventions.
-    
-    Uses comprehensive symptom taxonomy and evidence-based effectiveness scores.
-    
-    Args:
-        disorders: Dict from assess_comprehensive_symptoms()
-                  {disorder_name: {severity, symptoms, onset_age, category}}
-        age: Current age of the person
-        
-    Returns:
-        Dict of {disorder_name: [recommended_therapies]}
-    """
-    recommendations = {}
-    
-    for disorder_name, details in disorders.items():
-        # Get severity
-        severity = details["severity"]
-        
-        # Calculate intervention effectiveness for each therapy type
-        therapy_options = []
-        
-        # Check symptom_engine for intervention mappings
-        if hasattr(symptom_engine, 'calculate_intervention_effect'):
-            # Get common therapy types for this disorder category
-            category = details.get("category", "")
-            
-            # Define therapy types by category
-            therapy_by_category = {
-                "Mood Disorders": ["CBT", "medication", "combination"],
-                "Anxiety Disorders": ["CBT", "exposure_therapy", "medication"],
-                "Trauma and Stress Disorders": ["EMDR", "CPT", "PE", "medication"],
-                "Personality Disorders (Cluster B)": ["DBT", "schema_therapy", "MBT"],
-                "OCD and Related Disorders": ["ERP", "medication", "combination"],
-                "Substance Use Disorders": ["MAT", "CBT", "12_step", "residential"],
-                "Eating Disorders": ["FBT", "CBT_E", "medication"],
-            }
-            
-            # Get therapies for this category
-            therapies = therapy_by_category.get(category, ["CBT", "supportive_therapy"])
-            
-            for therapy_type in therapies:
-                # Calculate effectiveness
-                reduction = symptom_engine.calculate_intervention_effect(
-                    disorder=disorder_name,
-                    intervention_type=therapy_type,
-                    duration_weeks=24,  # Standard duration
-                    adherence=0.8
-                )
-                
-                therapy_options.append({
-                    "therapy_type": therapy_type,
-                    "expected_reduction": reduction,
-                    "reduction_percentage": f"{int(reduction * 100)}%",
-                    "recommended_duration": "24 weeks",
-                    "match_quality": "excellent" if reduction >= 0.5 else "moderate" if reduction >= 0.3 else "limited"
-                })
-            
-            # Sort by effectiveness
-            therapy_options.sort(key=lambda x: x["expected_reduction"], reverse=True)
-        
-        recommendations[disorder_name] = therapy_options
-    
-    return recommendations
-
-
-def calculate_comprehensive_therapy_efficacy(
-    persona_symptoms: List,  # List of PersonaSymptom objects
-    therapy_type: str,
-    duration_weeks: int,
-    adherence: float = 0.8
-) -> Dict[str, float]:
-    """
-    Calculate expected efficacy of therapy across multiple disorders.
-    
-    Args:
-        persona_symptoms: List of PersonaSymptom objects with severity
-        therapy_type: Type of therapy
-        duration_weeks: Duration in weeks
-        adherence: Adherence rate (0.0-1.0)
-        
-    Returns:
-        Dict of {disorder_name: expected_reduction}
-    """
-    efficacy_results = {}
-    
-    for symptom in persona_symptoms:
-        reduction = symptom_engine.calculate_intervention_effect(
-            disorder=symptom.symptom_name,
-            intervention_type=therapy_type,
-            duration_weeks=duration_weeks,
-            adherence=adherence
-        )
-        
-        efficacy_results[symptom.symptom_name] = reduction
-    
-    return efficacy_results
-
-
-def get_disorder_specific_recommendations(
-    disorder_name: str,
-    severity: float,
-    age: int
-) -> Dict:
-    """
-    Get detailed treatment recommendations for a specific disorder.
-    
-    Args:
-        disorder_name: Name of the disorder (e.g., "depression", "ptsd")
-        severity: Severity 0.0-1.0
-        age: Current age
-        
-    Returns:
-        Dict with treatment plan recommendations
-    """
-    if disorder_name not in SYMPTOM_TAXONOMY:
-        return {"error": f"Disorder '{disorder_name}' not found in taxonomy"}
-    
-    disorder_info = SYMPTOM_TAXONOMY[disorder_name]
-    
-    # Get recommended interventions by age
-    age_appropriate = get_recommended_interventions_by_age(age)
-    
-    # Calculate effectiveness for different therapy modalities
-    modalities = []
-    
-    # Try common therapy types
-    common_therapies = {
-        "CBT": "Cognitive Behavioral Therapy",
-        "DBT": "Dialectical Behavior Therapy",
-        "EMDR": "Eye Movement Desensitization and Reprocessing",
-        "ACT": "Acceptance and Commitment Therapy",
-        "medication": "Psychiatric Medication",
-        "psychodynamic": "Psychodynamic Therapy"
-    }
-    
-    for therapy_code, therapy_name in common_therapies.items():
-        try:
-            reduction = symptom_engine.calculate_intervention_effect(
-                disorder=disorder_name,
-                intervention_type=therapy_code,
-                duration_weeks=24,
-                adherence=0.8
-            )
-            
-            modalities.append({
-                "name": therapy_name,
-                "code": therapy_code,
-                "expected_reduction": reduction,
-                "percentage": f"{int(reduction * 100)}%"
-            })
-        except:
-            # Skip if therapy not mapped for this disorder
-            pass
-    
-    # Sort by effectiveness
-    modalities.sort(key=lambda x: x["expected_reduction"], reverse=True)
-    
-    return {
-        "disorder_name": disorder_name,
-        "full_name": disorder_info.get("full_name", disorder_name),
-        "category": disorder_info.get("category", ""),
-        "severity": severity,
-        "severity_label": "severe" if severity >= 0.7 else "moderate" if severity >= 0.4 else "mild",
-        "age": age,
-        "recommended_therapies": modalities[:3],  # Top 3
-        "age_appropriate_interventions": age_appropriate,
-        "common_comorbidities": disorder_info.get("common_comorbidities", [])
-    }

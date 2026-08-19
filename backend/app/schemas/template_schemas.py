@@ -197,7 +197,12 @@ class TimelineSnapshotResponse(BaseModel):
     personality_snapshot: Dict[str, float]
     trauma_markers_snapshot: Optional[List[str]] = None
     symptom_severity_snapshot: Optional[Dict[str, int]] = None
-    
+
+    # Step 9 (docs/MIGRATION_MAP.md) - frozen pattern/hypothesis state at
+    # snapshot time. See app/models/timeline_snapshot.py for entry shape.
+    adaptation_patterns_snapshot: Optional[List[Dict]] = None
+    clinical_pattern_hypotheses_snapshot: Optional[List[Dict]] = None
+
     personality_difference: Optional[Dict[str, float]] = None
     symptom_difference: Optional[Dict[str, int]] = None
     

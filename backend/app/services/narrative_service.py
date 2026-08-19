@@ -16,6 +16,10 @@ from app.models.persona import Persona
 from app.models.experience import Experience
 from app.models.intervention import Intervention
 from app.models.persona_narrative import PersonaNarrative
+from app.models.adaptation_pattern import AdaptationPattern
+from app.models.clinical_pattern_hypothesis import ClinicalPatternHypothesis
+from app.models.narration import PersonaBelief
+from app.services.evidence_accumulator import evidence_strength_label
 
 
 async def generate_persona_narrative(
@@ -54,15 +58,37 @@ async def generate_persona_narrative(
     interventions = db.query(Intervention).filter(
         Intervention.persona_id == persona_id
     ).order_by(Intervention.age_at_intervention).all()
-    
+
+    # Step 8 (docs/MIGRATION_MAP.md): the persona's established developmental
+    # patterns, clinical pattern hypotheses, and self-stated beliefs - the
+    # "three realities" model (event reality / persona's belief / engine
+    # formulation). These tables are populated by steps 2-5's engines, which
+    # are not yet wired into any creation route, so these queries return
+    # empty lists in the live app today - the prompt is written to degrade
+    # gracefully when that's the case, not to apologize for it.
+    adaptation_patterns = db.query(AdaptationPattern).filter(
+        AdaptationPattern.persona_id == persona_id
+    ).order_by(AdaptationPattern.first_emerged_age).all()
+
+    clinical_pattern_hypotheses = db.query(ClinicalPatternHypothesis).filter(
+        ClinicalPatternHypothesis.persona_id == persona_id
+    ).all()
+
+    persona_beliefs = db.query(PersonaBelief).filter(
+        PersonaBelief.subject_id == persona_id
+    ).all()
+
     # Count existing narratives for generation number
     existing_count = db.query(PersonaNarrative).filter(
         PersonaNarrative.persona_id == persona_id
     ).count()
     generation_number = existing_count + 1
-    
+
     # Build comprehensive prompt for GPT-4
-    prompt = _build_narrative_prompt(persona, experiences, interventions)
+    prompt = _build_narrative_prompt(
+        persona, experiences, interventions,
+        adaptation_patterns, clinical_pattern_hypotheses, persona_beliefs,
+    )
     
     # Call GPT-4
     try:
@@ -136,24 +162,30 @@ async def generate_persona_narrative(
 def _build_narrative_prompt(
     persona: Persona,
     experiences: List[Experience],
-    interventions: List[Intervention]
+    interventions: List[Intervention],
+    adaptation_patterns: List[AdaptationPattern] = None,
+    clinical_pattern_hypotheses: List[ClinicalPatternHypothesis] = None,
+    persona_beliefs: List[PersonaBelief] = None,
 ) -> str:
     """
     Build comprehensive prompt for GPT-4 narrative generation.
     """
-    
+    adaptation_patterns = adaptation_patterns or []
+    clinical_pattern_hypotheses = clinical_pattern_hypotheses or []
+    persona_beliefs = persona_beliefs or []
+
     # Format experiences timeline
     experiences_text = "\n".join([
         f"- Age {exp.age_at_event}: {exp.event_type or 'Experience'} (severity: {exp.severity or 'unknown'}) - {exp.user_description}"
         for exp in experiences
     ]) if experiences else "No experiences yet"
-    
+
     # Format interventions
     interventions_text = "\n".join([
         f"- Age {intv.age_at_intervention}: {intv.therapy_type} ({intv.duration}, {intv.intensity})"
         for intv in interventions
     ]) if interventions else "No therapeutic interventions yet"
-    
+
     # Format personality traits
     personality_text = "\n".join([
         f"- {trait.capitalize()}: {value:.2f}"
@@ -162,7 +194,64 @@ def _build_narrative_prompt(
 
     # Format current trauma markers (symptoms)
     trauma_text = ", ".join(persona.current_trauma_markers) if persona.current_trauma_markers else "None identified"
-    
+
+    # Step 11f: the State tier (app/services/state_trait_engine.py) - fast-
+    # moving, reactive psychological state, the first rung of the arc below.
+    # Only ever contains keys that have actually been touched by a real
+    # proposal (current_state starts at {}) - never padded with an unearned
+    # 0.5 for every STATE_VARIABLE.
+    if persona.current_state:
+        state_text = "\n".join(f"- {variable.replace('_', ' ').title()}: {value:.2f}" for variable, value in persona.current_state.items())
+    else:
+        state_text = "No State-tier movement recorded yet."
+
+    # Step 8: the engine's own accumulated formulation - a real conclusion
+    # (THE PATTERN), with evidence strength as secondary framing, not the
+    # leading voice (see docs/MIGRATION_MAP.md / product spec section 8).
+    # Step 11f: split into emerging vs. established so the narrative can
+    # follow the actual arc (see ARC_GUIDANCE below) instead of treating
+    # every AdaptationPattern row the same regardless of how earned it is.
+    emerging_patterns = [p for p in adaptation_patterns if p.status not in ("established",)]
+    established_patterns = [p for p in adaptation_patterns if p.status == "established"]
+
+    def _format_pattern(p) -> str:
+        return (
+            f"- \"{p.pattern_name}\" (adaptive strategy: {p.adaptation_strategy}, status: {p.status}, "
+            f"evidence strength: {evidence_strength_label(p.evidence_strength)})"
+            + (f" - {p.description}" if p.description else "")
+        )
+
+    established_patterns_text = (
+        "\n".join(_format_pattern(p) for p in established_patterns)
+        if established_patterns else "None yet - no adaptation strategy has reached the established evidence bar."
+    )
+    emerging_patterns_text = (
+        "\n".join(_format_pattern(p) for p in emerging_patterns)
+        if emerging_patterns else "None currently emerging."
+    )
+
+    if clinical_pattern_hypotheses:
+        hypotheses_text = "\n".join(
+            f"- {h.pattern_key} (tier: {h.tier}, evidence strength: {evidence_strength_label(h.evidence_strength)})"
+            for h in clinical_pattern_hypotheses
+        )
+    else:
+        hypotheses_text = "No clinical pattern hypothesis has accumulated enough evidence yet."
+
+    # Step 8: the "three realities" - event reality (experiences_text above),
+    # the persona's own belief about their history, and what the engine's
+    # own pattern analysis suggests. The gap between them, when one exists,
+    # is real material - the narrative should name it, not silently pick one.
+    if persona_beliefs:
+        beliefs_text = "\n".join(
+            f"- {persona.name} believes: \"{b.belief_text}\""
+            + (f" [timeline evaluation: {b.timeline_evaluation}]" if b.timeline_evaluation else "")
+            + (f" | Engine formulation: {b.engine_interpretation}" if b.engine_interpretation else "")
+            for b in persona_beliefs
+        )
+    else:
+        beliefs_text = f"{persona.name} has not stated an explicit belief about the origin of their difficulties yet."
+
     prompt = f"""You are a clinical psychologist writing a comprehensive developmental narrative.
 
 **CRITICAL: PATIENT BACKGROUND - USE THIS INFORMATION**
@@ -187,6 +276,31 @@ Attachment Style: {persona.current_attachment_style}
 **CURRENT PSYCHOLOGICAL STATE**
 Trauma Markers/Symptoms: {trauma_text}
 
+**STATE TIER (fast-moving, reactive - see the arc below)**
+{state_text}
+
+**EMERGING DEVELOPMENTAL PATTERNS (reinforced more than once, not yet established)**
+{emerging_patterns_text}
+
+**ENGINE'S OWN FORMULATION - ESTABLISHED DEVELOPMENTAL PATTERNS**
+(Built from the full timeline, not any single event - this is the engine's own accumulated conclusion, a real developmental formulation)
+{established_patterns_text}
+
+**ENGINE'S OWN FORMULATION - CLINICAL PATTERN HYPOTHESES**
+(Tiered, evidence-tracked - never a diagnosis, regardless of tier)
+{hypotheses_text}
+
+**{persona.name.upper()}'S OWN STATED BELIEFS ABOUT THEIR HISTORY**
+(This is {persona.name}'s self-report, not necessarily what the timeline supports - see instruction 4 below)
+{beliefs_text}
+
+**HOW TO READ THE STATE -> PATTERN -> TRAIT ARC (see instruction 3a below)**
+This engine models psychological change as four stages, each requiring more evidence than the last:
+1. STATE (above) - an immediate, reactive shift after a single event. Can move quickly and can also move back.
+2. EMERGING PATTERN (above) - the same adaptation strategy showing up more than once, but not yet reinforced enough to call durable.
+3. ESTABLISHED PATTERN (above) - reinforced enough across the timeline to be a real, durable developmental formulation.
+4. TRAIT SHIFT (see PERSONALITY TRAITS above) - {persona.name}'s Big Five only ever moves in small steps, and only once a pattern has reached ESTABLISHED. A Big Five value that differs from a neutral baseline is NOT automatic evidence of this - it may simply reflect {persona.name}'s starting temperament. Only describe a trait as having SHIFTED from the developmental history if an established pattern above plausibly explains the direction of that shift.
+
 ---
 
 **INSTRUCTIONS:**
@@ -206,20 +320,35 @@ Write a psychologically accurate developmental narrative that:
    - Age-appropriate developmental tasks and how adversity disrupted them
    - Realistic coping mechanisms developed in response to actual environment
 
-3. **Organizes narrative into these sections** (use markdown headers):
+3. **States the engine's own formulation as a real conclusion, not a hedge**:
+   - If an established developmental pattern exists above, name it explicitly (e.g. "The dominant pattern here is...") - this is THE VERDICT, and it should be stated with the same directness a thoughtful clinician would use, not wrapped in "it's possible that" for every sentence
+   - Evidence strength (high/moderate/low/no evidence yet) is SECONDARY framing - mention it after the conclusion, to support it, never as a replacement for making one. "There isn't enough information" is not an acceptable substitute for engaging with what the timeline actually shows
+   - If no pattern has accumulated enough reinforcement yet, say so plainly and reason from the objective experience timeline instead - that is a legitimate, honest state, not a gap to apologize for
+
+3a. **Narrates through the STATE -> PATTERN -> TRAIT arc explicitly, using the actual data above - do not collapse the stages together**:
+   - Describe what is still just a current STATE reaction (recent, could shift with different circumstances) separately from what has become an EMERGING pattern (repeating, but not yet durable) separately from what is genuinely ESTABLISHED (durable, evidence-backed)
+   - Only attribute a TRAIT SHIFT to {persona.name}'s developmental history when an established pattern above plausibly explains its direction - otherwise, personality differences from a neutral baseline are just {persona.name}'s starting temperament, not something the timeline caused, and should be described that way
+   - This is not optional narrative color: conflating a passing State reaction with a permanent personality change is exactly the kind of overclaiming a careful clinician avoids
+
+4. **Names the gap when {persona.name}'s stated belief and the engine's formulation diverge**:
+   - If {persona.name} has stated a belief about their own history (see above) that the timeline only partially supports, say so directly - e.g. "{persona.name} sees [X] as the origin of their difficulties; the timeline suggests [earlier pattern] was already present, and [X] more plausibly reinforced it than originated it."
+   - This divergence, when it exists, is some of the most clinically interesting material available - do not silently pick one account over the other or smooth the discrepancy over
+   - If {persona.name} has not stated a belief, do not invent one
+
+5. **Organizes narrative into these sections** (use markdown headers):
 
 ## EXECUTIVE SUMMARY
-(2-3 paragraphs: Who is this person? Core psychological profile rooted in their ACTUAL background, key developmental themes, current functioning level)
+(2-3 paragraphs: Who is this person? Lead with THE VERDICT if an established pattern exists - name it directly, e.g. "The dominant pattern here is..." - then the reasoning. Core psychological profile rooted in their ACTUAL background, key developmental themes, current functioning level. If {persona.name} has stated a belief that diverges from the engine's formulation, name that gap here too.)
 
 ## DEVELOPMENTAL TIMELINE
-(Chronological narrative organized by developmental periods. For each period, describe how the BACKGROUND and experiences shaped development:
+(Chronological narrative organized by developmental periods. For each period, describe how the BACKGROUND and experiences shaped development, and connect specific periods to WHAT IT CONNECTS TO later - which later events reinforced or weakened the pattern identified above:
 - **Early Childhood (0-6)**: How did the caregiving environment affect attachment? What were the actual conditions?
 - **Middle Childhood (7-11)**: How did early experiences manifest in school/peer relationships?
 - **Adolescence (12-18)**: How did accumulated adversity affect identity formation?
 - **Adulthood (19+)**: Current patterns stemming from developmental history)
 
 ## CURRENT PRESENTATION
-(How they navigate the world NOW: Daily behaviors, relationship patterns, coping mechanisms, emotional regulation - all connected to their actual background and experiences)
+(How they navigate the world NOW: Daily behaviors, relationship patterns, coping mechanisms, emotional regulation - all connected to their actual background and experiences. State evidence strength for the named pattern here, as secondary framing after the substantive description, not before it.)
 
 ## TREATMENT RESPONSE
 (If interventions exist: How did therapy help? What changed? What symptoms improved? What remains challenging? Be realistic about limitations.)
@@ -237,6 +366,7 @@ Write a psychologically accurate developmental narrative that:
 - Use professional yet accessible language suitable for educational/clinical contexts
 - Total length: 1200-1800 words
 - Connect every assertion to actual background/experiences provided
+- Never write "there isn't enough information to say" as a substitute for reasoning from what's actually there - if the pattern data above is genuinely empty, reason confidently from the objective experience timeline instead
 
 Begin the narrative:"""
 

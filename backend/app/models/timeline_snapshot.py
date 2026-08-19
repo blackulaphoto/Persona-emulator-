@@ -40,7 +40,24 @@ class TimelineSnapshot(Base):
     personality_snapshot = Column(JSON, nullable=False)  # Was: snapshot_personality
     trauma_markers_snapshot = Column(JSON, nullable=True)  # Was: snapshot_symptoms
     symptom_severity_snapshot = Column(JSON, nullable=True)  # Was: snapshot_symptom_severity
-    
+
+    # Step 9 (docs/MIGRATION_MAP.md): frozen copies of pattern/hypothesis
+    # state at snapshot time, the same way personality_snapshot freezes Big
+    # Five at that moment - compare_snapshots() needs a point-in-time copy
+    # to diff against, not a live reference that would change out from under
+    # an old snapshot as new evidence accumulates.
+    # Each entry: {"pattern_name", "adaptation_strategy", "status", "evidence_strength"}
+    adaptation_patterns_snapshot = Column(JSON, nullable=True)
+    # Each entry: {"pattern_key", "tier", "evidence_strength"}
+    clinical_pattern_hypotheses_snapshot = Column(JSON, nullable=True)
+
+    # Step 11f (docs/MIGRATION_MAP.md): frozen copy of Persona.current_state
+    # (the fast-moving State tier - app/services/state_trait_engine.py) at
+    # snapshot time, the same "point-in-time copy, not a live reference"
+    # reasoning as adaptation_patterns_snapshot above. Nullable/omitted when
+    # current_state was {} at snapshot time (no State movement earned yet).
+    state_profile_snapshot = Column(JSON, nullable=True)
+
     # Difference calculations - NEW FIELDS to match service
     personality_difference = Column(JSON, nullable=True)  # Difference from baseline
     symptom_difference = Column(JSON, nullable=True)  # Symptom changes

@@ -28,56 +28,43 @@ export const HELP_CONTENT = {
     },
     
     backstory: {
-      tooltip: "Comprehensive developmental and clinical history - THE MOST IMPORTANT FIELD",
+      tooltip: "The general shape of their upbringing - kept broad on purpose. Specific events go in Experiences, not here.",
       whatToInclude: [
-        "Family structure and parenting style (e.g., 'single mother, father absent')",
-        "Early childhood environment (0-6 years: stable vs. chaotic, nurturing vs. neglectful)",
-        "Attachment patterns with primary caregivers",
-        "Significant trauma or adverse experiences (with ages)",
-        "School and peer relationships",
-        "Major life transitions (divorce, moves, losses)",
-        "Medical or psychiatric history",
-        "Current symptoms or presenting concerns",
-        "Protective factors and strengths",
-        "Cultural or socioeconomic context"
+        "General family structure (e.g., 'single mother, father absent')",
+        "Overall tone of early childhood (stable vs. chaotic, warm vs. cold)",
+        "How reliable/present their caregivers were",
+        "Natural temperament (curious, cautious, sociable, sensitive...)",
+        "Broad cultural or socioeconomic context, if relevant"
+      ],
+      whatNotToInclude: [
+        "Specific dated events (a divorce, an assault, a diagnosis) - add these as Experiences after creating the persona",
+        "A list of current symptoms - these emerge from the events you add, not from this page",
+        "Anything you'd want the AI to analyze on its own timeline - that's what Experiences are for"
       ],
       examples: [
         {
-          title: "Example 1: Depression with Childhood Trauma",
-          text: "28-year-old male presenting with major depressive disorder. Raised by emotionally neglectful, alcoholic parents (ages 0-12). Father physically absent, mother emotionally unavailable and verbally harsh. Witnessed domestic violence between parents (ages 4-8). Parents divorced when he was 10, lived primarily with mother. First depressive episode at age 15 after being bullied at school. Struggled academically despite high intelligence. Brief period of substance experimentation in college (ages 18-20) but discontinued. Currently experiencing recurrent depression, low self-esteem, difficulty maintaining relationships. Strengths include high conscientiousness, creative outlets (music), and stable employment."
+          title: "Example 1: Chaotic but loving",
+          text: "Home environment: Chaotic and financially unstable, but affectionate. Caregivers: Raised by a single mother who worked long hours; present but stretched thin. Additional context: Naturally sociable and quick to bounce back from setbacks."
         },
         {
-          title: "Example 2: Anxiety with Perfectionism",
-          text: "22-year-old female college student with generalized anxiety disorder. Raised in upper-middle-class family by high-achieving, perfectionistic parents (both physicians). Early childhood was materially stable but emotionally cold - parents prioritized achievement over emotional connection. Developed perfectionism and performance anxiety by age 8. Excelled academically but at cost of chronic stress and poor self-care. Experienced panic attacks starting at age 16 during exam periods. Recently developed insomnia and health anxiety. Has few close friendships due to difficulty being vulnerable. Strengths include intelligence, work ethic, and recent willingness to seek help."
+          title: "Example 2: Emotionally cold, high-achieving",
+          text: "Home environment: Materially comfortable, emotionally distant. Achievement was valued over connection. Caregivers: Both parents present but reserved and demanding. Additional context: Cautious, perfectionistic temperament from an early age."
         },
         {
-          title: "Example 3: PTSD from Combat",
-          text: "34-year-old male military veteran with PTSD. Grew up in stable, loving middle-class home with supportive parents and two siblings. No childhood trauma or mental health history. Joined military at age 20, deployed to Afghanistan at age 22. During deployment, witnessed multiple casualties including death of close friend in IED explosion. Returned at age 23 with nightmares, hypervigilance, emotional numbing. Struggled to readjust to civilian life. Married at 26, relationship strained by PTSD symptoms (irritability, withdrawal, avoidance). Divorced at 30. Currently experiencing increased symptoms after car accident triggered trauma memories. Strengths include strong pre-trauma foundation, intelligence, and support from veteran community."
-        },
-        {
-          title: "Example 4: Borderline Personality Development",
-          text: "26-year-old female with borderline personality disorder. Mother had untreated bipolar disorder, creating chaotic and unpredictable home environment. Father left when she was 3. Experienced emotional neglect and intermittent verbal abuse throughout childhood. Developed insecure/disorganized attachment. Sexually molested by mother's boyfriend at age 11, which she didn't disclose until age 18. First suicide attempt at age 14 following breakup. Multiple brief hospitalizations during late teens for self-harm and suicidal ideation. Unstable relationship history characterized by intense idealization/devaluation cycles. Currently in DBT treatment, showing some progress in emotion regulation. Strengths include artistic talent, intelligence, and growing self-awareness."
-        },
-        {
-          title: "Example 5: Child with ADHD and Family Stress",
-          text: "9-year-old male with ADHD, combined type. Born to young parents (both 19) who were unprepared for parenthood. Early childhood marked by frequent moves due to parents' financial instability. Parents divorced when he was 4, with contentious custody battle. Currently lives primarily with mother, who struggles financially as single parent. Father has inconsistent involvement. ADHD symptoms (inattention, hyperactivity, impulsivity) apparent since age 5 but not diagnosed until age 8. Struggles academically and socially - peers find him 'annoying,' leading to rejection and conflict. Teachers report he's 'smart but can't focus.' Recently started medication with some improvement. Strengths include creativity, enthusiasm, and close relationship with maternal grandmother who provides stability."
+          title: "Example 3: Stable and secure",
+          text: "Home environment: Stable, predictable, warm. Caregivers: Two reliable, supportive parents. Additional context: Curious and even-tempered as a child."
         }
       ],
       tips: [
-        "Write 200-500 words for best results - more detail = more accurate simulation",
-        "Include BOTH problems AND strengths/protective factors",
-        "Specify ages when significant events occurred",
-        "Think like a therapist taking an intake history",
-        "Use concrete examples rather than vague descriptions",
-        "Include family dynamics and attachment patterns",
-        "Mention cultural or socioeconomic factors if relevant"
+        "A sentence or two per question is enough - this just sets the starting point",
+        "Describe the general tone, not specific incidents",
+        "It's fine to leave the optional field blank",
+        "Think temperament and atmosphere, not plot"
       ],
       commonMistakes: [
-        "Being too vague ('had a difficult childhood' - specify what made it difficult!)",
-        "Only listing problems without any strengths",
-        "Omitting ages when events occurred",
-        "Leaving out family/parenting information",
-        "Not mentioning current symptoms or concerns"
+        "Listing specific events here instead of adding them as Experiences next",
+        "Writing a long clinical case history (that's what the Experiences timeline is for)",
+        "Naming current symptoms directly - let them emerge from the events you add"
       ]
     }
   },
@@ -170,7 +157,7 @@ export const HELP_CONTENT = {
     general: [
       {
         question: "How much detail should I include?",
-        answer: "More is better! For backstory, aim for 200-500 words. Include specific ages, events, and family context. Think of it like writing a clinical intake summary."
+        answer: "For the Starting Point questions, a sentence or two each is enough - keep it general. Save the detail for Experiences, where you add specific events one at a time and each one gets its own analysis."
       },
       {
         question: "Can I use real client information?",
