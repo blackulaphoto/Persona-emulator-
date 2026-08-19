@@ -3,6 +3,26 @@ Psychology Engine - AI-powered experience and intervention analysis.
 
 Uses OpenAI GPT-4 + developmental psychology + therapy database to analyze
 how life experiences shape personality over time.
+
+LEGACY, PARTIALLY UNREFERENCED (docs/MIGRATION_MAP.md, Step 11g): as of Step
+11g, nothing in the live app calls analyze_experience() anymore.
+templates.py::apply_experience_set was the last runtime caller (it now goes
+through app/services/developmental_pipeline.py's canonical Exposure ->
+Narration -> Evidence -> Interpretation -> Pattern -> State/Trait chain,
+the same one personas.py, experiences.py, and interventions.py already use)
+- experiences.py itself stopped calling it back in Step 11d. That makes the
+following functions dead code, kept only so this file doesn't need to be
+partially deleted: generate_experience_prompt, analyze_experience,
+apply_personality_changes, calculate_symptom_severity,
+extract_event_metadata, validate_analysis_response,
+batch_analyze_experiences.
+
+assess_comprehensive_symptoms, below, is NOT part of this - it's a genuinely
+independent function (delegates to app/utils/symptom_assessment_engine.py,
+never calls analyze_experience or generate_experience_prompt) and is still
+live: app/api/routes/symptoms.py imports and calls it directly. That's the
+reason this file was not deleted outright - a real, separate runtime
+dependency still exists on part of it.
 """
 import json
 import os

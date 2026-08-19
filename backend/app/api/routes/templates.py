@@ -32,7 +32,8 @@ from app.services.template_service import (
     populate_templates_database,
     get_all_disorder_types,
 )
-from app.services.psychology_engine import analyze_experience
+from app.services.developmental_pipeline import process_developmental_text
+from app.services.legacy_experience_adapter import to_legacy_experience_fields
 from sqlalchemy.orm.attributes import flag_modified
 
 logger = logging.getLogger(__name__)
@@ -242,12 +243,17 @@ async def apply_experience_set(
 ):
     """
     Apply multiple predefined experiences from a template to a persona.
-    
+
     This is a convenience endpoint that:
     1. Gets predefined experiences from template
-    2. Applies each via AI analysis (using psychology engine)
+    2. Applies each through the canonical developmental pipeline - the same
+       Exposure -> Narration -> Evidence -> Interpretation -> Pattern ->
+       State/Trait chain every other experience goes through (see
+       app/services/developmental_pipeline.py; retired the independent
+       psychology_engine.analyze_experience() call this route used to make -
+       templates.py was the last runtime caller of it)
     3. Updates persona state progressively
-    
+
     Request:
     - template_id: Template to get experiences from
     - experience_indices: Optional list of indices to apply (default: all)
@@ -290,78 +296,51 @@ async def apply_experience_set(
     for idx in indices_to_apply:
         exp_data = experiences[idx]
 
-        logger.error(f"DEBUG TEMPLATES: About to query experiences. persona_id type: {type(persona_id)}, value: {persona_id}")
-        logger.error(f"DEBUG TEMPLATES: persona object type: {type(persona)}")
-
-        # Get previous experiences for context
+        # Get previous experiences for the sequence number (the pipeline
+        # itself re-derives its own full-timeline context internally - this
+        # query is only for sequence_number, not fed into any AI call).
         previous_experiences = db.query(Experience).filter(
             Experience.persona_id == persona_id
         ).order_by(Experience.sequence_number).all()
+        sequence_number = len(previous_experiences) + 1
 
-        logger.error(f"DEBUG TEMPLATES: About to call analyze_experience with persona_id type: {type(persona_id)}")
+        # Create the experience row first (legacy analysis fields empty) so
+        # experience.id exists as source_event_id for the pipeline below -
+        # same ordering as app/api/routes/experiences.py::add_experience.
+        # user_id is stamped from the persona's own owner: this route has no
+        # per-request authenticated user (unlike /personas/{id}/experiences),
+        # and Experience.user_id is NOT NULL - a pre-existing gap in this
+        # exact constructor call that silently 500'd every call to this
+        # endpoint before this fix (confirmed empirically), not a behavior
+        # worth preserving.
+        experience = Experience(
+            user_id=persona.user_id,
+            persona_id=persona_id,
+            sequence_number=sequence_number,
+            age_at_event=exp_data["age"],
+            user_description=exp_data["description"],
+        )
+        db.add(experience)
+        db.flush()  # Get experience ID
 
-        # Analyze experience using psychology engine (pass persona_id, not ORM object)
+        if exp_data["age"] > persona.current_age:
+            persona.current_age = exp_data["age"]
+
+        # Canonical developmental pipeline (docs/MIGRATION_MAP.md, Step 11) -
+        # exposure extraction, evidence accumulation, pattern formation, and
+        # State/Trait movement (State always; Trait gated on AdaptationPattern.
+        # status == "established"), identical mechanism to every other
+        # experience-creation path. A pipeline failure aborts the whole batch
+        # (rollback + 500), matching this endpoint's pre-existing all-or-
+        # nothing contract for a template's experience set - not the
+        # single-experience graceful degradation used by
+        # experiences.py::add_experience, which is a different endpoint with
+        # a different contract.
         try:
-            analysis = await analyze_experience(
-                persona_id=persona_id,
-                experience_description=exp_data["description"],
-                age_at_event=exp_data["age"],
-                db=db,
-                previous_experiences=previous_experiences
+            pipeline_result = await process_developmental_text(
+                db, persona, exp_data["description"],
+                source="experience", age=exp_data["age"], source_event_id=experience.id,
             )
-            
-            sequence_number = len(previous_experiences) + 1
-            
-            experience = Experience(
-                persona_id=persona_id,
-                sequence_number=sequence_number,
-                age_at_event=exp_data["age"],
-                user_description=exp_data["description"],
-                immediate_effects=analysis.get("immediate_effects", {}),
-                long_term_patterns=analysis.get("long_term_patterns", []),
-                symptoms_developed=analysis.get("symptoms_developed", []),
-                symptom_severity=analysis.get("symptom_severity", {}),
-                coping_mechanisms=analysis.get("coping_mechanisms", []),
-                worldview_shifts=analysis.get("worldview_shifts", {}),
-                cross_experience_triggers=analysis.get("cross_experience_triggers", []),
-                recommended_therapies=analysis.get("recommended_therapies", [])
-            )
-            
-            db.add(experience)
-            db.flush()  # Get experience ID
-            
-            # Update persona state
-            immediate_effects = analysis.get("immediate_effects", {})
-            for trait, new_value in immediate_effects.items():
-                if trait in persona.current_personality:
-                    persona.current_personality[trait] = new_value
-            
-            flag_modified(persona, "current_personality")
-            
-            # Update age
-            persona.current_age = max(persona.current_age, exp_data["age"])
-            
-            # Update trauma markers
-            new_symptoms = analysis.get("symptoms_developed", [])
-            current_markers = set(persona.current_trauma_markers or [])
-            current_markers.update(new_symptoms)
-            persona.current_trauma_markers = list(current_markers)
-            flag_modified(persona, "current_trauma_markers")
-            
-            # Create personality snapshot
-            snapshot = PersonalitySnapshot(
-                persona_id=persona_id,
-                experience_id=experience.id,
-                age=exp_data["age"],
-                personality_profile=dict(persona.current_personality),
-                attachment_style=persona.current_attachment_style,
-                trauma_markers=list(persona.current_trauma_markers),
-                symptom_severity=analysis.get("symptom_severity", {})
-            )
-            
-            db.add(snapshot)
-            experience_ids.append(str(experience.id))
-            
         except Exception as e:
             logger.error(f"Error analyzing experience at index {idx}: {e}")
             db.rollback()
@@ -369,6 +348,45 @@ async def apply_experience_set(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to analyze experience at index {idx}: {str(e)}"
             )
+
+        # current_trauma_markers comes exclusively from the pipeline's own
+        # evidence projection - no direct symptom-list writes.
+        persona.current_trauma_markers = pipeline_result["trauma_markers"]
+        flag_modified(persona, "current_trauma_markers")
+
+        # legacy_experience_adapter.to_legacy_experience_fields() translates
+        # the pipeline's output into the Experience row's pre-existing field
+        # shape (see that module's docstring for what each field means now -
+        # immediate_effects is current_personality as of right after this
+        # call, the real gated Trait value, not an independent AI guess).
+        # No direct Big Five write here - process_developmental_text() above
+        # already applied the gated Trait update to persona.current_personality.
+        legacy_fields = to_legacy_experience_fields(pipeline_result, persona)
+        experience.immediate_effects = legacy_fields.get("immediate_effects")
+        experience.long_term_patterns = legacy_fields.get("long_term_patterns")
+        experience.symptoms_developed = legacy_fields.get("symptoms_developed")
+        experience.symptom_severity = legacy_fields.get("symptom_severity")
+        experience.coping_mechanisms = legacy_fields.get("coping_mechanisms")
+        experience.worldview_shifts = legacy_fields.get("worldview_shifts")
+        experience.cross_experience_triggers = legacy_fields.get("cross_experience_triggers")
+        experience.recommended_therapies = legacy_fields.get("recommended_therapies")
+
+        # Create personality snapshot. state_profile (Step 11, State tier) is
+        # frozen alongside personality_profile (Trait tier), same as
+        # experiences.py.
+        snapshot = PersonalitySnapshot(
+            persona_id=persona_id,
+            experience_id=experience.id,
+            age=exp_data["age"],
+            personality_profile=dict(persona.current_personality),
+            attachment_style=persona.current_attachment_style,
+            trauma_markers=list(persona.current_trauma_markers),
+            symptom_severity=legacy_fields.get("symptom_severity") or {},
+            state_profile=dict(persona.current_state) if persona.current_state else None,
+        )
+
+        db.add(snapshot)
+        experience_ids.append(str(experience.id))
     
     # Commit all changes
     db.commit()
