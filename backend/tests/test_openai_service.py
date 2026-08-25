@@ -69,7 +69,7 @@ async def test_openai_service_analyze_success():
     mock_response.choices = [mock_choice]
     mock_response.usage.total_tokens = 150
     
-    with patch("openai.AsyncOpenAI") as mock_client:
+    with patch("app.services.openai_service.AsyncOpenAI") as mock_client:
         mock_instance = AsyncMock()
         mock_instance.chat.completions.create = AsyncMock(return_value=mock_response)
         mock_client.return_value = mock_instance
@@ -101,7 +101,7 @@ async def test_openai_service_retry_on_rate_limit():
     mock_success.choices = [mock_choice]
     mock_success.usage.total_tokens = 50
     
-    with patch("openai.AsyncOpenAI") as mock_client:
+    with patch("app.services.openai_service.AsyncOpenAI") as mock_client:
         mock_instance = AsyncMock()
         # First call raises error, second succeeds
         mock_instance.chat.completions.create = AsyncMock(
@@ -125,7 +125,7 @@ async def test_openai_service_max_retries_exceeded():
     """Test that max retries are respected."""
     from openai import RateLimitError
     
-    with patch("openai.AsyncOpenAI") as mock_client:
+    with patch("app.services.openai_service.AsyncOpenAI") as mock_client:
         mock_instance = AsyncMock()
         mock_instance.chat.completions.create = AsyncMock(
             side_effect=RateLimitError("Rate limit exceeded", response=MagicMock(), body={})

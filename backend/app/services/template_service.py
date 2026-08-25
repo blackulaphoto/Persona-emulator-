@@ -196,13 +196,19 @@ def create_persona_from_template(
 ) -> Persona:
     """
     Create a persona from a clinical template.
-    
+
     Args:
         db: Database session
         template_id: Template ID to use
-        owner_id: Optional owner ID (for multi-user systems)
+        owner_id: The Firebase UID that will own this persona - required
+            (Persona.user_id is NOT NULL). Named owner_id here for backward
+            compatibility with this function's existing callers/tests, but
+            maps onto Persona.user_id, not a nonexistent "owner_id" column
+            (that mismatch was the actual bug: every call to this function
+            raised TypeError: 'owner_id' is an invalid keyword argument for
+            Persona, confirmed empirically, before this fix).
         custom_name: Optional custom name for persona
-        
+
     Returns:
         Created Persona object
     """
@@ -210,20 +216,20 @@ def create_persona_from_template(
     template = db.query(ClinicalTemplate).filter(ClinicalTemplate.id == template_id).first()
     if not template:
         raise ValueError(f"Template {template_id} not found")
-    
+
     # Generate persona name
     if custom_name:
         persona_name = custom_name
     else:
         persona_name = f"Case Study: {template.disorder_type}"
-    
+
     # Create persona with template baseline
     # Note: Persona model uses current_personality as the working state
     # Template's baseline_personality becomes the persona's initial current_personality
     baseline_personality = template.baseline_personality.copy()
-    
+
     persona = Persona(
-        owner_id=owner_id,
+        user_id=owner_id,
         name=persona_name,
         baseline_age=template.baseline_age,
         baseline_gender=template.baseline_gender,

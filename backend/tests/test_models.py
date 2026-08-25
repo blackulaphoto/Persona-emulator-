@@ -41,7 +41,7 @@ def test_create_persona_with_baseline(db_session):
     db_session.commit()
     
     persona = Persona(
-        owner_id=user.id,
+        user_id=user.id,
         name="Test Person",
         baseline_age=8,
         baseline_gender="female",
@@ -74,7 +74,7 @@ def test_add_experience_to_persona(db_session):
     db_session.flush()  # Flush to get user.id
     
     persona = Persona(
-        owner_id=user.id,
+        user_id=user.id,
         name="Test Person",
         baseline_age=8,
         current_age=10,
@@ -84,6 +84,7 @@ def test_add_experience_to_persona(db_session):
     db_session.commit()
     
     experience = Experience(
+        user_id=user.id,
         persona_id=persona.id,
         sequence_number=1,
         age_at_event=10,
@@ -111,7 +112,7 @@ def test_add_intervention_to_persona(db_session):
     db_session.flush()  # Flush to get user.id
     
     persona = Persona(
-        owner_id=user.id,
+        user_id=user.id,
         name="Test Person",
         baseline_age=8,
         current_age=30,
@@ -121,6 +122,7 @@ def test_add_intervention_to_persona(db_session):
     db_session.commit()
     
     intervention = Intervention(
+        user_id=user.id,
         persona_id=persona.id,
         sequence_number=1,
         age_at_intervention=30,
@@ -147,7 +149,7 @@ def test_create_personality_snapshot(db_session):
     db_session.flush()  # Flush to get user.id
     
     persona = Persona(
-        owner_id=user.id,
+        user_id=user.id,
         name="Test Person",
         baseline_age=8,
         current_age=10,
@@ -181,13 +183,14 @@ def test_relationships(db_session):
     db_session.flush()  # Flush to get user.id
     
     persona = Persona(
-        owner_id=user.id,
+        user_id=user.id,
         name="Test Person",
         baseline_age=8,
         current_age=10,
         current_personality={"openness": 0.5, "conscientiousness": 0.5, "extraversion": 0.5, "agreeableness": 0.5, "neuroticism": 0.5}
     )
     experience = Experience(
+        user_id=user.id,
         persona=persona,
         sequence_number=1,
         age_at_event=10,

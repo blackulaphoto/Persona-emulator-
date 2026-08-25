@@ -10,14 +10,23 @@ fast, forcing the fallback/heuristic paths - the honest current production
 state (no OpenAI credits configured), same convention as
 test_experiences_route_wiring.py.
 
-get_template_experiences is patched directly rather than going through
-create_persona_from_template/populate_templates_database, since
-template_service.py's Persona(owner_id=...) construction is a separate,
-pre-existing bug (Persona has no owner_id column - confirmed via
-test_models.py's existing TypeError failures) unrelated to this step's
-scope (psychology_engine.analyze_experience() retirement) - these tests
-build personas directly via the ORM instead, the same convention every
-other *_route_wiring.py test file in this project already uses.
+get_template_experiences is patched directly for the apply_experience_set
+tests below rather than going through create_persona_from_template, so
+those tests stay focused on this step's actual scope
+(psychology_engine.analyze_experience() retirement) - same convention every
+other *_route_wiring.py test file in this project already uses (personas
+built directly via the ORM).
+
+TestCreatePersonaFromTemplateGetsARealUserId covers a separate, adjacent fix
+made in the same pass: template_service.py::create_persona_from_template
+used to construct Persona(owner_id=...) - owner_id is not a real column
+(renamed to user_id at some point; confirmed empirically this raised
+TypeError: 'owner_id' is an invalid keyword argument for Persona on every
+call), and the route never supplied a real user_id anyway (no auth
+dependency, and the frontend never sends the request body's optional
+owner_id field). Both are fixed: the route now requires an authenticated
+caller (matching personas.py/experiences.py/interventions.py) and
+create_persona_from_template maps it onto Persona.user_id correctly.
 """
 import pytest
 from unittest.mock import AsyncMock, patch
@@ -32,8 +41,10 @@ from app.models import (
 import app.api.routes.templates as templates_module
 from app.api.routes.templates import (
     apply_experience_set, list_templates, get_template_details,
+    create_persona_from_template_endpoint,
 )
-from app.schemas.template_schemas import ApplyExperienceSetRequest
+from app.services.template_service import populate_templates_database
+from app.schemas.template_schemas import ApplyExperienceSetRequest, CreatePersonaFromTemplateRequest
 
 TEST_DB_URL = "sqlite:///./test_templates_route_wiring.db"
 engine = create_engine(TEST_DB_URL, connect_args={"check_same_thread": False})
@@ -252,3 +263,57 @@ class TestTemplatesAndCitationsPreserved:
         result = await get_template_details(template_id=template.id, db=db)
         assert result.id == template.id
         assert result.predefined_experiences
+
+
+class TestCreatePersonaFromTemplateGetsARealUserId:
+    """The owner_id/user_id fix - see module docstring."""
+
+    @pytest.mark.asyncio
+    async def test_persona_created_with_authenticated_users_id(self, db):
+        populate_templates_database(db)
+        template = db.query(ClinicalTemplate).first()
+
+        response = await create_persona_from_template_endpoint(
+            request=CreatePersonaFromTemplateRequest(template_id=template.id),
+            user_id="auth-user-77",
+            db=db,
+        )
+
+        persona = db.query(Persona).filter(Persona.id == response.persona_id).first()
+        assert persona is not None
+        assert persona.user_id == "auth-user-77"
+
+    @pytest.mark.asyncio
+    async def test_persona_owned_by_the_caller_shows_up_in_their_persona_list(self, db):
+        # Confirms the whole point of stamping a real user_id: the persona
+        # is actually findable by its owner afterward, the same way
+        # personas.py::list_personas filters (Persona.user_id == user_id).
+        populate_templates_database(db)
+        template = db.query(ClinicalTemplate).first()
+
+        response = await create_persona_from_template_endpoint(
+            request=CreatePersonaFromTemplateRequest(template_id=template.id),
+            user_id="auth-user-77",
+            db=db,
+        )
+
+        owned = db.query(Persona).filter(Persona.user_id == "auth-user-77").all()
+        assert response.persona_id in [p.id for p in owned]
+
+    @pytest.mark.asyncio
+    async def test_client_supplied_owner_id_is_ignored_not_trusted(self, db):
+        # A client-supplied owner_id must not be able to assign a persona to
+        # someone else's Firebase UID - only the authenticated caller's own
+        # user_id (from Depends(get_current_user)) is ever used.
+        populate_templates_database(db)
+        template = db.query(ClinicalTemplate).first()
+
+        response = await create_persona_from_template_endpoint(
+            request=CreatePersonaFromTemplateRequest(template_id=template.id, owner_id="someone-elses-uid"),
+            user_id="auth-user-77",
+            db=db,
+        )
+
+        persona = db.query(Persona).filter(Persona.id == response.persona_id).first()
+        assert persona.user_id == "auth-user-77"
+        assert persona.user_id != "someone-elses-uid"

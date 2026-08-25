@@ -12,6 +12,7 @@ from typing import List, Optional
 import logging
 
 from app.core.database import get_db
+from app.core.auth import get_current_user
 from app.core.feature_flags import FeatureFlags
 from app.models.clinical_template import ClinicalTemplate
 from app.models.persona import Persona
@@ -178,36 +179,42 @@ async def get_disorder_types(db: Session = Depends(get_db)):
 @router.post("/create-persona", response_model=CreatePersonaFromTemplateResponse, dependencies=[Depends(require_templates_feature)])
 async def create_persona_from_template_endpoint(
     request: CreatePersonaFromTemplateRequest,
+    user_id: str = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
     Create a new persona from a clinical template.
-    
+
     This creates the base persona with template's baseline configuration.
     User can then add experiences and interventions via standard APIs.
-    
+
     Request:
     - template_id: ID of template to use
     - custom_name: Optional custom name (default: "Case Study: {disorder}")
-    - owner_id: Optional owner ID (for multi-user systems)
+    - owner_id: Deprecated, ignored - Persona.user_id (NOT NULL) now comes
+      from the authenticated caller, same as every other creation route
+      (personas.py, experiences.py, interventions.py). Trusting a
+      client-supplied owner id here would let any caller assign a persona to
+      an arbitrary Firebase UID; kept on the request schema only so old
+      clients don't fail validation for sending it.
     """
     # Verify template exists
     template = db.query(ClinicalTemplate).filter(
         ClinicalTemplate.id == request.template_id
     ).first()
-    
+
     if not template:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Template '{request.template_id}' not found"
         )
-    
+
     # Create persona from template
     try:
         persona = create_persona_from_template(
             db=db,
             template_id=request.template_id,
-            owner_id=request.owner_id,
+            owner_id=user_id,
             custom_name=request.custom_name
         )
     except Exception as e:
