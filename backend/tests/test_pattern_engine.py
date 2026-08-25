@@ -195,6 +195,66 @@ class TestProtectiveFactorsWeakenReinforcement:
         result = accumulate_patterns(interpretations, protective_factors=protective)
         assert result["self_reliance"]["reinforcement_history"][1]["effect"] == "strengthened"
 
+    def test_protective_factor_sourced_from_this_patterns_own_event_does_not_buffer_it(self):
+        # Real bug, confirmed against a live GPT-4-interpreted persona: a
+        # "friendship" protective factor extracted FROM the very event where
+        # that friendship betrayed the persona must not retroactively cancel
+        # reinforcement from that event or a later one of the same pattern -
+        # otherwise a pattern can perpetually buffer its own evidence, since
+        # protective factors get extracted from most events (even adverse
+        # ones) and domains are a small, constantly-reused vocabulary.
+        interpretations = [
+            _interp("i1", 10, "hypervigilance", domains=["social_belonging"]),
+            _interp("i2", 14, "hypervigilance", domains=["social_belonging"]),
+        ]
+        # Sourced from i1's own experience (exp-i1) - must not buffer i2.
+        protective = [{"factor_type": "friendship", "domains_buffered": ["social_belonging"], "active_from_age": 10, "source_event_id": "exp-i1"}]
+        result = accumulate_patterns(interpretations, protective_factors=protective)
+        pattern = result["hypervigilance"]
+        assert pattern["reinforcement_history"][1]["effect"] == "strengthened"
+        assert pattern["evidence_strength"] == 0.2
+        assert pattern["status"] == "emerging"
+
+    def test_protective_factor_sourced_from_an_unrelated_event_still_buffers(self):
+        # The exclusion is specific to THIS pattern's own supporting events -
+        # a protective factor from a genuinely different, unrelated event
+        # (or the baseline, source_event_id=None) still buffers normally.
+        interpretations = [
+            _interp("i1", 10, "hypervigilance", domains=["social_belonging"]),
+            _interp("i2", 14, "hypervigilance", domains=["social_belonging"]),
+        ]
+        protective = [{"factor_type": "friendship", "domains_buffered": ["social_belonging"], "active_from_age": 10, "source_event_id": "some-other-experience"}]
+        result = accumulate_patterns(interpretations, protective_factors=protective)
+        assert result["hypervigilance"]["reinforcement_history"][1]["effect"] == "weakened"
+
+    def test_five_real_reinforcements_reach_established_despite_self_sourced_protective_factors(self):
+        # The full Emma-shaped regression: repeated reinforcement of the
+        # same strategy, each event ALSO producing its own protective factor
+        # (as real GPT-4 calls did) - must still be able to reach
+        # "established" once enough real, unbuffered reinforcement
+        # accumulates, not get stuck at status=resolved/evidence_strength=0.0
+        # forever the moment one baseline protective factor happens to
+        # overlap a single early event's domain.
+        interpretations = [
+            _interp("i1", 10, "hypervigilance", domains=["social_belonging"]),
+            _interp("i2", 12, "hypervigilance", domains=["emotional_safety", "stability"]),
+            _interp("i3", 14, "hypervigilance", domains=["identity", "social_belonging"]),
+            _interp("i4", 16, "hypervigilance", domains=["identity"]),
+            _interp("i5", 18, "hypervigilance", domains=["identity"]),
+        ]
+        protective = [
+            {"factor_type": "temperament", "domains_buffered": ["attachment_security", "emotional_safety"], "active_from_age": 10, "source_event_id": None},
+            {"factor_type": "friendship", "domains_buffered": ["social_belonging"], "active_from_age": 10, "source_event_id": "exp-i1"},
+            {"factor_type": "temperament", "domains_buffered": ["identity", "emotional_regulation"], "active_from_age": 14, "source_event_id": "exp-i3"},
+        ]
+        result = accumulate_patterns(interpretations, protective_factors=protective)
+        pattern = result["hypervigilance"]
+        # i1 originated; i2 genuinely buffered by the baseline temperament
+        # factor (0.0); i3/i4/i5 unbuffered once same-group sourcing is
+        # excluded (0.2, 0.4, 0.6) - crossing ESTABLISHED_THRESHOLD.
+        assert pattern["status"] == "established"
+        assert pattern["evidence_strength"] >= ESTABLISHED_THRESHOLD
+
 
 class TestCurrentManifestationsFromObservations:
     def test_overlapping_concerning_observation_populates_manifestations(self):

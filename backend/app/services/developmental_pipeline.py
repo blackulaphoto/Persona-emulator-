@@ -68,7 +68,14 @@ def _exposure_dict(e: DevelopmentalExposure) -> Dict:
 
 
 def _protective_dict(p: ProtectiveFactor) -> Dict:
-    return {"id": p.id, "factor_type": p.factor_type, "domains_buffered": p.domains_buffered, "active_from_age": p.active_from_age}
+    # source_event_id is required by pattern_engine.accumulate_patterns()'s
+    # same-pattern-can't-buffer-itself exclusion - omitting it here silently
+    # defeated that exclusion (every protective factor looked sourceless),
+    # confirmed empirically against a real GPT-4-interpreted persona.
+    return {
+        "id": p.id, "factor_type": p.factor_type, "domains_buffered": p.domains_buffered,
+        "active_from_age": p.active_from_age, "source_event_id": p.source_event_id,
+    }
 
 
 def _narration_dict(n: NarrationRecord) -> Dict:

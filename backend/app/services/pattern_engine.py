@@ -363,7 +363,14 @@ def accumulate_patterns(
     interpretation sharing the same strategy earns real strength through
     reinforcement. A protective factor active at the time of a later
     interpretation, whose buffered domains overlap that interpretation's
-    domains, counts as a "weakened" reinforcement instead of "strengthened."
+    domains, counts as a "weakened" reinforcement instead of "strengthened" -
+    UNLESS that protective factor's own source_event_id is one of this same
+    pattern's own supporting events (a protective factor extracted from an
+    event cannot retroactively buffer reinforcement from that event or a
+    later one of the same pattern - it would otherwise let a pattern
+    perpetually cancel its own evidence, since protective factors get
+    extracted from most events, adverse ones included, and domains are a
+    small reused vocabulary).
 
     Args:
         interpretations: [{id, source_event_id, age_at_event, adaptation_strategy,
@@ -391,6 +398,23 @@ def accumulate_patterns(
     result: Dict[str, Dict] = {}
     for strategy, group in groups.items():
         group_sorted = sorted(group, key=lambda i: (i.get("age_at_event") is None, i.get("age_at_event")))
+        # A protective factor extracted from one of THIS pattern's own
+        # supporting events cannot count as buffering it - e.g. a
+        # "friendship" protective factor pulled from the very event where
+        # that friendship betrayed the persona must not retroactively cancel
+        # reinforcement from that event or any later one. Without this
+        # exclusion, since protective factors are extracted from almost
+        # every event (even adverse ones - most real narratives contain some
+        # genuinely protective detail) and developmental domains are a small
+        # controlled vocabulary that gets reused constantly, a pattern's own
+        # evidence ends up perpetually "buffered" by itself and can never
+        # reach "established" no matter how many real occurrences pile up -
+        # confirmed empirically: a strategy reinforced 4 times by a real
+        # GPT-4 interpretation still landed on status=resolved,
+        # evidence_strength=0.0.
+        group_source_event_ids = {
+            i.get("source_event_id") for i in group_sorted if i.get("source_event_id") is not None
+        }
         reinforcement_history = []
         strength = None
 
@@ -404,6 +428,7 @@ def accumulate_patterns(
                 buffered = any(
                     set(pf.get("domains_buffered", [])) & domains
                     and (pf.get("active_from_age") is None or age is None or pf["active_from_age"] <= age)
+                    and pf.get("source_event_id") not in group_source_event_ids
                     for pf in protective_factors
                 )
                 effect = "weakened" if buffered else "strengthened"
