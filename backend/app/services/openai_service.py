@@ -14,7 +14,7 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 
-def count_tokens(text: str, model: str = "gpt-4") -> int:
+def count_tokens(text: str, model: str = "gpt-4o") -> int:
     """
     Count tokens in text using tiktoken.
     
@@ -34,7 +34,7 @@ def count_tokens(text: str, model: str = "gpt-4") -> int:
     return len(encoding.encode(text))
 
 
-def truncate_to_token_limit(text: str, max_tokens: int = 8000, model: str = "gpt-4") -> str:
+def truncate_to_token_limit(text: str, max_tokens: int = 8000, model: str = "gpt-4o") -> str:
     """
     Truncate text to maximum token limit.
     
@@ -109,7 +109,7 @@ class OpenAIService:
     def __init__(
         self,
         api_key: Optional[str] = None,
-        model: str = "gpt-4",
+        model: str = "gpt-4o",
         max_retries: int = 5,
         base_delay: float = 1.0
     ):

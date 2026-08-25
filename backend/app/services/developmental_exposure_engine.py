@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 openai_service = OpenAIService(
     api_key=None,  # resolved from settings/env inside OpenAIService, matching foundational_baseline.py
-    model="gpt-4"
+    model="gpt-4o"
 )
 
 

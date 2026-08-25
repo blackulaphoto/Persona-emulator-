@@ -38,7 +38,7 @@ from app.utils.developmental_stages import (
 # Initialize services
 openai_service = OpenAIService(
     api_key=os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_KEY"),
-    model="gpt-4"
+    model="gpt-4o"
 )
 
 

@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 openai_service = OpenAIService(
     api_key=None,
-    model="gpt-4"
+    model="gpt-4o"
 )
 
 
