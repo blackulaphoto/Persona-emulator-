@@ -61,6 +61,43 @@ EXPOSURE_HYPOTHESIS_PRIORS: Dict[str, List[str]] = {
     "chronic_illness_family_member": ["adjustment_disorder", "generalized_anxiety"],
 }
 
+# ============================================================
+# Adaptation-strategy hypothesis links (docs/MIGRATION_MAP.md, Step 12)
+# ============================================================
+# adaptation_strategy (app/services/pattern_engine.py ADAPTATION_STRATEGIES)
+# -> pattern_keys worth opening/supporting.
+#
+# This is the fix for the architectural disconnect the Emma audit found:
+# EXPOSURE_HYPOTHESIS_PRIORS above keys hypotheses off literal exposure_type
+# recurrence, which does not model a real life. Emma's six events are six
+# DIFFERENT exposure types (friend rejection, parental conflict, humiliation,
+# unstable romance, family loss, sexual assault), so nothing ever recurred by
+# that key and every hypothesis stayed pinned near 0.0 - even though the
+# interpretation layer had correctly recognized all six as reinforcing ONE
+# adaptation (self_reliance, which climbed 0.0 -> 1.0 across the same
+# timeline). A varied history must be able to converge on the same
+# psychological hypothesis; identical event types are not required.
+#
+# Deliberately non-exhaustive, same principle as SIGNAL_HYPOTHESIS_SUPPORT
+# and intervention_engine.PATTERN_KEY_THERAPY_ALIASES: a strategy with no
+# defensible single-pattern link is left unmapped rather than forced into a
+# clinically wrong one. "humor" is mapped to nothing on purpose - deflecting
+# with humor is not, by itself, evidence of any disorder.
+ADAPTATION_STRATEGY_HYPOTHESIS_SUPPORT: Dict[str, List[str]] = {
+    "hypervigilance": ["ptsd", "complex_ptsd", "generalized_anxiety", "paranoid_personality"],
+    "emotional_distancing": ["avoidant_personality", "schizoid_personality", "complex_ptsd"],
+    "people_pleasing": ["dependent_personality", "depression"],
+    "control_seeking": ["obsessive_compulsive_personality", "generalized_anxiety"],
+    "aggression": ["intermittent_explosive_disorder", "borderline_personality"],
+    "avoidance": ["avoidant_personality", "social_anxiety", "ptsd"],
+    "self_reliance": ["avoidant_personality", "schizoid_personality"],
+    "perfectionism": ["obsessive_compulsive_personality", "social_anxiety"],
+    "humor": [],
+    "caretaking": ["dependent_personality"],
+    "substance_use": ["substance_use_disorder", "alcohol_use_disorder"],
+    "intellectualization": ["obsessive_compulsive_personality"],
+}
+
 # Conservative, non-exhaustive: only signal_types with a defensible clinical
 # link are mapped. Most of SIGNAL_TYPES (see self_narration_engine.py) is
 # left unmapped deliberately rather than forcing a pattern link that isn't
@@ -106,6 +143,26 @@ def _candidate_patterns_for_exposures(exposures: List[Dict]) -> Dict[str, List[D
     for exposure in exposures:
         for pattern_key in EXPOSURE_HYPOTHESIS_PRIORS.get(exposure.get("exposure_type"), []):
             candidates.setdefault(pattern_key, []).append(exposure)
+    return candidates
+
+
+def _candidate_patterns_for_adaptations(adaptation_patterns: List[Dict]) -> Dict[str, List[Dict]]:
+    """
+    pattern_key -> the AdaptationPatterns that make it worth investigating
+    (Step 12). A hypothesis opened this way still opens with no earned
+    strength, exactly like an exposure-opened one - see the module docstring's
+    hard rule. Only patterns that have actually earned some evidence_strength
+    of their own count: an "emerging" adaptation with strength None is a
+    single interpretation, and one interpretation should not open a clinical
+    hypothesis on its own any more than one exposure does.
+    """
+    candidates: Dict[str, List[Dict]] = {}
+    for pattern in adaptation_patterns:
+        if (pattern.get("evidence_strength") or 0) <= 0:
+            continue
+        strategy = pattern.get("adaptation_strategy")
+        for pattern_key in ADAPTATION_STRATEGY_HYPOTHESIS_SUPPORT.get(strategy, []):
+            candidates.setdefault(pattern_key, []).append(pattern)
     return candidates
 
 
@@ -157,6 +214,39 @@ def _persistence_evidence(pattern_key: str, supporting_exposures: List[Dict]) ->
     ]
 
 
+MAX_ADAPTATION_ENTRIES_PER_PATTERN = 3
+
+
+def _adaptation_evidence(pattern_key: str, supporting_adaptations: List[Dict]) -> List[Dict]:
+    """
+    An AdaptationPattern that has itself accumulated real reinforcement across
+    the timeline is supporting evidence for the clinical patterns that
+    adaptation is associated with (Step 12).
+
+    Scaled to the adaptation's own earned evidence_strength rather than a flat
+    per-pattern signal: pattern_engine adds REINFORCE_INCREMENT (0.2) per
+    reinforcement, so one entry per 0.2 of strength means "reinforced four
+    separate times" contributes more than "reinforced once" - the same
+    recurrence-matters principle _persistence_evidence uses for exposures.
+    Capped at MAX_ADAPTATION_ENTRIES_PER_PATTERN so a single maxed-out
+    adaptation cannot single-handedly drive a hypothesis to certainty.
+    """
+    entries: List[Dict] = []
+    for adaptation in supporting_adaptations:
+        strength = adaptation.get("evidence_strength") or 0
+        count = min(int(strength / 0.2), MAX_ADAPTATION_ENTRIES_PER_PATTERN)
+        name = adaptation.get("pattern_name") or adaptation.get("adaptation_strategy")
+        for _ in range(count):
+            entries.append({
+                "type": "adaptation_pattern",
+                "description": f"adaptation \"{name}\" ({adaptation.get('adaptation_strategy')}) "
+                               f"reinforced across the timeline, status {adaptation.get('status')}",
+                "source_id": adaptation.get("id"),
+                "age": adaptation.get("first_emerged_age"),
+            })
+    return entries[:MAX_ADAPTATION_ENTRIES_PER_PATTERN]
+
+
 def _narrative_evidence(pattern_key: str, narration_records: List[Dict]) -> List[Dict]:
     """
     Only persona_voice narration counts as evidence about the persona's own
@@ -190,13 +280,31 @@ def _protective_contradiction(pattern_key: str, supporting_exposures: List[Dict]
     pattern's exposures implicate is contradicting evidence, not a silent
     severity discount (see docs/MIGRATION_MAP.md, "Protective factors are
     first-class").
+
+    Excludes protective factors extracted FROM one of this hypothesis's own
+    supporting events - the same self-buffering bug already fixed in
+    pattern_engine.accumulate_patterns(), which turned out to exist
+    independently here too (Step 12). The AI extracts something protective
+    from most events, adverse ones included ("she still had one close friend"
+    is a real detail even in the event where that friend betrays her), and
+    developmental domains are a small reused vocabulary - so without this
+    exclusion a hypothesis is perpetually contradicted by the very events
+    that opened it, and can never accumulate. Confirmed against a real
+    GPT-4-interpreted persona: complex_ptsd sat at 0.0 across six escalating
+    events including a sexual assault.
     """
     implicated_domains = set()
     for exposure in supporting_exposures:
         implicated_domains.update(exposure.get("developmental_domains", []))
 
+    own_event_ids = {
+        e.get("source_event_id") for e in supporting_exposures if e.get("source_event_id") is not None
+    }
+
     entries = []
     for factor in protective_factors:
+        if factor.get("source_event_id") is not None and factor.get("source_event_id") in own_event_ids:
+            continue
         buffered = set(factor.get("domains_buffered", []))
         if buffered & implicated_domains:
             entries.append({
@@ -281,6 +389,7 @@ def accumulate_evidence(
     narration_records: Optional[List[Dict]] = None,
     functional_observations: Optional[List[Dict]] = None,
     existing_status: Optional[Dict[str, str]] = None,
+    adaptation_patterns: Optional[List[Dict]] = None,
 ) -> Dict[str, Dict]:
     """
     Recomputes hypothesis state from a persona's full current timeline.
@@ -300,6 +409,12 @@ def accumulate_evidence(
             - see app/services/functional_observation_engine.py
         existing_status: optional {pattern_key: status} to preserve manual
             status overrides (e.g. "dismissed") across recomputation
+        adaptation_patterns: [{id, adaptation_strategy, pattern_name, status,
+            evidence_strength, first_emerged_age}, ...] from
+            pattern_engine.accumulate_patterns() (Step 12). Lets a varied life
+            history converge on one hypothesis through the adaptation it
+            reinforced, instead of requiring the same literal exposure_type to
+            recur - see ADAPTATION_STRATEGY_HYPOTHESIS_SUPPORT.
 
     Returns:
         {pattern_key: {tier, supporting_evidence, contradicting_evidence,
@@ -310,14 +425,20 @@ def accumulate_evidence(
     narration_records = narration_records or []
     functional_observations = functional_observations or []
     existing_status = existing_status or {}
+    adaptation_patterns = adaptation_patterns or []
 
-    candidates = _candidate_patterns_for_exposures(exposures)
+    exposure_candidates = _candidate_patterns_for_exposures(exposures)
+    adaptation_candidates = _candidate_patterns_for_adaptations(adaptation_patterns)
+
     result: Dict[str, Dict] = {}
 
-    for pattern_key, supporting_exposures in candidates.items():
+    for pattern_key in set(exposure_candidates) | set(adaptation_candidates):
+        supporting_exposures = exposure_candidates.get(pattern_key, [])
+        supporting_adaptations = adaptation_candidates.get(pattern_key, [])
         supporting_evidence: List[Dict] = []
 
         supporting_evidence.extend(_persistence_evidence(pattern_key, supporting_exposures))
+        supporting_evidence.extend(_adaptation_evidence(pattern_key, supporting_adaptations))
 
         supporting_evidence.extend(_narrative_evidence(pattern_key, narration_records))
         supporting_evidence.extend(_functional_supporting_evidence(pattern_key, functional_observations))
@@ -336,12 +457,18 @@ def accumulate_evidence(
             "tier": tier,
             "supporting_evidence": supporting_evidence,
             "contradicting_evidence": contradicting_evidence,
-            "developmental_precursors": sorted({e.get("exposure_type") for e in supporting_exposures}),
+            "developmental_precursors": sorted(
+                {e.get("exposure_type") for e in supporting_exposures if e.get("exposure_type")}
+                | {a.get("adaptation_strategy") for a in supporting_adaptations if a.get("adaptation_strategy")}
+            ),
             "current_manifestations": _current_manifestations_from_observations(pattern_key, functional_observations),
             "evidence_strength": strength,
             "status": status,
+            # Falls back to the adaptation's own first_emerged_age for a
+            # hypothesis opened purely through adaptation continuity (Step 12).
             "opened_at_age": min(
-                (e.get("age_at_exposure") for e in supporting_exposures if e.get("age_at_exposure") is not None),
+                [e["age_at_exposure"] for e in supporting_exposures if e.get("age_at_exposure") is not None]
+                + [a["first_emerged_age"] for a in supporting_adaptations if a.get("first_emerged_age") is not None],
                 default=None,
             ),
         }
@@ -433,6 +560,12 @@ def upsert_clinical_pattern_hypothesis_rows(db, persona_id: str, accumulated: Di
     for pattern_key, state in accumulated.items():
         if pattern_key in existing:
             row = existing[pattern_key]
+            # Step 12: remember where this hypothesis was before this
+            # recomputation so the board can show direction of travel.
+            # Only updated when the value actually changed - otherwise a run
+            # of no-op recomputations would erase the last real movement.
+            if row.evidence_strength != state["evidence_strength"]:
+                row.previous_evidence_strength = row.evidence_strength
             row.tier = state["tier"]
             row.supporting_evidence = state["supporting_evidence"]
             row.contradicting_evidence = state["contradicting_evidence"]

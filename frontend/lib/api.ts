@@ -13,9 +13,44 @@ export interface Persona {
   current_personality: PersonalityTraits;
   current_attachment_style: string;
   current_trauma_markers: string[];
+  /**
+   * Fast-moving psychological state (0.0-1.0 per dimension). Reacts to a
+   * single event far more readily than the Big Five does. Only contains
+   * dimensions something has actually moved - an untouched dimension is
+   * absent rather than sitting at an unearned baseline.
+   */
+  current_state?: Record<string, number> | null;
+  adaptation_patterns?: AdaptationPattern[];
+  clinical_pattern_hypotheses?: ClinicalPatternHypothesis[];
   experiences_count: number;
   interventions_count: number;
   created_at: string;
+}
+
+/** An earned coping/adaptation pattern, and how established it has become. */
+export interface AdaptationPattern {
+  adaptation_strategy: string | null;
+  pattern_name: string;
+  status: string; // emerging | established | weakening | resolved
+  evidence_strength: number | null;
+  confidence: number | null; // 0-100
+  first_emerged_age: number | null;
+}
+
+/**
+ * An evolving pattern-match hypothesis. NOT a diagnosis: `confidence` is how
+ * strongly this persona's currently-known history matches the pattern, and it
+ * moves down as well as up as more history arrives.
+ */
+export interface ClinicalPatternHypothesis {
+  pattern_key: string;
+  tier: string;
+  status: string;
+  evidence_strength: number | null;
+  confidence: number | null; // 0-100
+  direction: 'strengthening' | 'weakening' | 'stable' | null;
+  opened_at_age: number | null;
+  developmental_precursors: string[];
 }
 
 export interface PersonalityTraits {

@@ -150,9 +150,9 @@ async def process_developmental_text(
     db.add(narration_row)
     db.flush()
 
-    # 3. Evidence accumulation (step 4) - recomputed from the persona's COMPLETE
-    # timeline every call, not just this batch, per accumulate_evidence's own
-    # recompute-from-scratch philosophy.
+    # 3. Load the persona's COMPLETE timeline - evidence accumulation and
+    # pattern accumulation both recompute from all of it every call, per
+    # their own recompute-from-scratch philosophy.
     all_exposures = db.query(DevelopmentalExposure).filter(DevelopmentalExposure.persona_id == persona.id).all()
     all_protective = db.query(ProtectiveFactor).filter(ProtectiveFactor.persona_id == persona.id).all()
     all_narration = db.query(NarrationRecord).filter(NarrationRecord.subject_id == persona.id).all()
@@ -162,17 +162,6 @@ async def process_developmental_text(
     protective_dicts_all = [_protective_dict(p) for p in all_protective]
     narration_dicts_all = [_narration_dict(n) for n in all_narration]
     functional_dicts_all = [_functional_dict(f) for f in all_functional]
-
-    existing_status = {
-        h.pattern_key: h.status
-        for h in db.query(ClinicalPatternHypothesis).filter(ClinicalPatternHypothesis.persona_id == persona.id).all()
-    }
-    accumulated_evidence = accumulate_evidence(
-        exposure_dicts_all, protective_dicts_all, narration_dicts_all, functional_dicts_all,
-        existing_status=existing_status,
-    )
-    upsert_clinical_pattern_hypothesis_rows(db, persona.id, accumulated_evidence)
-    db.flush()
 
     # 4. Interpretation (step 5) - only for exposures extracted from THIS text,
     # not the whole timeline; one interpretation per meaningful input, matching
@@ -214,6 +203,33 @@ async def process_developmental_text(
     ]
     accumulated_patterns = accumulate_patterns(interpretation_dicts, protective_dicts_all, functional_dicts_all)
     await upsert_adaptation_pattern_rows(db, persona.id, accumulated_patterns, persona_name=persona.name)
+    db.flush()
+
+    # 5b. Evidence accumulation (step 4) - runs AFTER pattern accumulation as of
+    # Step 12, because clinical hypotheses now draw evidence from the persona's
+    # adaptation patterns as well as from raw exposure recurrence (see
+    # evidence_accumulator.ADAPTATION_STRATEGY_HYPOTHESIS_SUPPORT). Ordering
+    # matters: run before, and a hypothesis is always one full event behind the
+    # adaptation evidence that should have informed it.
+    adaptation_dicts = [
+        {
+            "id": row.id, "adaptation_strategy": row.adaptation_strategy, "pattern_name": row.pattern_name,
+            "status": row.status, "evidence_strength": row.evidence_strength,
+            "first_emerged_age": row.first_emerged_age,
+        }
+        for row in db.query(AdaptationPattern).filter(AdaptationPattern.persona_id == persona.id).all()
+    ]
+
+    existing_status = {
+        h.pattern_key: h.status
+        for h in db.query(ClinicalPatternHypothesis).filter(ClinicalPatternHypothesis.persona_id == persona.id).all()
+    }
+    accumulated_evidence = accumulate_evidence(
+        exposure_dicts_all, protective_dicts_all, narration_dicts_all, functional_dicts_all,
+        existing_status=existing_status,
+        adaptation_patterns=adaptation_dicts,
+    )
+    upsert_clinical_pattern_hypothesis_rows(db, persona.id, accumulated_evidence)
     db.flush()
 
     # 6. State/Trait proposal + apply (Step 11) - only runs when this batch

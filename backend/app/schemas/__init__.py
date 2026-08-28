@@ -31,6 +31,43 @@ class PersonaUpdate(BaseModel):
     baseline_background: Optional[str] = Field(None, min_length=1, max_length=1000)
 
 
+class AdaptationPatternSummary(BaseModel):
+    """
+    One earned developmental adaptation, as surfaced on the persona board
+    (Step 12). status moves emerging -> established (or weakening/resolved)
+    as evidence accumulates; confidence is the same evidence_strength the
+    engine reasons with, expressed 0-100 for display.
+    """
+    adaptation_strategy: Optional[str] = None
+    pattern_name: str
+    status: str
+    evidence_strength: Optional[float] = None
+    confidence: Optional[int] = None
+    first_emerged_age: Optional[int] = None
+
+
+class ClinicalPatternHypothesisSummary(BaseModel):
+    """
+    One evolving clinical-pattern hypothesis (Step 12).
+
+    Explicitly NOT a diagnosis and never presented as one - `confidence` is
+    how strongly the persona's currently-known history matches this pattern,
+    and it is expected to move both up and down as evidence arrives. Unlike
+    current_trauma_markers (which stays gated behind DISPLAY_THRESHOLD),
+    these surface as soon as there is any real evidence, so the user can
+    watch the engine form and revise a hypothesis instead of only seeing
+    conclusions it already considers settled.
+    """
+    pattern_key: str
+    tier: str
+    status: str
+    evidence_strength: Optional[float] = None
+    confidence: Optional[int] = None
+    direction: Optional[str] = None
+    opened_at_age: Optional[int] = None
+    developmental_precursors: List[str] = Field(default_factory=list)
+
+
 class PersonaResponse(BaseModel):
     """Schema for persona response."""
     id: str
@@ -50,6 +87,14 @@ class PersonaResponse(BaseModel):
     # at {} and a persona with no earned State movement yet has nothing to
     # show - not the same as an unearned 0.5 baseline for every variable.
     current_state: Optional[Dict[str, float]] = None
+    # Step 12: the adaptation/hypothesis layers were computed and persisted
+    # since Step 11c but had no API surface at all, so the board could only
+    # ever render Big Five + current_trauma_markers - which is why a persona
+    # whose narrative described heightened threat sensitivity and avoidance
+    # still displayed "All is well right now". Exposed here as evolving,
+    # confidence-carrying hypotheses rather than gated-until-certain labels.
+    adaptation_patterns: List["AdaptationPatternSummary"] = Field(default_factory=list)
+    clinical_pattern_hypotheses: List["ClinicalPatternHypothesisSummary"] = Field(default_factory=list)
     experiences_count: int
     interventions_count: int
     created_at: datetime

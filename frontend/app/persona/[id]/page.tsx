@@ -282,6 +282,16 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
         {/* Personality Overview */}
         <PersonalityOverview persona={persona} />
 
+        {/* Adaptations and evolving pattern hypotheses - each panel hides
+            itself until the engine actually has something to show. */}
+        {((persona.adaptation_patterns?.length ?? 0) > 0 ||
+          (persona.clinical_pattern_hypotheses?.length ?? 0) > 0) && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <AdaptationPatternsPanel patterns={persona.adaptation_patterns || []} />
+            <PatternHypothesesPanel hypotheses={persona.clinical_pattern_hypotheses || []} />
+          </div>
+        )}
+
         {/* Tab Navigation */}
         <div className="mt-12 border-b border-border">
           <nav className="flex space-x-4 md:space-x-8 overflow-x-auto">
@@ -885,30 +895,223 @@ function PersonalityOverview({ persona }: { persona: any }) {
         </div>
       </div>
 
-      {/* Trauma Markers */}
-      <div className="bg-white border-2 border-border rounded-xl p-6">
-        <div className="flex items-center gap-2 mb-2">
-          <h3 className="text-xl font-display text-foreground">What They're Navigating</h3>
-          <Tooltip content={SITE_HELP.personaDetail.symptoms.tooltip} />
+      {/* What They're Navigating - driven by current psychological state */}
+      <CurrentStatePanel persona={persona} />
+    </div>
+  )
+}
+
+/**
+ * "What They're Navigating" - now driven primarily by current_state (the fast
+ * tier that actually reacts to events), with the evidence-gated trauma-marker
+ * list shown underneath when it has something to say.
+ *
+ * Previously this read current_trauma_markers alone, which sits behind a
+ * high evidence threshold - so a persona whose state showed trust 0.06 and
+ * threat sensitivity 0.74 still rendered "All is well right now". That
+ * message now appears only when the state genuinely supports it.
+ */
+const STATE_DIMENSIONS: Record<string, { label: string; adverseWhen: 'high' | 'low'; highLabel: string; lowLabel: string }> = {
+  trust: { label: 'Trust', adverseWhen: 'low', highLabel: 'Open to trusting', lowLabel: 'Guarded about trusting' },
+  threat_sensitivity: { label: 'Threat Sensitivity', adverseWhen: 'high', highLabel: 'On alert', lowLabel: 'Feels safe' },
+  mood: { label: 'Mood', adverseWhen: 'low', highLabel: 'Buoyant', lowLabel: 'Low' },
+  regulation: { label: 'Emotional Regulation', adverseWhen: 'low', highLabel: 'Steady', lowLabel: 'Easily overwhelmed' },
+  avoidance: { label: 'Avoidance', adverseWhen: 'high', highLabel: 'Pulling away', lowLabel: 'Staying present' },
+  relational_security: { label: 'Relational Security', adverseWhen: 'low', highLabel: 'Secure with others', lowLabel: 'Unsure where they stand' },
+}
+
+// Only surface dimensions that have actually moved off neutral - dumping every
+// variable at 0.5 would be noise, not insight.
+const STATE_NEUTRAL = 0.5
+const STATE_NOTABLE_DELTA = 0.08
+
+function CurrentStatePanel({ persona }: { persona: any }) {
+  const state: Record<string, number> = persona.current_state || {}
+
+  const dimensions = Object.entries(state)
+    .filter(([key]) => STATE_DIMENSIONS[key])
+    .map(([key, value]) => {
+      const meta = STATE_DIMENSIONS[key]
+      const delta = value - STATE_NEUTRAL
+      const isAdverse = meta.adverseWhen === 'high' ? delta > 0 : delta < 0
+      return { key, value, meta, delta, isAdverse, magnitude: Math.abs(delta) }
+    })
+    .filter((d) => d.magnitude >= STATE_NOTABLE_DELTA)
+    .sort((a, b) => b.magnitude - a.magnitude)
+
+  const markers: string[] = persona.current_trauma_markers || []
+  const hasSomethingToShow = dimensions.length > 0 || markers.length > 0
+
+  return (
+    <div className="bg-white border-2 border-border rounded-xl p-6">
+      <div className="flex items-center gap-2 mb-2">
+        <h3 className="text-xl font-display text-foreground">What They're Navigating</h3>
+        <Tooltip content={SITE_HELP.personaDetail.symptoms.tooltip} />
+      </div>
+      <HelpText type="info">{SITE_HELP.personaDetail.symptoms.whatIs}</HelpText>
+
+      {!hasSomethingToShow ? (
+        <div className="text-center py-8 text-muted-foreground">
+          <TrendingUp size={32} className="mx-auto mb-2" />
+          <p>All is well right now</p>
         </div>
-        <HelpText type="info">{SITE_HELP.personaDetail.symptoms.whatIs}</HelpText>
-        {persona.current_trauma_markers.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <TrendingUp size={32} className="mx-auto mb-2" />
-            <p>All is well right now</p>
+      ) : (
+        <div className="space-y-4 mt-4">
+          {dimensions.map((d) => (
+            <div key={d.key}>
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-foreground font-medium">{d.meta.label}</span>
+                <span className={d.isAdverse ? 'text-muted-coral font-medium' : 'text-muted-foreground'}>
+                  {d.delta > 0 ? d.meta.highLabel : d.meta.lowLabel}
+                </span>
+              </div>
+              <div className="bg-muted/30 rounded-full h-3 overflow-hidden">
+                <div
+                  className={`${d.isAdverse ? 'bg-muted-coral' : 'bg-soft-purple'} h-full rounded-full transition-all duration-700`}
+                  style={{ width: `${Math.round(d.value * 100)}%` }}
+                />
+              </div>
+            </div>
+          ))}
+
+          {markers.length > 0 && (
+            <div className="pt-2">
+              <p className="text-xs text-muted-foreground mb-2">
+                Patterns with enough accumulated evidence to name:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {markers.map((marker: string, i: number) => (
+                  <span
+                    key={i}
+                    className="bg-red-500/20 text-red-500 px-4 py-2 rounded-full text-sm font-medium"
+                  >
+                    {marker.replace(/_/g, ' ')}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+const PATTERN_STATUS_STYLES: Record<string, string> = {
+  emerging: 'bg-lavender/40 text-deep-purple',
+  established: 'bg-deep-purple/20 text-deep-purple',
+  weakening: 'bg-muted/40 text-muted-foreground',
+  resolved: 'bg-muted/30 text-muted-foreground',
+}
+
+const HYPOTHESIS_DIRECTION_LABEL: Record<string, string> = {
+  strengthening: '↑ strengthening',
+  weakening: '↓ weakening',
+  stable: '— steady',
+}
+
+function titleCase(value: string) {
+  return value.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+/**
+ * How the persona has learned to cope, and how established each adaptation has
+ * become. This is the layer that shows continuity across different kinds of
+ * events - several unrelated experiences can reinforce one adaptation.
+ */
+function AdaptationPatternsPanel({ patterns }: { patterns: any[] }) {
+  if (!patterns || patterns.length === 0) return null
+
+  return (
+    <div className="bg-white border-2 border-border rounded-xl p-6">
+      <div className="flex items-center gap-2 mb-2">
+        <h3 className="text-xl font-display text-foreground">How They've Learned to Cope</h3>
+      </div>
+      <HelpText type="info">
+        Adaptations this person developed in response to what happened to them. These
+        strengthen as related experiences reinforce them.
+      </HelpText>
+      <div className="space-y-4 mt-4">
+        {patterns.map((pattern, i) => (
+          <div key={i}>
+            <div className="flex justify-between items-center text-sm mb-2 gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-foreground font-medium truncate">{pattern.pattern_name}</span>
+                <span
+                  className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${
+                    PATTERN_STATUS_STYLES[pattern.status] || 'bg-muted/30 text-muted-foreground'
+                  }`}
+                >
+                  {pattern.status}
+                </span>
+              </div>
+              {pattern.confidence !== null && pattern.confidence !== undefined && (
+                <span className="text-muted-foreground whitespace-nowrap">{pattern.confidence}%</span>
+              )}
+            </div>
+            <div className="bg-muted/30 rounded-full h-3 overflow-hidden">
+              <div
+                className="bg-deep-purple h-full rounded-full transition-all duration-700"
+                style={{ width: `${pattern.confidence ?? 5}%` }}
+              />
+            </div>
+            {pattern.adaptation_strategy && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {titleCase(pattern.adaptation_strategy)}
+                {pattern.first_emerged_age !== null && pattern.first_emerged_age !== undefined
+                  ? ` · first seen around age ${pattern.first_emerged_age}`
+                  : ''}
+              </p>
+            )}
           </div>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {persona.current_trauma_markers.map((marker: string, i: number) => (
-              <span
-                key={i}
-                className="bg-red-500/20 text-red-500 px-4 py-2 rounded-full text-sm font-medium"
-              >
-                {marker.replace(/_/g, ' ')}
-              </span>
-            ))}
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Evolving pattern-match hypotheses. Deliberately shows low-confidence
+ * hypotheses too - watching the engine consider and revise a pattern is the
+ * point. Copy here must never imply diagnosis.
+ */
+function PatternHypothesesPanel({ hypotheses }: { hypotheses: any[] }) {
+  if (!hypotheses || hypotheses.length === 0) return null
+
+  return (
+    <div className="bg-white border-2 border-border rounded-xl p-6">
+      <div className="flex items-center gap-2 mb-2">
+        <h3 className="text-xl font-display text-foreground">Patterns Being Considered</h3>
+      </div>
+      <HelpText type="info">
+        How closely this person's history so far resembles known psychological patterns.
+        These are working hypotheses, not diagnoses — they shift up and down as more of
+        their life is added.
+      </HelpText>
+      <div className="space-y-4 mt-4">
+        {hypotheses.map((h, i) => (
+          <div key={i}>
+            <div className="flex justify-between items-center text-sm mb-2 gap-3">
+              <span className="text-foreground font-medium truncate">{titleCase(h.pattern_key)}</span>
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                {h.direction && (
+                  <span className="text-xs text-muted-foreground">
+                    {HYPOTHESIS_DIRECTION_LABEL[h.direction] || ''}
+                  </span>
+                )}
+                {h.confidence !== null && h.confidence !== undefined && (
+                  <span className="text-muted-foreground">{h.confidence}%</span>
+                )}
+              </div>
+            </div>
+            <div className="bg-muted/30 rounded-full h-3 overflow-hidden">
+              <div
+                className="bg-periwinkle h-full rounded-full transition-all duration-700"
+                style={{ width: `${h.confidence ?? 5}%` }}
+              />
+            </div>
           </div>
-        )}
+        ))}
       </div>
     </div>
   )

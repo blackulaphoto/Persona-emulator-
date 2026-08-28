@@ -14,6 +14,7 @@ from app.services.evidence_accumulator import (
     evidence_strength_label,
     EXPOSURE_HYPOTHESIS_PRIORS,
     SIGNAL_HYPOTHESIS_SUPPORT,
+    ADAPTATION_STRATEGY_HYPOTHESIS_SUPPORT,
     build_clinical_pattern_hypothesis_rows,
     DISPLAY_THRESHOLD,
 )
@@ -335,6 +336,116 @@ class TestPersistenceHelper:
         assert pattern_keys == set(accumulated.keys())
 
 
+def _adaptation(strategy, strength, status="emerging", id_="ap-1", first_emerged_age=10):
+    return {
+        "id": id_,
+        "adaptation_strategy": strategy,
+        "pattern_name": f"Pattern for {strategy}",
+        "status": status,
+        "evidence_strength": strength,
+        "first_emerged_age": first_emerged_age,
+    }
+
+
+class TestAdaptationPatternEvidencePath:
+    """
+    Step 12: a varied life history must be able to converge on one clinical
+    hypothesis through the adaptation it reinforced, without the same literal
+    exposure_type ever recurring. This is the fix for the Emma audit finding.
+    """
+
+    def test_adaptation_with_no_earned_strength_does_not_open_a_hypothesis(self):
+        # Same "opening is not believing" rule as exposures: one interpretation
+        # (strength None) is not enough to put a clinical pattern on the board.
+        result = accumulate_evidence([], adaptation_patterns=[_adaptation("self_reliance", None)])
+        assert result == {}
+
+    def test_reinforced_adaptation_opens_and_supports_its_linked_hypotheses(self):
+        result = accumulate_evidence([], adaptation_patterns=[_adaptation("self_reliance", 0.6)])
+        for pattern_key in ADAPTATION_STRATEGY_HYPOTHESIS_SUPPORT["self_reliance"]:
+            assert pattern_key in result
+            assert result[pattern_key]["evidence_strength"] > 0
+
+    def test_stronger_adaptation_yields_stronger_hypothesis_evidence(self):
+        weak = accumulate_evidence([], adaptation_patterns=[_adaptation("avoidance", 0.2)])
+        strong = accumulate_evidence([], adaptation_patterns=[_adaptation("avoidance", 1.0)])
+        assert strong["avoidant_personality"]["evidence_strength"] > weak["avoidant_personality"]["evidence_strength"]
+
+    def test_varied_exposures_converge_via_shared_adaptation(self):
+        # The literal Emma shape: every exposure is a DIFFERENT type, so
+        # exposure-recurrence alone yields nothing - but they all reinforced
+        # one adaptation, and that must be able to carry a hypothesis.
+        exposures = [
+            _exposure("peer_rejection_or_bullying", age=10, id_="e1"),
+            _exposure("separation_or_divorce", age=12, id_="e2"),
+            _exposure("emotional_abuse_or_humiliation", age=14, id_="e3"),
+        ]
+        without = accumulate_evidence(exposures)
+        with_adaptation = accumulate_evidence(
+            exposures, adaptation_patterns=[_adaptation("avoidance", 0.8, status="established")]
+        )
+        assert (without.get("avoidant_personality", {}).get("evidence_strength") or 0) < DISPLAY_THRESHOLD
+        assert with_adaptation["avoidant_personality"]["evidence_strength"] >= DISPLAY_THRESHOLD
+
+    def test_unmapped_strategy_opens_nothing(self):
+        # "humor" is deliberately mapped to no clinical pattern.
+        assert ADAPTATION_STRATEGY_HYPOTHESIS_SUPPORT["humor"] == []
+        assert accumulate_evidence([], adaptation_patterns=[_adaptation("humor", 1.0)]) == {}
+
+    def test_adaptation_opened_hypothesis_records_its_strategy_as_a_precursor(self):
+        result = accumulate_evidence([], adaptation_patterns=[_adaptation("perfectionism", 0.6, first_emerged_age=7)])
+        state = result["obsessive_compulsive_personality"]
+        assert "perfectionism" in state["developmental_precursors"]
+        assert state["opened_at_age"] == 7
+
+
+class TestProtectiveFactorCannotBufferItsOwnEvent:
+    """
+    Step 12: the same self-buffering bug already fixed in pattern_engine,
+    found to exist independently here. A protective factor extracted FROM an
+    event must not count as contradicting a hypothesis that same event opened.
+    """
+
+    def test_same_event_protective_factor_is_ignored(self):
+        exposures = [
+            _exposure("caregiver_substance_use", age=5, domains=["attachment_security"], id_="e1"),
+            _exposure("caregiver_substance_use", age=9, domains=["attachment_security"], id_="e2"),
+        ]
+        protective = [{
+            "id": "pf-1", "factor_type": "friendship",
+            "domains_buffered": ["attachment_security"],
+            "active_from_age": 5, "source_event_id": "e1",
+        }]
+        result = accumulate_evidence(exposures, protective_factors=protective)
+        assert result["complex_ptsd"]["contradicting_evidence"] == []
+
+    def test_unrelated_event_protective_factor_still_contradicts(self):
+        exposures = [
+            _exposure("caregiver_substance_use", age=5, domains=["attachment_security"], id_="e1"),
+            _exposure("caregiver_substance_use", age=9, domains=["attachment_security"], id_="e2"),
+        ]
+        protective = [{
+            "id": "pf-1", "factor_type": "stable_alternate_caregiver",
+            "domains_buffered": ["attachment_security"],
+            "active_from_age": 6, "source_event_id": "some-other-event",
+        }]
+        result = accumulate_evidence(exposures, protective_factors=protective)
+        assert result["complex_ptsd"]["contradicting_evidence"]
+
+    def test_baseline_protective_factor_with_no_source_still_contradicts(self):
+        exposures = [
+            _exposure("caregiver_substance_use", age=5, domains=["attachment_security"], id_="e1"),
+            _exposure("caregiver_substance_use", age=9, domains=["attachment_security"], id_="e2"),
+        ]
+        protective = [{
+            "id": "pf-1", "factor_type": "temperament",
+            "domains_buffered": ["attachment_security"],
+            "active_from_age": None, "source_event_id": None,
+        }]
+        result = accumulate_evidence(exposures, protective_factors=protective)
+        assert result["complex_ptsd"]["contradicting_evidence"]
+
+
 class TestTaxonomyIntegrity:
     def test_all_prior_pattern_keys_exist_in_real_symptom_taxonomy(self):
         from app.utils.symptom_taxonomy import SYMPTOM_TAXONOMY
@@ -343,8 +454,23 @@ class TestTaxonomyIntegrity:
             referenced.update(patterns)
         for patterns in SIGNAL_HYPOTHESIS_SUPPORT.values():
             referenced.update(patterns)
+        for patterns in ADAPTATION_STRATEGY_HYPOTHESIS_SUPPORT.values():
+            referenced.update(patterns)
         missing = referenced - set(SYMPTOM_TAXONOMY.keys())
         assert not missing, f"pattern_keys referenced but not in symptom_taxonomy.py: {missing}"
+
+    def test_every_adaptation_strategy_is_a_real_one(self):
+        from app.services.pattern_engine import ADAPTATION_STRATEGIES
+        missing = set(ADAPTATION_STRATEGY_HYPOTHESIS_SUPPORT.keys()) - set(ADAPTATION_STRATEGIES)
+        assert not missing, f"unknown adaptation_strategies referenced: {missing}"
+
+    def test_every_adaptation_strategy_is_covered(self):
+        # Every strategy must be an explicit decision - mapped, or explicitly
+        # mapped to [] like "humor" - so a newly added strategy can't silently
+        # contribute nothing.
+        from app.services.pattern_engine import ADAPTATION_STRATEGIES
+        uncovered = set(ADAPTATION_STRATEGIES) - set(ADAPTATION_STRATEGY_HYPOTHESIS_SUPPORT.keys())
+        assert not uncovered, f"adaptation_strategies with no explicit hypothesis decision: {uncovered}"
 
     def test_all_exposure_types_referenced_are_real(self):
         from app.services.developmental_exposure_engine import EXPOSURE_TAXONOMY

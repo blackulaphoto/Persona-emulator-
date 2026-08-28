@@ -29,6 +29,25 @@ STATE_VARIABLES = (
     "relational_security",
 )
 
+# What each State variable MEANS, and which way is "up" - included verbatim in
+# every prompt that asks for state movement.
+#
+# These definitions are not decoration. Without them the model reliably got the
+# polarity of the less self-evident variables backwards: on a real six-event
+# run, `relational_security` climbed 0.62 -> 0.93 across a timeline of repeated
+# betrayal ending in a sexual assault, because "relational security" reads just
+# as easily as "need for relational security" (which a betrayal WOULD raise).
+# Every variable below states its direction explicitly for that reason - the
+# scale is only unambiguous if we say so.
+STATE_VARIABLE_DEFINITIONS = {
+    "trust": "How much this person expects others to be reliable and safe. HIGHER = more trusting. Betrayal, broken promises and deception DECREASE it.",
+    "threat_sensitivity": "How much this person scans for danger. HIGHER = more on edge, watchful, braced for harm. Danger, unpredictability and violation INCREASE it.",
+    "mood": "General emotional baseline right now. HIGHER = brighter and more energised. Loss, humiliation and grief DECREASE it.",
+    "regulation": "Ability to manage and settle their own emotions. HIGHER = steadier, better able to pause before reacting. Overwhelming or chaotic events DECREASE it.",
+    "avoidance": "Tendency to withdraw from closeness or difficult feelings. HIGHER = more avoidant and self-protective. Being hurt when open INCREASES it.",
+    "relational_security": "How safe and stable this person feels INSIDE close relationships. HIGHER = feels securely held by the people close to them. Betrayal by someone close DECREASES it sharply. (This is felt security, NOT desire or need for security - being hurt lowers it.)",
+}
+
 # Slow-moving Trait tier - the existing Big Five vocabulary already used by
 # PersonalityTraits/Persona.current_personality (app/schemas/__init__.py).
 TRAIT_NAMES = (

@@ -177,7 +177,14 @@ async def add_intervention(
     intervention.state_implications = state_changes or None
     intervention.trait_implications = trait_changes or None
     persona.current_state = apply_state_update(persona.current_state, state_changes)
-    persona.current_personality = apply_trait_update(persona.current_personality, trait_changes, gate_open=trait_eligible)
+    # allow_provisional=False: therapy keeps the strict Step 11e gate. Its
+    # sustained-improvement rule ("one good round is a data point, not proof")
+    # exists precisely to stop a single course of treatment moving Big Five;
+    # the Step 12 provisional nudge is for developmental events, not for
+    # letting one therapy session quietly bypass that.
+    persona.current_personality = apply_trait_update(
+        persona.current_personality, trait_changes, gate_open=trait_eligible, allow_provisional=False
+    )
     # personality_changes now means "current_personality as of right after
     # this call" - same honest reframing as legacy_experience_adapter.py's
     # immediate_effects (Step 11d) - not an independent AI guess.

@@ -23,6 +23,7 @@ from app.services.state_trait_engine import (
     ADAPTATION_STRATEGY_STATE_TRAIT_DEFAULTS,
     STATE_STEP,
     TRAIT_STEP,
+    PROVISIONAL_TRAIT_STEP,
     intervention_trait_gate_open,
     propose_intervention_state_trait_implications_ai,
     propose_intervention_state_trait_implications_async,
@@ -46,9 +47,15 @@ class TestHeuristicFallback:
         result = propose_state_trait_implications_heuristic(INTERPRETATION, pattern_status="emerging")
         assert "threat_sensitivity" in result["state_changes"]
 
-    def test_trait_changes_empty_unless_established(self):
+    def test_trait_changes_proposed_even_when_not_established(self):
+        # Step 12 (deliberate behavior change from Step 11): the heuristic now
+        # proposes trait implications regardless of pattern_status.
+        # apply_trait_update is the single place that decides how much that
+        # proposal actually moves the dial. Double-gating here made "not
+        # established" mean "no trait signal exists", which is the frozen-dials
+        # regression Step 12 fixes.
         result = propose_state_trait_implications_heuristic(INTERPRETATION, pattern_status="emerging")
-        assert result["trait_changes"] == {}
+        assert "neuroticism" in result["trait_changes"]
 
     def test_trait_changes_populated_when_established(self):
         result = propose_state_trait_implications_heuristic(INTERPRETATION, pattern_status="established")
@@ -70,6 +77,39 @@ class TestHeuristicFallback:
                 assert var in STATE_VARIABLES, f"{strategy} state key {var} not in STATE_VARIABLES"
             for trait in default.get("trait", {}):
                 assert trait in TRAIT_NAMES, f"{strategy} trait key {trait} not in TRAIT_NAMES"
+
+
+class TestStateVariableDefinitionsReachThePrompt:
+    """
+    Step 12: every State variable must arrive at the model WITH its polarity
+    spelled out. Without this, a real six-event run had relational_security
+    climbing 0.62 -> 0.93 across repeated betrayal ending in a sexual assault,
+    because the bare name reads just as easily as "need for relational
+    security". Names alone are ambiguous; definitions are load-bearing.
+    """
+
+    def test_every_state_variable_has_a_definition(self):
+        from app.schemas.developmental_analysis_schemas import STATE_VARIABLE_DEFINITIONS
+        missing = set(STATE_VARIABLES) - set(STATE_VARIABLE_DEFINITIONS)
+        assert not missing, f"State variables with no definition: {missing}"
+
+    def test_every_definition_states_what_higher_means(self):
+        from app.schemas.developmental_analysis_schemas import STATE_VARIABLE_DEFINITIONS
+        for variable, definition in STATE_VARIABLE_DEFINITIONS.items():
+            assert "HIGHER" in definition, f"{variable}'s definition never says which way is up"
+
+    def test_developmental_prompt_includes_definitions(self):
+        from app.services.state_trait_engine import _build_state_trait_prompt
+        prompt = _build_state_trait_prompt("Emma", 20, INTERPRETATION, "emerging")
+        for variable in STATE_VARIABLES:
+            assert f'"{variable}":' in prompt, f"{variable} appears without its definition"
+        assert "NOT desire or need for security" in prompt
+
+    def test_intervention_prompt_includes_definitions(self):
+        from app.services.state_trait_engine import _build_intervention_state_trait_prompt
+        prompt = _build_intervention_state_trait_prompt("Emma", 20, "CBT", "avoidance", 0.8, False)
+        for variable in STATE_VARIABLES:
+            assert f'"{variable}":' in prompt
 
 
 class TestAIProposalPath:
@@ -138,13 +178,42 @@ class TestApplyStateUpdate:
             updated = apply_state_update({"mood": 0.5}, {"mood": {"direction": "increase", "magnitude": magnitude}})
             assert updated["mood"] == round(0.5 + STATE_STEP[magnitude], 4)
 
-    def test_clamps_at_upper_bound(self):
+    def test_approaches_upper_bound_without_pegging(self):
+        # Step 12: steps taper near the rails instead of hard-clamping, so a
+        # heavily-loaded dimension still has room for the next event to
+        # register. A flat step + clamp meant a persona pegged at exactly 1.00
+        # and then stopped responding entirely.
         updated = apply_state_update({"trust": 0.95}, {"trust": {"direction": "increase", "magnitude": "high"}})
-        assert updated["trust"] == 1.0
+        assert 0.95 < updated["trust"] < 1.0
 
-    def test_clamps_at_lower_bound(self):
+    def test_approaches_lower_bound_without_pegging(self):
         updated = apply_state_update({"trust": 0.05}, {"trust": {"direction": "decrease", "magnitude": "high"}})
-        assert updated["trust"] == 0.0
+        assert 0.0 < updated["trust"] < 0.05
+
+    def test_stays_within_bounds_from_any_start(self):
+        for start in (0.0, 0.01, 0.5, 0.99, 1.0):
+            for direction in ("increase", "decrease"):
+                updated = apply_state_update(
+                    {"trust": start}, {"trust": {"direction": direction, "magnitude": "high"}}
+                )
+                assert 0.0 <= updated["trust"] <= 1.0
+
+    def test_repeated_adverse_events_never_fully_saturate(self):
+        # The literal regression: six escalating events must not leave a
+        # dimension unable to move on the seventh.
+        state = {"trust": 0.5}
+        for _ in range(10):
+            state = apply_state_update(state, {"trust": {"direction": "decrease", "magnitude": "high"}})
+        assert state["trust"] > 0.0
+        before_next = state["trust"]
+        state = apply_state_update(state, {"trust": {"direction": "decrease", "magnitude": "high"}})
+        assert state["trust"] < before_next, "a further adverse event produced no movement at all"
+
+    def test_taper_does_not_affect_ordinary_midrange_movement(self):
+        # Full step still applies away from the rails - the taper must not
+        # quietly damp normal reactivity.
+        updated = apply_state_update({"mood": 0.5}, {"mood": {"direction": "decrease", "magnitude": "moderate"}})
+        assert updated["mood"] == round(0.5 - STATE_STEP["moderate"], 4)
 
     def test_unknown_variable_key_ignored(self):
         updated = apply_state_update({}, {"not_a_real_variable": {"direction": "increase", "magnitude": "mild"}})
@@ -177,9 +246,29 @@ class TestTraitGateOpen:
 
 
 class TestApplyTraitUpdate:
-    def test_gate_closed_returns_unchanged_regardless_of_trait_changes(self):
+    def test_gate_closed_applies_only_the_smaller_provisional_step(self):
+        # Step 12: a closed gate no longer means zero movement - it means the
+        # much smaller PROVISIONAL_TRAIT_STEP. The event is real; the claim
+        # that it permanently reshaped personality is what hasn't been earned.
         current = {"neuroticism": 0.5}
         updated = apply_trait_update(current, {"neuroticism": {"direction": "increase", "magnitude": "high"}}, gate_open=False)
+        assert updated["neuroticism"] == round(0.5 + PROVISIONAL_TRAIT_STEP["high"], 4)
+        assert updated["neuroticism"] < round(0.5 + TRAIT_STEP["high"], 4)
+
+    def test_provisional_step_is_smaller_than_established_step_at_every_magnitude(self):
+        for magnitude in ("mild", "moderate", "high"):
+            assert PROVISIONAL_TRAIT_STEP[magnitude] < TRAIT_STEP[magnitude]
+            # ...and Trait still moves far less than State, established or not.
+            assert TRAIT_STEP[magnitude] < STATE_STEP[magnitude]
+
+    def test_allow_provisional_false_restores_strict_no_movement(self):
+        # The path interventions.py uses - therapy keeps its own stricter
+        # sustained-improvement gate and must not get the provisional nudge.
+        current = {"neuroticism": 0.5}
+        updated = apply_trait_update(
+            current, {"neuroticism": {"direction": "increase", "magnitude": "high"}},
+            gate_open=False, allow_provisional=False,
+        )
         assert updated == {"neuroticism": 0.5}
 
     def test_gate_open_applies_bounded_step(self):

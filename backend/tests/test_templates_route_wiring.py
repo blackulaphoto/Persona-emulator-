@@ -44,6 +44,7 @@ from app.api.routes.templates import (
     create_persona_from_template_endpoint,
 )
 from app.services.template_service import populate_templates_database
+from app.services.state_trait_engine import PROVISIONAL_TRAIT_STEP
 from app.schemas.template_schemas import ApplyExperienceSetRequest, CreatePersonaFromTemplateRequest
 
 TEST_DB_URL = "sqlite:///./test_templates_route_wiring.db"
@@ -181,13 +182,20 @@ class TestApplyExperienceSetRunsCanonicalPipeline:
 
 class TestOldUngatedBigFiveWriteIsGone:
     @pytest.mark.asyncio
-    async def test_single_experience_never_moves_trait(self, db):
+    async def test_single_experience_moves_trait_only_within_the_provisional_band(self, db):
+        # The old ungated write applied the AI's own absolute Big Five values
+        # directly, so a single event could swing a trait arbitrarily far.
+        # Step 12 restores visible movement but keeps it bounded: one template
+        # experience may nudge, but never more than the provisional step.
         persona = _make_persona(db)
         response = await _apply_experiences(db, persona, [BULLYING_EXPERIENCES[0]])
-        assert response.personality_before == response.personality_after
-        assert response.personality_after == {
+        assert response.personality_before == {
             "openness": 0.5, "conscientiousness": 0.5, "extraversion": 0.5, "agreeableness": 0.5, "neuroticism": 0.5,
         }
+        for trait, value in response.personality_after.items():
+            assert abs(value - response.personality_before[trait]) <= PROVISIONAL_TRAIT_STEP["high"] + 1e-6, (
+                f"{trait} moved too far for a single un-established experience"
+            )
 
 
 class TestSameStatePatternTraitRulesAsEveryOtherExperience:

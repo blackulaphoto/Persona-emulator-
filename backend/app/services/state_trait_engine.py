@@ -41,7 +41,10 @@ from pydantic import ValidationError
 from app.services.openai_service import OpenAIService
 from app.schemas.developmental_analysis_schemas import (
     DevelopmentalAnalysisResult,
+    StateImplication,
+    TraitImplication,
     STATE_VARIABLES,
+    STATE_VARIABLE_DEFINITIONS,
     TRAIT_NAMES,
 )
 
@@ -62,6 +65,23 @@ openai_service = OpenAIService(
 # ============================================================
 STATE_STEP: Dict[str, float] = {"mild": 0.05, "moderate": 0.12, "high": 0.22}
 TRAIT_STEP: Dict[str, float] = {"mild": 0.02, "moderate": 0.04, "high": 0.07}
+
+# Provisional (pre-establishment) Trait movement - Step 12.
+#
+# The original Step 11 gate was binary: until an adaptation reached
+# "established", Big Five did not move at all. That correctly killed
+# "one bad day moves neuroticism 20 points", but overcorrected into "major
+# experiences happen and the dials look frozen" - confirmed on a real
+# six-event run where a sexual assault at 20 produced zero Big Five movement.
+#
+# A meaningful event now produces a small, immediate, provisional trait
+# adjustment; crossing the establishment gate still produces the larger
+# TRAIT_STEP movement above. Roughly half of TRAIT_STEP, and still far below
+# STATE_STEP - so the tier ordering the whole architecture rests on holds:
+# State reacts hardest, Trait provisionally nudges, established patterns move
+# Trait properly. A "high" provisional nudge is 0.035 (3.5 display points):
+# visible, not a videogame stat.
+PROVISIONAL_TRAIT_STEP: Dict[str, float] = {"mild": 0.01, "moderate": 0.02, "high": 0.035}
 
 # Neutral starting point the first time a State variable is ever touched -
 # current_state starts at {} (Step 11a), same "unearned defaults are what
@@ -151,7 +171,7 @@ def _build_state_trait_prompt(
     interpretation: Dict,
     pattern_status: Optional[str],
 ) -> str:
-    state_list = "\n".join(f'- "{v}"' for v in STATE_VARIABLES)
+    state_list = "\n".join(f'- "{v}": {STATE_VARIABLE_DEFINITIONS[v]}' for v in STATE_VARIABLES)
     trait_list = "\n".join(f'- "{t}"' for t in TRAIT_NAMES)
     established = pattern_status == "established"
 
@@ -167,41 +187,82 @@ THIS EVENT'S INTERPRETATION:
 THIS ADAPTATION STRATEGY'S PATTERN STATUS: {pattern_status or 'not yet a pattern'}
 
 TWO TIERS - DO NOT CONFUSE THEM:
-1. STATE (fast-moving, reactive) - can shift meaningfully from ONE event. Allowed variables (use ONLY these):
+1. STATE (fast-moving, reactive) - can shift meaningfully from ONE event. This is where a single event leaves its clearest mark. Allowed variables (use ONLY these EXACT names):
 {state_list}
-2. TRAIT (slow-moving, enduring personality) - {persona_name} has NOT earned trait movement from a single event. Only propose trait_changes if the pattern status above is exactly "established" ({'it IS established for this event' if established else 'it is NOT established for this event - return an empty trait_changes object'}). Allowed traits (use ONLY these):
+2. TRAIT (slow-moving, enduring personality - the Big Five) - moves far less per event than State. Allowed traits (use ONLY these EXACT names):
 {trait_list}
+
+This adaptation is {'ESTABLISHED - repeated reinforcement has earned durable trait movement.' if established else 'NOT yet established - any trait movement here is provisional, reflecting a real but not-yet-enduring shift.'}
 
 INSTRUCTIONS:
 1. For state_changes: propose direction ("increase"/"decrease"/"no_change") and magnitude ("mild"/"moderate"/"high") for whichever State variables this event plausibly moves. Do not force an entry for every variable - only the ones this event actually implicates.
-2. For trait_changes: {'propose direction, magnitude, and your own evidence_strength ("low"/"moderate"/"high") for whichever traits this established pattern plausibly shifts.' if established else 'return {} (empty object) - this pattern has not earned trait movement yet.'}
+2. For trait_changes: propose direction, magnitude, and your own evidence_strength ("low"/"moderate"/"high") for whichever Big Five traits this event plausibly shifts, using the SAME mild/moderate/high magnitude scale. Code applies a much smaller step to traits than to state, and a smaller step again when the pattern is not yet established - so propose the psychologically honest direction and relative magnitude and let the code scale it. Only include a trait this event genuinely implicates; an event with no real personality implication should return an empty trait_changes object. Never use a State variable name as a trait, or a trait name as a State variable - they are separate vocabularies listed above.
 3. Never invent a raw score. Never address "you" or "the user" - reason about {persona_name} by name.
 
 OUTPUT FORMAT (valid JSON only):
 {{
   "state_changes": {{"trust": {{"direction": "decrease", "magnitude": "moderate"}}}},
-  "trait_changes": {{}}
+  "trait_changes": {{"neuroticism": {{"direction": "increase", "magnitude": "mild", "evidence_strength": "low"}}}}
 }}
 
 Respond with ONLY the JSON object."""
 
 
 def _validate_proposal(response: Dict) -> Optional[Dict]:
-    """Reuses DevelopmentalAnalysisResult's own field validation rather than duplicating it."""
+    """
+    Per-field validation with partial salvage (Step 12).
+
+    Previously all-or-nothing: one bad key threw away the whole proposal and
+    dropped the caller onto the much coarser heuristic table. That fired for
+    real - the model repeatedly proposed "self_reliance" as a STATE variable
+    (confusing STATE_VARIABLES with pattern_engine's adaptation_strategy
+    vocabulary), and each time it also discarded the perfectly valid `trust`
+    and `threat_sensitivity` movements in the same response.
+
+    Now: keep every field that validates, drop only the ones that don't, and
+    log what was dropped so prompt/schema drift stays visible. Returns None
+    only when nothing at all could be salvaged AND something was actually
+    proposed - so a genuinely empty proposal still reads as "no change"
+    rather than as a failure needing fallback.
+    """
     if not response:
         return None
-    try:
-        validated = DevelopmentalAnalysisResult(
-            state_changes=response.get("state_changes") or {},
-            trait_changes=response.get("trait_changes") or {},
+
+    raw_state = response.get("state_changes") or {}
+    raw_trait = response.get("trait_changes") or {}
+
+    state_changes: Dict[str, Dict] = {}
+    trait_changes: Dict[str, Dict] = {}
+    dropped: List[str] = []
+
+    for key, value in raw_state.items():
+        if key not in STATE_VARIABLES:
+            dropped.append(f"state.{key} (not a State variable)")
+            continue
+        try:
+            state_changes[key] = StateImplication(**value).model_dump()
+        except (ValidationError, TypeError) as e:
+            dropped.append(f"state.{key} ({e.__class__.__name__})")
+
+    for key, value in raw_trait.items():
+        if key not in TRAIT_NAMES:
+            dropped.append(f"trait.{key} (not a Big Five trait)")
+            continue
+        try:
+            trait_changes[key] = TraitImplication(**value).model_dump()
+        except (ValidationError, TypeError) as e:
+            dropped.append(f"trait.{key} ({e.__class__.__name__})")
+
+    if dropped:
+        logger.warning(
+            "State/trait proposal partially salvaged - kept %d state / %d trait, dropped: %s",
+            len(state_changes), len(trait_changes), "; ".join(dropped),
         )
-    except ValidationError as e:
-        logger.warning(f"State/trait proposal failed validation: {e}")
+
+    if not state_changes and not trait_changes and (raw_state or raw_trait):
         return None
-    return {
-        "state_changes": {k: v.model_dump() for k, v in validated.state_changes.items()},
-        "trait_changes": {k: v.model_dump() for k, v in validated.trait_changes.items()},
-    }
+
+    return {"state_changes": state_changes, "trait_changes": trait_changes}
 
 
 async def propose_state_trait_implications_ai(
@@ -233,12 +294,15 @@ async def propose_state_trait_implications_ai(
 
 def propose_state_trait_implications_heuristic(interpretation: Dict, pattern_status: Optional[str] = None) -> Dict:
     """
-    Modest rule-based fallback keyed on adaptation_strategy. Trait movement
-    is only ever proposed here when pattern_status == "established" - the
-    same gate the AI prompt is instructed to honor, enforced again at the
-    fallback level as defense in depth (the real enforcement is apply_
-    trait_update, which does not trust either path's trait_changes without
-    re-checking the gate itself).
+    Modest rule-based fallback keyed on adaptation_strategy.
+
+    Trait implications are now proposed regardless of pattern_status (Step
+    12) - apply_trait_update is the single place that decides HOW MUCH that
+    proposal moves the dial (full TRAIT_STEP once established, the much
+    smaller PROVISIONAL_TRAIT_STEP before then). Suppressing the proposal
+    here as well was double-gating: it made "not established" mean "no trait
+    signal exists at all" rather than "this signal has not earned durable
+    movement yet", which is exactly the frozen-dials behavior Step 12 fixes.
     """
     if not interpretation or not interpretation.get("adaptation_strategy"):
         return {"state_changes": {}, "trait_changes": {}}
@@ -247,9 +311,10 @@ def propose_state_trait_implications_heuristic(interpretation: Dict, pattern_sta
     if not default:
         return {"state_changes": {}, "trait_changes": {}}
 
-    state_changes = dict(default.get("state", {}))
-    trait_changes = dict(default.get("trait", {})) if pattern_status == "established" else {}
-    return {"state_changes": state_changes, "trait_changes": trait_changes}
+    return {
+        "state_changes": dict(default.get("state", {})),
+        "trait_changes": dict(default.get("trait", {})),
+    }
 
 
 async def propose_state_trait_implications_async(
@@ -295,15 +360,43 @@ def propose_state_trait_implications(
 # clamped score out. No event-type or age coefficient anywhere here.
 # ============================================================
 
+# Below this much remaining headroom, steps start shrinking proportionally.
+# Above it, the full step applies - so ordinary mid-range movement is
+# completely unaffected by the taper.
+HEADROOM_TAPER_START = 0.5
+
+
 def _stepped_value(current: Optional[float], direction: Optional[str], magnitude: Optional[str], step_table: Dict[str, float]) -> float:
+    """
+    Direction + magnitude -> a bounded score, with diminishing returns near
+    the rails (Step 12).
+
+    A flat step plus a hard clamp meant a persona with a heavy history pegged
+    at exactly 0.00 / 1.00 and then stopped responding entirely - on a real
+    six-event run, trust and threat_sensitivity were already railed by age 20,
+    so a seventh event would have produced no visible change at all. That is
+    the same frozen-dial failure this step exists to fix, just relocated into
+    the State tier.
+
+    Steps now shrink in proportion to the headroom remaining in the direction
+    of travel, so values approach 0.0/1.0 asymptotically instead of hitting
+    them: there is always room for the next event to register, and the engine
+    never claims a person has *exactly* zero trust. Movement in the ordinary
+    mid-range is unchanged - the taper only engages within
+    HEADROOM_TAPER_START of a rail.
+    """
     baseline = UNOBSERVED_BASELINE if current is None else current
     step = step_table.get(magnitude, step_table["mild"])
+
     if direction == "increase":
-        new_value = baseline + step
+        headroom = 1.0 - baseline
     elif direction == "decrease":
-        new_value = baseline - step
+        headroom = baseline
     else:
-        new_value = baseline
+        return round(max(0.0, min(1.0, baseline)), 4)
+
+    step *= min(1.0, max(0.0, headroom) / HEADROOM_TAPER_START)
+    new_value = baseline + step if direction == "increase" else baseline - step
     return round(max(0.0, min(1.0, new_value)), 4)
 
 
@@ -329,21 +422,40 @@ def trait_gate_open(pattern_state: Optional[Dict]) -> bool:
     return bool(pattern_state) and pattern_state.get("status") == "established"
 
 
-def apply_trait_update(current_personality: Optional[Dict[str, float]], trait_changes: Optional[Dict[str, Dict]], gate_open: bool) -> Dict[str, float]:
+def apply_trait_update(
+    current_personality: Optional[Dict[str, float]],
+    trait_changes: Optional[Dict[str, Dict]],
+    gate_open: bool,
+    allow_provisional: bool = True,
+) -> Dict[str, float]:
     """
-    Returns a NEW dict. Does not trust the caller's trait_changes without
-    re-checking gate_open itself - if the gate is closed, returns the
-    personality dict unchanged regardless of what trait_changes contains,
-    so a bug upstream that proposes trait movement too early cannot apply
-    it silently.
+    Returns a NEW dict.
+
+    Two movement sizes, by design (Step 12):
+      - gate_open (the adaptation reached "established"): full TRAIT_STEP.
+      - gate closed, allow_provisional: the much smaller
+        PROVISIONAL_TRAIT_STEP - a meaningful event is allowed to nudge the
+        slow tier immediately, without claiming the pattern is enduring yet.
+
+    allow_provisional=False restores the strict Step 11 behavior (no movement
+    at all unless established). Interventions pass False: therapy has its own
+    sustained-improvement gate (intervention_trait_gate_open), and letting a
+    single course of treatment provisionally move Big Five would bypass the
+    "one good round is a data point, not proof" rule that gate exists to
+    enforce.
+
+    Still does not trust the caller's gate_open blindly - the step table is
+    chosen here, so an upstream bug proposing trait movement too early gets
+    the provisional step, never the established one.
     """
     updated = dict(current_personality or {})
-    if not gate_open:
+    if not gate_open and not allow_provisional:
         return updated
+    step_table = TRAIT_STEP if gate_open else PROVISIONAL_TRAIT_STEP
     for trait, implication in (trait_changes or {}).items():
         if trait not in TRAIT_NAMES:
             continue
-        updated[trait] = _stepped_value(updated.get(trait), implication.get("direction"), implication.get("magnitude"), TRAIT_STEP)
+        updated[trait] = _stepped_value(updated.get(trait), implication.get("direction"), implication.get("magnitude"), step_table)
     return updated
 
 
@@ -424,7 +536,7 @@ def _build_intervention_state_trait_prompt(
     efficacy_match: Optional[float],
     trait_eligible: bool,
 ) -> str:
-    state_list = "\n".join(f'- "{v}"' for v in STATE_VARIABLES)
+    state_list = "\n".join(f'- "{v}": {STATE_VARIABLE_DEFINITIONS[v]}' for v in STATE_VARIABLES)
     trait_list = "\n".join(f'- "{t}"' for t in TRAIT_NAMES)
 
     return f"""You are proposing how a completed course of therapy moves {persona_name}'s psychological state, on two distinct tiers. You never output a number - only a direction and a magnitude. Code applies the actual bounded movement.

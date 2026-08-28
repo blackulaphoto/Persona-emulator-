@@ -48,6 +48,14 @@ class ClinicalPatternHypothesis(Base):
     # Null at hypothesis creation - populated only once real evidence accumulates.
     evidence_strength = Column(Float, nullable=True)
 
+    # Step 12: the value evidence_strength held before the most recent
+    # recomputation, so the board can show a hypothesis STRENGTHENING or
+    # WEAKENING rather than just its current number. `status`
+    # (open/revised/dismissed) tracks whether the hypothesis has been revisited
+    # at all, not which way it moved - these are different questions. Null
+    # until a hypothesis has been recomputed at least once.
+    previous_evidence_strength = Column(Float, nullable=True)
+
     opened_at_age = Column(Integer, nullable=True)
     status = Column(String(20), nullable=False, default="open")  # open | revised | resolved | dismissed
 

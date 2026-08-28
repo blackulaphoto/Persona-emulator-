@@ -1,8 +1,15 @@
 """
 Tests for Step 11c of docs/MIGRATION_MAP.md: state_trait_engine.py actually
 wired into developmental_pipeline.py, updating Persona.current_state
-(always) and Persona.current_personality (gated on AdaptationPattern.status
-== "established") in a real end-to-end pipeline run.
+(always) and Persona.current_personality in a real end-to-end pipeline run.
+
+Updated for Step 12: current_personality is no longer frozen until a pattern
+is "established". It now takes a small PROVISIONAL_TRAIT_STEP nudge per
+meaningful event and the larger TRAIT_STEP once the establishment gate opens
+- so the reinforcement trajectory below accumulates rather than sitting flat
+and then jumping. Step 11's original all-or-nothing assertions were a
+deliberate product decision that overcorrected into visibly frozen dials;
+this file asserts the corrected behavior, not a weakened version of it.
 
 Uses "bullied/picked on/made fun of/excluded" text across four calls -
 these four phrases all map to the SAME exposure_type (peer_rejection_or_
@@ -27,6 +34,7 @@ from sqlalchemy.orm import sessionmaker
 from app.core.database import Base
 from app.models import Persona, Interpretation, AdaptationPattern
 from app.services.developmental_pipeline import process_developmental_text
+from app.services.state_trait_engine import TRAIT_STEP, PROVISIONAL_TRAIT_STEP
 
 TEST_DB_URL = "sqlite:///./test_developmental_pipeline_state_trait.db"
 engine = create_engine(TEST_DB_URL, connect_args={"check_same_thread": False})
@@ -98,8 +106,11 @@ class TestStateTierAppliesOnSingleCall:
         assert "avoidance" in persona.current_state  # ADAPTATION_STRATEGY_STATE_TRAIT_DEFAULTS["avoidance"]
 
     @pytest.mark.asyncio
-    async def test_single_call_does_not_move_trait(self, db):
-        # Status is "emerging" after one interpretation - gate must stay closed.
+    async def test_single_call_moves_trait_only_provisionally(self, db):
+        # Step 12 (deliberate change from Step 11): one event now produces a
+        # small PROVISIONAL trait nudge rather than nothing at all. The pattern
+        # is still only "emerging" - what changed is that "not yet enduring"
+        # no longer means "nothing happened psychologically".
         persona = _make_persona(db, baseline_background=BULLYING_TEXTS[0])
         await process_developmental_text(db, persona, persona.baseline_background, source="backstory", age=8)
         db.commit()
@@ -107,7 +118,12 @@ class TestStateTierAppliesOnSingleCall:
 
         pattern = db.query(AdaptationPattern).filter(AdaptationPattern.persona_id == persona.id).first()
         assert pattern.status == "emerging"
-        assert persona.current_personality["extraversion"] == 0.5  # untouched
+        # avoidance's heuristic default: extraversion decrease / mild.
+        assert persona.current_personality["extraversion"] == pytest.approx(
+            0.5 - PROVISIONAL_TRAIT_STEP["mild"], abs=1e-6
+        )
+        # ...and that nudge is strictly smaller than an established one.
+        assert persona.current_personality["extraversion"] > 0.5 - TRAIT_STEP["mild"]
 
     @pytest.mark.asyncio
     async def test_interpretation_row_persists_state_and_trait_implications(self, db):
@@ -117,52 +133,67 @@ class TestStateTierAppliesOnSingleCall:
 
         interp = db.query(Interpretation).filter(Interpretation.persona_id == persona.id).first()
         assert interp.state_implications  # populated
-        assert interp.trait_implications is None  # gate was closed - nothing to persist
+        # Step 12: the proposal is persisted even pre-establishment - it is a
+        # real inference and the audit trail should show it was made.
+        assert interp.trait_implications
+        assert "extraversion" in interp.trait_implications
 
 
 class TestTraitTierGatedAcrossReinforcement:
     @pytest.mark.asyncio
-    async def test_trait_stays_closed_until_pattern_established_then_opens_on_the_crossing_call(self, db):
+    async def test_trait_accumulates_provisionally_then_takes_a_bigger_step_once_established(self, db):
+        # Step 12's core trajectory: every reinforcement moves the dial a
+        # little; crossing the establishment gate moves it more. Each step is
+        # asserted exactly, so a regression to either frozen dials OR
+        # videogame-stat jumps fails loudly.
         persona = _make_persona(db, baseline_background=BULLYING_TEXTS[0])
 
-        # Call 1: originates the pattern. emerging, strength None.
+        def extraversion():
+            db.commit()
+            db.refresh(persona)
+            return persona.current_personality["extraversion"]
+
+        def status():
+            return db.query(AdaptationPattern).filter(AdaptationPattern.persona_id == persona.id).first().status
+
+        # Call 1: originates the pattern. emerging, strength None. Provisional.
+        # At exactly the 0.5 midpoint the near-rail taper does not engage, so
+        # this first step is the full provisional step.
         await process_developmental_text(db, persona, BULLYING_TEXTS[0], source="backstory", age=8)
-        db.commit()
-        db.refresh(persona)
-        assert persona.current_personality["extraversion"] == 0.5
+        after_1 = extraversion()
+        assert after_1 == pytest.approx(0.5 - PROVISIONAL_TRAIT_STEP["mild"], abs=1e-6)
 
-        # Call 2: 1st reinforcement -> strength 0.2, still emerging.
+        # Calls 2 and 3: still emerging, still provisional - each moves the
+        # dial again (accumulation), and each by less than an established step.
         await process_developmental_text(db, persona, BULLYING_TEXTS[1], source="experience", age=9, source_event_id="e2")
-        db.commit()
-        db.refresh(persona)
-        pattern = db.query(AdaptationPattern).filter(AdaptationPattern.persona_id == persona.id).first()
-        assert pattern.status == "emerging"
-        assert persona.current_personality["extraversion"] == 0.5
+        after_2 = extraversion()
+        assert status() == "emerging"
+        assert after_2 < after_1
+        assert (after_1 - after_2) <= PROVISIONAL_TRAIT_STEP["mild"] + 1e-9
 
-        # Call 3: 2nd reinforcement -> strength 0.4, still emerging (< 0.5 threshold).
         await process_developmental_text(db, persona, BULLYING_TEXTS[2], source="experience", age=10, source_event_id="e3")
-        db.commit()
-        db.refresh(persona)
-        pattern = db.query(AdaptationPattern).filter(AdaptationPattern.persona_id == persona.id).first()
-        assert pattern.status == "emerging"
-        assert persona.current_personality["extraversion"] == 0.5
+        after_3 = extraversion()
+        assert status() == "emerging"
+        assert after_3 < after_2
+        provisional_step = after_2 - after_3
+        assert provisional_step <= PROVISIONAL_TRAIT_STEP["mild"] + 1e-9
 
-        # Call 4: 3rd reinforcement -> strength 0.6, crosses ESTABLISHED_THRESHOLD.
-        # The gate opens on THIS call - extraversion should move down (avoidance's
-        # heuristic trait default) by exactly TRAIT_STEP["mild"] from the 0.5 baseline.
+        # Call 4: 3rd reinforcement crosses ESTABLISHED_THRESHOLD. The gate
+        # opens on THIS call, so this single event moves the dial noticeably
+        # more than any of the provisional ones did.
         await process_developmental_text(db, persona, BULLYING_TEXTS[3], source="experience", age=11, source_event_id="e4")
-        db.commit()
-        db.refresh(persona)
-        pattern = db.query(AdaptationPattern).filter(AdaptationPattern.persona_id == persona.id).first()
-        assert pattern.status == "established"
-        assert persona.current_personality["extraversion"] < 0.5
-        assert persona.current_personality["extraversion"] == pytest.approx(0.48, abs=1e-6)
+        after_4 = extraversion()
+        assert status() == "established"
+        established_step = after_3 - after_4
+        assert established_step > provisional_step
 
-        # Only the 4th Interpretation row should carry trait_implications - the
-        # first three all had the gate closed.
+        # Cumulative movement is real but still conservative - four reinforcing
+        # events on the same adaptation must not produce a videogame-stat swing.
+        assert 0.5 - after_4 < 0.10
+
+        # Every Interpretation row carries its proposal now, gate open or not.
         interps = db.query(Interpretation).filter(Interpretation.persona_id == persona.id).order_by(Interpretation.age_at_event).all()
-        assert [i.trait_implications for i in interps[:3]] == [None, None, None]
-        assert interps[3].trait_implications is not None
+        assert all(i.trait_implications for i in interps)
 
     @pytest.mark.asyncio
     async def test_a_single_unrelated_event_never_moves_trait(self, db):

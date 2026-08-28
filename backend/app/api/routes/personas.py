@@ -14,6 +14,7 @@ from app.utils.foundational_baseline import (
     infer_foundational_signals
 )
 from app.services.developmental_pipeline import process_developmental_text
+from app.services.persona_board import board_sections_for_persona
 from app.schemas import PersonaCreate, PersonaUpdate, PersonaResponse
 
 logger = logging.getLogger(__name__)
@@ -119,6 +120,7 @@ async def create_persona(
         "current_attachment_style": persona.current_attachment_style,
         "current_trauma_markers": persona.current_trauma_markers,
         "current_state": persona.current_state,
+        **board_sections_for_persona(db, persona.id),
         "experiences_count": 0,
         "interventions_count": 0,
         "created_at": persona.created_at,
@@ -152,6 +154,7 @@ async def list_personas(
             "current_attachment_style": persona.current_attachment_style,
             "current_trauma_markers": persona.current_trauma_markers,
             "current_state": persona.current_state,
+            **board_sections_for_persona(db, persona.id),
             "experiences_count": len(persona.experiences),
             "interventions_count": len(persona.interventions),
             "created_at": persona.created_at,
@@ -191,6 +194,7 @@ async def get_persona(
         "current_attachment_style": persona.current_attachment_style,
         "current_trauma_markers": persona.current_trauma_markers,
         "current_state": persona.current_state,
+        **board_sections_for_persona(db, persona.id),
         "experiences_count": len(persona.experiences),
         "interventions_count": len(persona.interventions),
         "created_at": persona.created_at,
@@ -239,6 +243,7 @@ async def update_persona(
         "current_attachment_style": persona.current_attachment_style,
         "current_trauma_markers": persona.current_trauma_markers,
         "current_state": persona.current_state,
+        **board_sections_for_persona(db, persona.id),
         "experiences_count": len(persona.experiences),
         "interventions_count": len(persona.interventions),
         "created_at": persona.created_at,

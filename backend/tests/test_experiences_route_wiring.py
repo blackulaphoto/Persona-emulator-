@@ -131,18 +131,23 @@ class TestPipelineActuallyRunsOnExperienceAdd:
     async def test_immediate_effects_now_reflects_real_current_personality(self, db):
         # Step 11d: immediate_effects no longer means "the AI's independently
         # decided new Big Five values" - it means current_personality as of
-        # right after this call (see legacy_experience_adapter.py). A single
-        # experience never crosses the Trait gate, so it should equal the
-        # persona's untouched baseline personality exactly.
+        # right after this call (see legacy_experience_adapter.py).
+        # Step 12: that value now includes this event's small provisional trait
+        # nudge, so it is the persona's REAL post-event personality rather than
+        # an untouched baseline - which is the whole point of the field.
         persona = _make_persona(db)
         response = await add_experience(
             persona_id=persona.id,
             experience_data=ExperienceCreate(user_description=BULLYING_TEXTS[0], age_at_event=10),
             user_id="user-1", db=db,
         )
-        assert response.immediate_effects == {
-            "openness": 0.5, "conscientiousness": 0.5, "extraversion": 0.5, "agreeableness": 0.5, "neuroticism": 0.5,
-        }
+        db.refresh(persona)
+        assert response.immediate_effects == persona.current_personality
+        # avoidance's heuristic default nudges extraversion down provisionally.
+        assert response.immediate_effects["extraversion"] < 0.5
+        # Untouched traits stay exactly at baseline - the nudge is targeted,
+        # not a blanket shift of everything.
+        assert response.immediate_effects["openness"] == 0.5
 
     @pytest.mark.asyncio
     async def test_legacy_fields_derived_honestly_not_fabricated(self, db):

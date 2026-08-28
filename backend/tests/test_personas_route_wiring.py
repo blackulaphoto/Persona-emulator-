@@ -19,6 +19,7 @@ from app.models import (
 )
 from app.api.routes.personas import create_persona
 from app.schemas import PersonaCreate
+from app.services.state_trait_engine import PROVISIONAL_TRAIT_STEP
 
 TEST_DB_URL = "sqlite:///./test_personas_route_wiring.db"
 engine = create_engine(TEST_DB_URL, connect_args={"check_same_thread": False})
@@ -115,13 +116,17 @@ class TestPipelineActuallyRuns:
         assert persona.current_state != {}
 
     @pytest.mark.asyncio
-    async def test_current_personality_untouched_by_a_single_backstory(self, db):
-        # Step 11: Trait gate requires an "established" pattern - a single
-        # backstory only ever produces one interpretation ("emerging").
+    async def test_single_backstory_moves_personality_only_provisionally(self, db):
+        # Step 11 gated Trait entirely on an "established" pattern; Step 12
+        # allows a small provisional nudge from a single meaningful input, so
+        # the dials are not visibly frozen. Movement must stay well inside the
+        # provisional band - a backstory is one interpretation, not a life.
         response = await create_persona(_payload(), user_id="user-1", db=db)
-        assert response.current_personality == {
-            "openness": 0.5, "conscientiousness": 0.5, "extraversion": 0.5, "agreeableness": 0.5, "neuroticism": 0.5,
-        }
+        for trait, value in response.current_personality.items():
+            assert abs(value - 0.5) <= PROVISIONAL_TRAIT_STEP["high"] + 1e-6, (
+                f"{trait} moved {abs(value - 0.5):.3f} from baseline on a single backstory - "
+                "that exceeds the provisional band and would be videogame-stat movement"
+            )
 
     @pytest.mark.asyncio
     async def test_current_state_surfaced_in_api_response(self, db):
