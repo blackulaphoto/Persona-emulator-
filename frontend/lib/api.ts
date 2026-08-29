@@ -13,7 +13,10 @@ export interface Persona {
   current_age: number;
   current_personality: PersonalityTraits;
   current_attachment_style: string;
-  attachment_style_semantics?: 'static_creation_value';
+  baseline_attachment_style?: string;
+  baseline_attachment_dimensions?: AttachmentDimensions;
+  current_attachment_dimensions?: AttachmentDimensions;
+  attachment_style_semantics?: 'derived_from_developmental_dimensions';
   personality_delta?: Partial<PersonalityTraits> | null;
   foundational_environment_signals?: Record<string, unknown>;
   narrative_mode?: 'case_subject' | 'self_authored';
@@ -30,6 +33,12 @@ export interface Persona {
   experiences_count: number;
   interventions_count: number;
   created_at: string;
+}
+
+export interface AttachmentDimensions {
+  attachment_anxiety: number;
+  attachment_avoidance: number;
+  relational_security: number;
 }
 
 /** An earned coping/adaptation pattern, and how established it has become. */

@@ -43,17 +43,51 @@ def _move(value: float, direction: str, magnitude: str, invert: bool = False) ->
     return round(max(0.0, min(1.0, value)), 4)
 
 
-def apply_attachment_update(current: Optional[Dict[str, float]], state_changes: Optional[Dict]) -> Dict[str, float]:
+ANXIOUS_STRATEGIES = {"hypervigilance", "people_pleasing", "control_seeking", "caretaking"}
+AVOIDANT_STRATEGIES = {"emotional_distancing", "avoidance", "self_reliance", "intellectualization"}
+
+
+def apply_attachment_update(current: Optional[Dict[str, float]], state_changes: Optional[Dict],
+                            adaptation_strategy: Optional[str] = None, is_intervention: bool = False) -> Dict[str, float]:
     """Apply only attachment-relevant interpreted State movement; unrelated events are no-ops."""
     updated = dict(current or STYLE_BASELINES["secure"])
     for variable, implication in (state_changes or {}).items():
         direction = implication.get("direction", "no_change")
         magnitude = implication.get("magnitude", "mild")
         if variable in ("trust", "relational_security"):
+            if direction == "increase" and adaptation_strategy and not is_intervention:
+                continue
             updated["relational_security"] = _move(updated["relational_security"], direction, magnitude)
             updated["attachment_anxiety"] = _move(updated["attachment_anxiety"], direction, magnitude, invert=True)
         elif variable == "avoidance":
             updated["attachment_avoidance"] = _move(updated["attachment_avoidance"], direction, magnitude)
         elif variable == "threat_sensitivity":
             updated["attachment_anxiety"] = _move(updated["attachment_anxiety"], direction, magnitude)
+    if adaptation_strategy in ANXIOUS_STRATEGIES:
+        updated["attachment_anxiety"] = _move(updated["attachment_anxiety"], "increase", "mild")
+    if adaptation_strategy in AVOIDANT_STRATEGIES:
+        updated["attachment_avoidance"] = _move(updated["attachment_avoidance"], "increase", "mild")
+    return updated
+
+
+def apply_attachment_protection(current: Optional[Dict[str, float]], protective_factors) -> Dict[str, float]:
+    updated = dict(current or STYLE_BASELINES["secure"])
+    for factor in protective_factors or []:
+        if "attachment_security" not in (factor.get("domains_buffered") or []):
+            continue
+        updated["relational_security"] = _move(updated["relational_security"], "increase", "mild")
+        updated["attachment_anxiety"] = _move(updated["attachment_anxiety"], "decrease", "mild")
+        updated["attachment_avoidance"] = _move(updated["attachment_avoidance"], "decrease", "mild")
+    return updated
+
+
+def apply_attachment_exposure(current: Optional[Dict[str, float]], exposures) -> Dict[str, float]:
+    """Apply a small deterministic attachment cost for persisted attachment-domain adversity."""
+    updated = dict(current or STYLE_BASELINES["secure"])
+    for exposure in exposures or []:
+        if "attachment_security" not in (exposure.get("developmental_domains") or []):
+            continue
+        updated["relational_security"] = _move(updated["relational_security"], "decrease", "mild")
+        updated["attachment_anxiety"] = _move(updated["attachment_anxiety"], "increase", "mild")
+        updated["attachment_avoidance"] = _move(updated["attachment_avoidance"], "increase", "mild")
     return updated

@@ -4,7 +4,7 @@ from app.models import (
     FunctionalObservation, Interpretation, Intervention, NarrationRecord,
     PersonalitySnapshot, ProtectiveFactor,
 )
-from app.services.attachment_engine import dimensions_for_style, apply_attachment_update, derive_attachment_style
+from app.services.attachment_engine import dimensions_for_style, apply_attachment_update, apply_attachment_protection, apply_attachment_exposure, derive_attachment_style
 from app.services.developmental_pipeline import _exposure_dict, _protective_dict, _narration_dict, _functional_dict
 from app.services.evidence_accumulator import accumulate_evidence, project_current_trauma_markers
 from app.services.pattern_engine import accumulate_patterns, name_pattern_heuristic
@@ -96,9 +96,21 @@ def rebuild_persona_from_timeline(db, persona_id: str):
                       source.created_at if source else row.created_at, 0, "interpretation", row))
     for row in interventions:
         items.append((row.age_at_intervention, row.created_at, 1, "intervention", row))
+    for row in protective:
+        items.append((row.active_from_age if row.active_from_age is not None else persona.baseline_age,
+                      row.created_at, 1, "protective", row))
+    for row in exposures:
+        items.append((row.age_at_exposure if row.age_at_exposure is not None else persona.baseline_age,
+                      row.created_at, -1, "exposure", row))
     items.sort(key=lambda item: (item[0], item[1], item[2]))
 
     for age, _, _, kind, row in items:
+        if kind == "exposure":
+            persona.current_attachment_dimensions = apply_attachment_exposure(
+                persona.current_attachment_dimensions, [_exposure_dict(row)]
+            )
+            persona.current_attachment_style = derive_attachment_style(persona.current_attachment_dimensions)
+            continue
         if kind == "interpretation":
             prefix_interpretations.append(_interpretation_dict(row))
             current_pattern_state = accumulate_patterns(prefix_interpretations, all_protective, all_functional)
@@ -106,20 +118,30 @@ def rebuild_persona_from_timeline(db, persona_id: str):
             persona.current_state = apply_state_update(persona.current_state, row.state_implications)
             persona.current_personality = apply_trait_update(persona.current_personality, row.trait_implications,
                                                               gate_open=trait_gate_open(strategy_state))
-            persona.current_attachment_dimensions = apply_attachment_update(persona.current_attachment_dimensions, row.state_implications)
+            persona.current_attachment_dimensions = apply_attachment_update(
+                persona.current_attachment_dimensions, row.state_implications, row.adaptation_strategy
+            )
             source_id = row.source_event_id
             snapshot_kind = "experience"
-        else:
+        elif kind == "intervention":
             strategy_state = current_pattern_state.get(row.targeted_adaptation_strategy)
             prior = [i.efficacy_match for i in applied_interventions if i.targeted_adaptation_strategy == row.targeted_adaptation_strategy]
             gate = intervention_trait_gate_open(strategy_state, prior, row.efficacy_match)
             persona.current_state = apply_state_update(persona.current_state, row.state_implications)
             persona.current_personality = apply_trait_update(persona.current_personality, row.trait_implications,
                                                               gate_open=gate, allow_provisional=False)
-            persona.current_attachment_dimensions = apply_attachment_update(persona.current_attachment_dimensions, row.state_implications)
+            persona.current_attachment_dimensions = apply_attachment_update(
+                persona.current_attachment_dimensions, row.state_implications, row.targeted_adaptation_strategy, is_intervention=True
+            )
             applied_interventions.append(row)
             source_id = row.id
             snapshot_kind = "intervention"
+        else:
+            persona.current_attachment_dimensions = apply_attachment_protection(
+                persona.current_attachment_dimensions, [_protective_dict(row)]
+            )
+            persona.current_attachment_style = derive_attachment_style(persona.current_attachment_dimensions)
+            continue
         persona.current_attachment_style = derive_attachment_style(persona.current_attachment_dimensions)
         snapshots.append((snapshot_kind, source_id, age, dict(persona.current_personality), dict(persona.current_state),
                           persona.current_attachment_style, dict(persona.current_attachment_dimensions)))

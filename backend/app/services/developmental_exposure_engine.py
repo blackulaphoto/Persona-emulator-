@@ -141,6 +141,10 @@ EXPOSURE_TAXONOMY: Dict[str, Dict] = {
 
 # factor_type -> {domains, keywords}, drawn from the spec's own protective-factor list.
 PROTECTIVE_FACTOR_TAXONOMY: Dict[str, Dict] = {
+    "reliable_close_relationship": {
+        "domains": ["attachment_security", "intimacy", "stability"],
+        "keywords": ["reliable partner", "secure relationship", "consistently offered support", "repaired conflicts"],
+    },
     "stable_alternate_caregiver": {
         "domains": ["attachment_security", "stability"],
         "keywords": ["grandmother raised", "stepped in", "aunt took care of", "stable second parent"],

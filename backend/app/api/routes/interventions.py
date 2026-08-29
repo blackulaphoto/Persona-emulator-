@@ -178,7 +178,9 @@ async def add_intervention(
     intervention.state_implications = state_changes or None
     intervention.trait_implications = trait_changes or None
     persona.current_state = apply_state_update(persona.current_state, state_changes)
-    persona.current_attachment_dimensions = apply_attachment_update(persona.current_attachment_dimensions, state_changes)
+    persona.current_attachment_dimensions = apply_attachment_update(
+        persona.current_attachment_dimensions, state_changes, targeted_strategy, is_intervention=True
+    )
     persona.current_attachment_style = derive_attachment_style(persona.current_attachment_dimensions)
     # allow_provisional=False: therapy keeps the strict Step 11e gate. Its
     # sustained-improvement rule ("one good round is a data point, not proof")

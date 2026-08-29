@@ -58,7 +58,7 @@ from app.services.pattern_engine import (
 from app.services.state_trait_engine import (
     propose_state_trait_implications_async, apply_state_update, apply_trait_update, trait_gate_open,
 )
-from app.services.attachment_engine import apply_attachment_update, derive_attachment_style
+from app.services.attachment_engine import apply_attachment_update, apply_attachment_protection, apply_attachment_exposure, derive_attachment_style
 
 
 def _exposure_dict(e: DevelopmentalExposure) -> Dict:
@@ -262,12 +262,19 @@ async def process_developmental_text(
         interpretation_row.trait_implications = trait_changes or None
 
         persona.current_state = apply_state_update(persona.current_state, state_changes)
-        persona.current_attachment_dimensions = apply_attachment_update(persona.current_attachment_dimensions, state_changes)
-        persona.current_attachment_style = derive_attachment_style(persona.current_attachment_dimensions)
+        persona.current_attachment_dimensions = apply_attachment_update(persona.current_attachment_dimensions, state_changes, strategy)
         persona.current_personality = apply_trait_update(
             persona.current_personality, trait_changes, gate_open=trait_gate_open(pattern_state)
         )
         db.flush()
+
+    persona.current_attachment_dimensions = apply_attachment_exposure(
+        persona.current_attachment_dimensions, [_exposure_dict(e) for e in exposure_rows]
+    )
+    persona.current_attachment_dimensions = apply_attachment_protection(
+        persona.current_attachment_dimensions, [_protective_dict(p) for p in protective_rows]
+    )
+    persona.current_attachment_style = derive_attachment_style(persona.current_attachment_dimensions)
 
     # 7. Project the display list - the single writer to current_trauma_markers.
     trauma_markers = project_current_trauma_markers(accumulated_evidence)

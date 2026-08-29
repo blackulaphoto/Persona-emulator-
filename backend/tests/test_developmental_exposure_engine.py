@@ -93,6 +93,13 @@ class TestProtectiveFactors:
         factor_types = {f["factor_type"] for f in result["protective_factors"]}
         assert "mentor" not in factor_types
 
+    def test_reliable_close_relationship_detected(self):
+        result = extract_exposures_keyword(
+            "In adulthood I found a reliable partner and we repaired conflicts together."
+        )
+        factor_types = {f["factor_type"] for f in result["protective_factors"]}
+        assert "reliable_close_relationship" in factor_types
+
 
 class TestValidateAndFilter:
     """Defense against the AI path inventing types outside the controlled vocabulary."""
