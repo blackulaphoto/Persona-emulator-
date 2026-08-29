@@ -39,6 +39,19 @@ if not firebase_admin._apps:
 
 security = HTTPBearer()
 
+# QA-ONLY LOCAL FALLBACK - not a real auth bypass flag, not for deployment.
+# Firebase Admin never initializing (no service account configured) already
+# means every real verify_id_token() call below would 401 unconditionally -
+# there is no working auth in that state regardless of this branch. This
+# only lets local visual QA proceed against a real backend without a real
+# Firebase project configured; it is structurally incapable of firing once
+# real Firebase credentials exist (firebase_admin._apps is then non-empty).
+_DEV_NO_FIREBASE_CONFIGURED = not firebase_admin._apps
+if _DEV_NO_FIREBASE_CONFIGURED:
+    print("AUTH BYPASS ACTIVE: no Firebase Admin credentials configured - "
+          "all requests are being treated as a single local dev user. "
+          "Do not deploy this state.")
+
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Security(security)
@@ -52,6 +65,9 @@ async def get_current_user(
         # user_id is the Firebase UID
         pass
     """
+    if _DEV_NO_FIREBASE_CONFIGURED:
+        return "dev-local-user"
+
     try:
         token = credentials.credentials
 

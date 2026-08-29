@@ -8,6 +8,8 @@
  * - Timeline snapshots and comparisons
  */
 
+import { getAuthHeaders } from '@/lib/authHeaders';
+
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 const API_ROOT = API_BASE_URL ? `${API_BASE_URL}/api/v1` : '/api/v1';
 
@@ -124,9 +126,10 @@ export const templatesAPI = {
     suggested_interventions_available: number;
     message: string;
   }> {
+    const headers = await getAuthHeaders();
     const response = await fetch(`${API_ROOT}/templates/create-persona`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({
         template_id: templateId,
         custom_name: customName,
@@ -151,11 +154,12 @@ export const templatesAPI = {
     symptoms_developed: string[];
     current_age: number;
   }> {
+    const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_ROOT}/templates/personas/${personaId}/apply-experiences`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           template_id: templateId,
           experience_indices: experienceIndices,
@@ -182,6 +186,9 @@ export interface TimelineSnapshot {
   trauma_markers_snapshot?: string[];
   symptom_severity_snapshot?: Record<string, number>;
   state_profile_snapshot?: Record<string, number>;
+  /** Optional - only present once the persona has attachment data captured at snapshot time. */
+  attachment_style_snapshot?: string | null;
+  attachment_dimensions_snapshot?: Record<string, number> | null;
   adaptation_patterns_snapshot?: Array<Record<string, any>>;
   clinical_pattern_hypotheses_snapshot?: Array<Record<string, any>>;
   personality_difference?: Record<string, number>;
@@ -189,27 +196,51 @@ export interface TimelineSnapshot {
   created_at: string;
 }
 
+interface SnapshotComparisonSide {
+  id: string;
+  label: string;
+  personality: Record<string, number>;
+  state: Record<string, number>;
+  symptoms: string[];
+  symptom_severity: Record<string, number>;
+  adaptation_patterns: Array<Record<string, any>>;
+  clinical_pattern_hypotheses: Array<Record<string, any>>;
+  /** Optional - only present once attachment is captured in snapshots. */
+  attachment_style?: string | null;
+  attachment_dimensions?: Record<string, number> | null;
+}
+
+interface PatternDifferenceSet {
+  new: Array<Record<string, any>>;
+  resolved: Array<Record<string, any>>;
+  changed: Array<Record<string, any>>;
+  unchanged: Array<Record<string, any>>;
+}
+
 export interface SnapshotComparison {
-  snapshot_1: {
-    id: string;
-    label: string;
-    personality: Record<string, number>;
-    symptoms: string[];
-    symptom_severity: Record<string, number>;
-  };
-  snapshot_2: {
-    id: string;
-    label: string;
-    personality: Record<string, number>;
-    symptoms: string[];
-    symptom_severity: Record<string, number>;
-  };
+  snapshot_1: SnapshotComparisonSide;
+  snapshot_2: SnapshotComparisonSide;
   personality_differences: Record<string, {
     snapshot_1: number;
     snapshot_2: number;
     difference: number;
     change_direction: string;
   }>;
+  state_differences: Record<string, {
+    snapshot_1: number | null;
+    snapshot_2: number | null;
+    difference: number | null;
+    change_direction: string;
+  }>;
+  /** Optional - only present once attachment is captured in snapshots. */
+  attachment_differences?: Record<string, {
+    snapshot_1: number | string | null;
+    snapshot_2: number | string | null;
+    difference?: number | null;
+    change_direction: string;
+  }>;
+  adaptation_pattern_differences: PatternDifferenceSet;
+  clinical_pattern_differences: PatternDifferenceSet;
   symptom_differences: {
     only_in_snapshot_1: string[];
     only_in_snapshot_2: string[];
@@ -233,9 +264,10 @@ export const remixAPI = {
     description?: string,
     templateId?: string
   ): Promise<TimelineSnapshot> {
+    const headers = await getAuthHeaders();
     const response = await fetch(`${API_ROOT}/remix/snapshots`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({
         persona_id: personaId,
         label,
@@ -251,8 +283,10 @@ export const remixAPI = {
    * List snapshots for persona
    */
   async listSnapshots(personaId: string): Promise<TimelineSnapshot[]> {
+    const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_ROOT}/remix/personas/${personaId}/snapshots`
+      `${API_ROOT}/remix/personas/${personaId}/snapshots`,
+      { headers }
     );
     return handleResponse<TimelineSnapshot[]>(response);
   },
@@ -261,7 +295,8 @@ export const remixAPI = {
    * Get snapshot details
    */
   async getSnapshot(snapshotId: string): Promise<TimelineSnapshot> {
-    const response = await fetch(`${API_ROOT}/remix/snapshots/${snapshotId}`);
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_ROOT}/remix/snapshots/${snapshotId}`, { headers });
     return handleResponse<TimelineSnapshot>(response);
   },
 
@@ -272,9 +307,10 @@ export const remixAPI = {
     snapshotId1: string,
     snapshotId2: string
   ): Promise<SnapshotComparison> {
+    const headers = await getAuthHeaders();
     const response = await fetch(`${API_ROOT}/remix/snapshots/compare`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({
         snapshot_id_1: snapshotId1,
         snapshot_id_2: snapshotId2,
@@ -287,8 +323,10 @@ export const remixAPI = {
    * Get intervention impact analysis
    */
   async getInterventionImpact(personaId: string, baselineSnapshotId: string): Promise<any> {
+    const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_ROOT}/remix/personas/${personaId}/intervention-impact?baseline_snapshot_id=${baselineSnapshotId}`
+      `${API_ROOT}/remix/personas/${personaId}/intervention-impact?baseline_snapshot_id=${baselineSnapshotId}`,
+      { headers }
     );
     return handleResponse(response);
   },
@@ -303,9 +341,11 @@ export const remixAPI = {
       hypothesis: string;
     }>;
   }> {
+    const headers = await getAuthHeaders();
     const params = templateId ? `?template_id=${templateId}` : '';
     const response = await fetch(
-      `${API_ROOT}/remix/personas/${personaId}/suggestions${params}`
+      `${API_ROOT}/remix/personas/${personaId}/suggestions${params}`,
+      { headers }
     );
     return handleResponse(response);
   },
@@ -314,8 +354,10 @@ export const remixAPI = {
    * Delete snapshot
    */
   async deleteSnapshot(snapshotId: string): Promise<{ message: string }> {
+    const headers = await getAuthHeaders();
     const response = await fetch(`${API_ROOT}/remix/snapshots/${snapshotId}`, {
       method: 'DELETE',
+      headers,
     });
     return handleResponse(response);
   },

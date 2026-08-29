@@ -30,6 +30,13 @@ backend/firebase/
 
 # Narrative folder
 Narrative/
+# ...but not the real Rubix Narrative route this rule was accidentally also
+# catching (Windows filesystems are case-insensitive, so "Narrative/" above
+# matches frontend/app/persona/[id]/narrative/ too) - carved out narrowly,
+# same pattern as the splash/ exception below, rather than touching whatever
+# the original rule exists to protect elsewhere.
+!frontend/app/persona/\[id\]/narrative/
+!frontend/app/persona/\[id\]/narrative/**
 
 # OS and IDE
 .DS_Store

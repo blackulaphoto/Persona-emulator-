@@ -157,6 +157,8 @@ def create_timeline_snapshot(
         adaptation_patterns_snapshot=adaptation_patterns_snapshot if adaptation_patterns_snapshot else None,
         clinical_pattern_hypotheses_snapshot=clinical_pattern_hypotheses_snapshot if clinical_pattern_hypotheses_snapshot else None,
         state_profile_snapshot=dict(persona.current_state) if persona.current_state else None,
+        attachment_style_snapshot=persona.current_attachment_style,
+        attachment_dimensions_snapshot=dict(persona.current_attachment_dimensions) if persona.current_attachment_dimensions else None,
         personality_difference=personality_difference,
         symptom_difference=None
     )
@@ -267,6 +269,48 @@ def _diff_state_profile(state_1: Optional[Dict[str, float]], state_2: Optional[D
     return differences
 
 
+def _diff_attachment_dimensions(
+    style_1: Optional[str], dims_1: Optional[Dict[str, float]],
+    style_2: Optional[str], dims_2: Optional[Dict[str, float]],
+) -> Dict:
+    """
+    Diffs attachment between two snapshots the same way _diff_state_profile
+    diffs State: numeric dimensions get a real before/after/difference, plus
+    one extra "style" entry since attachment_style is a derived label, not a
+    number, and a style change (e.g. secure -> anxious) is real, displayable
+    information a numeric diff alone wouldn't surface.
+    """
+    dims_1 = dims_1 or {}
+    dims_2 = dims_2 or {}
+    differences: Dict[str, Dict] = {}
+
+    if style_1 is not None or style_2 is not None:
+        differences["style"] = {
+            "snapshot_1": style_1,
+            "snapshot_2": style_2,
+            "difference": None,
+            "change_direction": "unchanged" if style_1 == style_2 else "changed",
+        }
+
+    for key in set(dims_1) | set(dims_2):
+        val_1, val_2 = dims_1.get(key), dims_2.get(key)
+        if val_1 is None or val_2 is None:
+            differences[key] = {
+                "snapshot_1": val_1,
+                "snapshot_2": val_2,
+                "difference": None,
+                "change_direction": "newly_tracked" if val_1 is None else "no_longer_tracked",
+            }
+            continue
+        differences[key] = {
+            "snapshot_1": val_1,
+            "snapshot_2": val_2,
+            "difference": val_2 - val_1,
+            "change_direction": "increased" if val_2 > val_1 else "decreased" if val_2 < val_1 else "unchanged",
+        }
+    return differences
+
+
 def compare_snapshots(
     db: Session,
     snapshot_id_1: str,
@@ -347,6 +391,13 @@ def compare_snapshots(
     # Step 11f: diff the State tier too - the fast-moving counterpart to
     # personality_differences above.
     state_differences = _diff_state_profile(snapshot_1.state_profile_snapshot, snapshot_2.state_profile_snapshot)
+
+    # Diff attachment - only meaningful once both snapshots were taken after
+    # this capture was added; older snapshots simply have None here.
+    attachment_differences = _diff_attachment_dimensions(
+        snapshot_1.attachment_style_snapshot, snapshot_1.attachment_dimensions_snapshot,
+        snapshot_2.attachment_style_snapshot, snapshot_2.attachment_dimensions_snapshot,
+    )
 
     # Generate natural language summary
     summary_parts = []
@@ -443,6 +494,8 @@ def compare_snapshots(
             "label": snapshot_1.label,
             "personality": snapshot_1.personality_snapshot,
             "state": snapshot_1.state_profile_snapshot or {},
+            "attachment_style": snapshot_1.attachment_style_snapshot,
+            "attachment_dimensions": snapshot_1.attachment_dimensions_snapshot or {},
             "symptoms": list(symptoms_1),
             "symptom_severity": severity_1,
             "adaptation_patterns": snapshot_1.adaptation_patterns_snapshot or [],
@@ -453,6 +506,8 @@ def compare_snapshots(
             "label": snapshot_2.label,
             "personality": snapshot_2.personality_snapshot,
             "state": snapshot_2.state_profile_snapshot or {},
+            "attachment_style": snapshot_2.attachment_style_snapshot,
+            "attachment_dimensions": snapshot_2.attachment_dimensions_snapshot or {},
             "symptoms": list(symptoms_2),
             "symptom_severity": severity_2,
             "adaptation_patterns": snapshot_2.adaptation_patterns_snapshot or [],
@@ -460,6 +515,7 @@ def compare_snapshots(
         },
         "personality_differences": personality_differences,
         "state_differences": state_differences,
+        "attachment_differences": attachment_differences,
         "adaptation_pattern_differences": adaptation_pattern_differences,
         "clinical_pattern_differences": clinical_pattern_differences,
         "symptom_differences": {

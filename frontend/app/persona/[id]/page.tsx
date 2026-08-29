@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { ArrowLeft, Plus, Sparkles, Pill, TrendingDown, TrendingUp, AlertCircle, Camera, GitCompare, Wand2, Trash2, Pencil } from 'lucide-react'
 import { api, type Timeline, type TimelineEvent } from '@/lib/api'
 import { remixAPI, templatesAPI, type TimelineSnapshot, type Template, type TemplateDetails } from '@/lib/api/templates'
@@ -9,9 +10,18 @@ import { useAuth } from '@/contexts/AuthContext'
 import { PageHelpBanner, QuickTip, TraitHelp, EmptyStateWithHelp } from '@/components/help/PageHelpComponents'
 import { Tooltip, HelpText } from '@/components/help/HelpComponents'
 import { SITE_HELP } from '@/lib/help/SiteWideHelpContent'
-import ChatBox from './ChatBox'
 import SnapshotComparisonView from '@/components/templates/SnapshotComparison'
 import PersonaNarrative from '@/components/PersonaNarrative'
+import { RubixShell, RubixCard, RubixBadge, RubixMetric, RubixModal, RubixDrawer, RubixDrawerSection, RubixDelta } from '@/components/rubix'
+import { attachmentStyleLabel, attachmentStyleTone } from '@/lib/rubix/attachmentStyle'
+import type { AdaptationPattern, ClinicalPatternHypothesis } from '@/lib/api'
+
+type DetailDrawerState =
+  | { type: 'attachment' }
+  | { type: 'starting' }
+  | { type: 'pattern'; data: AdaptationPattern }
+  | { type: 'hypothesis'; data: ClinicalPatternHypothesis }
+  | null
 
 export default function PersonaPage({ params }: { params: { id: string } }) {
   const { user, loading: authLoading } = useAuth()
@@ -38,6 +48,7 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
   const [deleting, setDeleting] = useState(false)
   const [showEditPersona, setShowEditPersona] = useState(false)
   const [deletingSnapshotId, setDeletingSnapshotId] = useState<string | null>(null)
+  const [detailDrawer, setDetailDrawer] = useState<DetailDrawerState>(null)
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -185,13 +196,10 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
     }
   }
 
-  if (authLoading) {
+  if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-deep-purple border-t-transparent mx-auto mb-4"></div>
-          <p className="text-muted-foreground font-['Outfit']">Loading...</p>
-        </div>
+      <div className="rubix-scope rubix-app-bg" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ fontSize: 13.5, color: 'rgba(210,232,255,0.65)' }}>Loading…</div>
       </div>
     )
   }
@@ -200,27 +208,15 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
     return null
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-muted gradient-apple-mesh flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-deep-purple border-t-transparent"></div>
-          <p className="mt-4 text-muted-foreground">Loading persona...</p>
-        </div>
-      </div>
-    )
-  }
-
   if (!timeline) {
     return (
-      <div className="min-h-screen bg-muted gradient-apple-mesh flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle size={48} className="mx-auto text-red-500 mb-4" />
-          <h2 className="text-2xl font-display text-foreground mb-2">Persona Not Found</h2>
-          <button onClick={() => router.push('/')} className="btn-primary mt-4">
-            Return Home
+      <div className="rubix-scope rubix-app-bg" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <RubixCard style={{ padding: 32, textAlign: 'center', maxWidth: 380 }}>
+          <div style={{ fontSize: 17, fontWeight: 700 }}>Persona not found</div>
+          <button type="button" className="rubix-btn-primary" style={{ marginTop: 18 }} onClick={() => router.push('/personas')}>
+            Back to Lives
           </button>
-        </div>
+        </RubixCard>
       </div>
     )
   }
@@ -228,99 +224,83 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
   const { persona } = timeline
 
   return (
-    <main className="min-h-screen bg-muted gradient-apple-mesh">
-      {/* Header */}
-      <header className="border-b border-border bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between mb-4">
-            <button
-              onClick={() => router.push('/personas')}
-              className="flex items-center gap-2 text-muted-foreground hover:text-deep-purple transition-colors"
-            >
-              <ArrowLeft size={20} />
-              Back to Personas
-            </button>
-            <button
-              onClick={handleDeletePersona}
-              disabled={deleting}
-              className="flex items-center gap-2 text-red-500 hover:text-red-500/80 transition-colors text-sm"
-              title="Delete this persona"
-            >
-              <Trash2 size={16} />
-              {deleting ? 'Deleting...' : 'Delete Persona'}
-            </button>
-          </div>
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-4xl font-display text-foreground mb-2">
-                {persona.name}
-              </h1>
-              <button
-                onClick={() => setShowEditPersona(true)}
-                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-deep-purple mb-2"
-              >
-                <Pencil size={14} /> Edit name and background
-              </button>
-              <div className="flex items-center gap-4 text-muted-foreground text-sm">
-                <span>Age {persona.current_age}</span>
-                <span>•</span>
-                <span>{persona.experiences_count} experiences</span>
-                <span>•</span>
-                <span>{persona.interventions_count} moments of support</span>
-              </div>
-            </div>
-            <div className="flex gap-2 md:gap-3 flex-wrap items-center">
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setShowAddExperience(true)}
-                  className="btn-secondary flex items-center gap-2 text-sm md:text-base"
-                >
-                  <Plus size={18} />
-                  <span className="hidden xs:inline">Add</span> Experience
-                </button>
-                <Tooltip content={SITE_HELP.experience.tooltip} position="bottom" />
-              </div>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setShowAddSupport(true)}
-                  className="btn-primary flex items-center gap-2 text-sm md:text-base"
-                >
-                  <Pill size={18} />
-                  <span className="hidden xs:inline">Add</span> Therapy
-                </button>
-                <Tooltip content={SITE_HELP.intervention.tooltip} position="bottom" />
-              </div>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setShowCreateSnapshot(true)}
-                  className="btn-secondary flex items-center gap-2 text-sm md:text-base"
-                  title="Create timeline snapshot"
-                >
-                  <Camera size={18} />
-                  <span className="hidden sm:inline">Save</span> Snapshot
-                </button>
-                <Tooltip content={SITE_HELP.snapshot.tooltip} position="bottom" />
-              </div>
-              {templates.length > 0 && (
-                <button
-                  onClick={() => setShowTemplateRemix(true)}
-                  className="btn-secondary flex items-center gap-2 text-sm md:text-base"
-                  title="Remix persona with template experiences"
-                >
-                  <Wand2 size={18} />
-                  <span className="hidden sm:inline">Remix</span>
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+    <RubixShell persona={{ id: persona.id, name: persona.name }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20, marginBottom: 22, flexWrap: 'wrap' }}>
+        <Link href="/personas" style={{ fontSize: 13, color: 'rgba(205,228,255,0.62)' }}>
+          ← Lives
+        </Link>
+        <button
+          type="button"
+          onClick={handleDeletePersona}
+          disabled={deleting}
+          className="rubix-btn-danger"
+          style={{ fontSize: 12.5 }}
+        >
+          {deleting ? 'Deleting…' : 'Delete this life'}
+        </button>
+      </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-12">
-        <PageHelpBanner pageKey="personaDetail" />
-        <div className="mb-6">
-          <QuickTip tip="Hover the ? icons to see what each section means." />
-        </div>
+      <div style={{ maxWidth: 1420, display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {/* PERSON / NOW */}
+        <RubixCard variant="hero" style={{ padding: 26 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div className="rubix-avatar" style={{ width: 58, height: 58, flex: '0 0 58px', fontSize: 20 }} aria-hidden="true">
+                {persona.name.trim().charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.02em' }}>{persona.name}</div>
+                <div style={{ marginTop: 4, fontSize: 13, color: 'rgba(214,235,255,0.7)' }}>
+                  Age {persona.current_age} · {persona.experiences_count} experience{persona.experiences_count === 1 ? '' : 's'} · {persona.interventions_count} moment{persona.interventions_count === 1 ? '' : 's'} of support
+                </div>
+                <div style={{ marginTop: 6, display: 'flex', gap: 14 }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowEditPersona(true)}
+                    style={{ fontSize: 12.5, color: 'rgba(205,228,255,0.65)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
+                  >
+                    Edit name and background
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDetailDrawer({ type: 'starting' })}
+                    style={{ fontSize: 12.5, color: 'rgba(205,228,255,0.65)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
+                  >
+                    Starting conditions →
+                  </button>
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setDetailDrawer({ type: 'attachment' })}
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+              aria-label="Attachment detail"
+            >
+              <RubixBadge tone={attachmentStyleTone(persona.current_attachment_style)}>
+                {attachmentStyleLabel(persona.current_attachment_style)}
+              </RubixBadge>
+            </button>
+          </div>
+
+          <div style={{ marginTop: 22, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <button type="button" className="rubix-btn-primary" onClick={() => setShowAddExperience(true)}>
+              + Add experience
+            </button>
+            <button type="button" className="rubix-btn-ghost" onClick={() => setShowAddSupport(true)}>
+              + Add therapy
+            </button>
+            <button type="button" className="rubix-btn-ghost" onClick={() => setShowCreateSnapshot(true)}>
+              Save snapshot
+            </button>
+            {templates.length > 0 && (
+              <button type="button" className="rubix-btn-ghost" onClick={() => setShowTemplateRemix(true)}>
+                Remix with template
+              </button>
+            )}
+          </div>
+        </RubixCard>
+
         {/* Personality Overview */}
         <PersonalityOverview persona={persona} />
 
@@ -328,14 +308,27 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
             itself until the engine actually has something to show. */}
         {((persona.adaptation_patterns?.length ?? 0) > 0 ||
           (persona.clinical_pattern_hypotheses?.length ?? 0) > 0) && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-            <AdaptationPatternsPanel patterns={persona.adaptation_patterns || []} />
-            <PatternHypothesesPanel hypotheses={persona.clinical_pattern_hypotheses || []} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <AdaptationPatternsPanel patterns={persona.adaptation_patterns || []} onSelect={(p) => setDetailDrawer({ type: 'pattern', data: p })} />
+            <PatternHypothesesPanel hypotheses={persona.clinical_pattern_hypotheses || []} onSelect={(h) => setDetailDrawer({ type: 'hypothesis', data: h })} />
           </div>
         )}
+      </div>
+
+      {/* The sections below (Timeline & Snapshots, Narrative) are being split
+          into their own dedicated Full Life / Narrative / Compare / Talk
+          routes next - kept fully functional here in the meantime inside a
+          bounded light surface rather than left broken against the dark
+          shell or deleted before their real replacement exists. */}
+      <div style={{ maxWidth: 1420, marginTop: 28, background: '#fff', borderRadius: 24, padding: '8px 8px 1px', boxShadow: '0 34px 70px -38px rgba(4,14,46,0.6)' }}>
+      <div className="px-6 pt-6">
+        <PageHelpBanner pageKey="personaDetail" />
+        <div className="mb-6">
+          <QuickTip tip="Hover the ? icons to see what each section means." />
+        </div>
 
         {/* Tab Navigation */}
-        <div className="mt-12 border-b border-border">
+        <div className="mt-2 border-b border-border">
           <nav className="flex space-x-4 md:space-x-8 overflow-x-auto">
             <button
               onClick={() => setActiveTab('timeline')}
@@ -502,6 +495,7 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
           </div>
         )}
       </div>
+      </div>
 
       {/* Modals */}
       {showAddExperience && (
@@ -617,9 +611,19 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
         />
       )}
 
-      {/* Chat Box */}
-      <ChatBox personaId={params.id} personaName={persona.name} />
-    </main>
+      <RubixDrawer
+        open={detailDrawer !== null}
+        onClose={() => setDetailDrawer(null)}
+        kind={detailDrawer ? DETAIL_KIND_LABEL[detailDrawer.type] : ''}
+        kindColor={detailDrawer ? DETAIL_KIND_COLOR[detailDrawer.type] : undefined}
+        title={detailDrawer ? detailDrawerTitle(detailDrawer, persona) : ''}
+      >
+        {detailDrawer?.type === 'attachment' && <AttachmentDetail persona={persona} />}
+        {detailDrawer?.type === 'starting' && <StartingConditionsDetail persona={persona} />}
+        {detailDrawer?.type === 'pattern' && <PatternDetail pattern={detailDrawer.data} />}
+        {detailDrawer?.type === 'hypothesis' && <HypothesisDetail hypothesis={detailDrawer.data} />}
+      </RubixDrawer>
+    </RubixShell>
   )
 }
 
@@ -966,47 +970,44 @@ function CreateSnapshotModal({
   )
 }
 
+const BIG_FIVE_ACCENT: Record<string, string> = {
+  openness: '#7fb2ff',
+  conscientiousness: '#6fe3ff',
+  extraversion: '#b39bff',
+  agreeableness: '#6fe3b0',
+  neuroticism: '#ff9282',
+}
+
 function PersonalityOverview({ persona }: { persona: any }) {
   const traits = [
-    { name: 'Openness', key: 'openness', value: persona.current_personality.openness, color: 'bg-periwinkle' },
-    { name: 'Conscientiousness', key: 'conscientiousness', value: persona.current_personality.conscientiousness, color: 'bg-deep-purple' },
-    { name: 'Extraversion', key: 'extraversion', value: persona.current_personality.extraversion, color: 'bg-soft-purple' },
-    { name: 'Agreeableness', key: 'agreeableness', value: persona.current_personality.agreeableness, color: 'bg-lavender' },
-    { name: 'Neuroticism', key: 'neuroticism', value: persona.current_personality.neuroticism, color: 'bg-muted-coral' },
+    { name: 'Openness', key: 'openness', value: persona.current_personality.openness },
+    { name: 'Conscientiousness', key: 'conscientiousness', value: persona.current_personality.conscientiousness },
+    { name: 'Extraversion', key: 'extraversion', value: persona.current_personality.extraversion },
+    { name: 'Agreeableness', key: 'agreeableness', value: persona.current_personality.agreeableness },
+    { name: 'Neuroticism', key: 'neuroticism', value: persona.current_personality.neuroticism },
   ] as const
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Personality Traits */}
-      <div className="bg-white border-2 border-border rounded-xl p-6">
-        <div className="flex items-center gap-2 mb-2">
-          <h3 className="text-xl font-display text-foreground">How They Think & Feel</h3>
-          <Tooltip content={SITE_HELP.personaDetail.bigFive.tooltip} />
-        </div>
-        <HelpText type="info">{SITE_HELP.personaDetail.bigFive.whatIs}</HelpText>
-        <div className="space-y-4 mt-4">
+      <RubixCard style={{ padding: 24 }}>
+        <div style={{ fontSize: 15.5, fontWeight: 700 }}>How they think &amp; feel</div>
+        <div style={{ marginTop: 3, fontSize: 12.5, color: 'rgba(214,235,255,0.65)' }}>Current Big Five — reflects everything that's happened so far.</div>
+        <div style={{ marginTop: 18, display: 'flex', flexDirection: 'column', gap: 16 }}>
           {traits.map((trait) => {
             const score = Math.round(trait.value * 100)
             return (
-              <div key={trait.name}>
-                <div className="flex justify-between text-sm mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-foreground font-medium">{trait.name}</span>
-                    <TraitHelp trait={trait.key} score={score} />
-                  </div>
-                  <span className="text-muted-foreground">{score}%</span>
-                </div>
-                <div className="bg-muted/30 rounded-full h-3 overflow-hidden">
-                  <div
-                    className={`${trait.color} h-full rounded-full transition-all duration-700`}
-                    style={{ width: `${trait.value * 100}%` }}
-                  />
-                </div>
-              </div>
+              <RubixMetric
+                key={trait.name}
+                label={trait.name}
+                valueLabel={`${score}%`}
+                percent={score}
+                accent={BIG_FIVE_ACCENT[trait.key]}
+              />
             )
           })}
         </div>
-      </div>
+      </RubixCard>
 
       {/* What They're Navigating - driven by current psychological state */}
       <CurrentStatePanel persona={persona} />
@@ -1056,57 +1057,41 @@ function CurrentStatePanel({ persona }: { persona: any }) {
   const hasSomethingToShow = dimensions.length > 0 || markers.length > 0
 
   return (
-    <div className="bg-white border-2 border-border rounded-xl p-6">
-      <div className="flex items-center gap-2 mb-2">
-        <h3 className="text-xl font-display text-foreground">What They're Navigating</h3>
-        <Tooltip content={SITE_HELP.personaDetail.symptoms.tooltip} />
-      </div>
-      <HelpText type="info">{SITE_HELP.personaDetail.symptoms.whatIs}</HelpText>
+    <RubixCard style={{ padding: 24 }}>
+      <div style={{ fontSize: 15.5, fontWeight: 700 }}>What they&apos;re navigating</div>
+      <div style={{ marginTop: 3, fontSize: 12.5, color: 'rgba(214,235,255,0.65)' }}>Fast-moving state — reacts to a single event far more readily than personality does.</div>
 
       {!hasSomethingToShow ? (
-        <div className="text-center py-8 text-muted-foreground">
-          <TrendingUp size={32} className="mx-auto mb-2" />
-          <p>All is well right now</p>
-        </div>
+        <div style={{ textAlign: 'center', padding: '28px 0 8px', fontSize: 13.5, color: 'rgba(214,235,255,0.6)' }}>All is well right now</div>
       ) : (
-        <div className="space-y-4 mt-4">
+        <div style={{ marginTop: 18, display: 'flex', flexDirection: 'column', gap: 16 }}>
           {dimensions.map((d) => (
-            <div key={d.key}>
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-foreground font-medium">{d.meta.label}</span>
-                <span className={d.isAdverse ? 'text-muted-coral font-medium' : 'text-muted-foreground'}>
-                  {d.delta > 0 ? d.meta.highLabel : d.meta.lowLabel}
-                </span>
-              </div>
-              <div className="bg-muted/30 rounded-full h-3 overflow-hidden">
-                <div
-                  className={`${d.isAdverse ? 'bg-muted-coral' : 'bg-soft-purple'} h-full rounded-full transition-all duration-700`}
-                  style={{ width: `${Math.round(d.value * 100)}%` }}
-                />
-              </div>
-            </div>
+            <RubixMetric
+              key={d.key}
+              label={d.meta.label}
+              valueLabel={d.delta > 0 ? d.meta.highLabel : d.meta.lowLabel}
+              percent={Math.round(d.value * 100)}
+              accent={d.isAdverse ? '#ff9282' : '#6fe3b0'}
+            />
           ))}
 
           {markers.length > 0 && (
-            <div className="pt-2">
-              <p className="text-xs text-muted-foreground mb-2">
+            <div style={{ paddingTop: 8 }}>
+              <div style={{ fontSize: 11.5, color: 'rgba(214,235,255,0.55)', marginBottom: 8 }}>
                 Patterns with enough accumulated evidence to name:
-              </p>
-              <div className="flex flex-wrap gap-2">
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {markers.map((marker: string, i: number) => (
-                  <span
-                    key={i}
-                    className="bg-red-500/20 text-red-500 px-4 py-2 rounded-full text-sm font-medium"
-                  >
+                  <RubixBadge key={i} tone="caution">
                     {marker.replace(/_/g, ' ')}
-                  </span>
+                  </RubixBadge>
                 ))}
               </div>
             </div>
           )}
         </div>
       )}
-    </div>
+    </RubixCard>
   )
 }
 
@@ -1124,7 +1109,243 @@ const HYPOTHESIS_DIRECTION_LABEL: Record<string, string> = {
 }
 
 function titleCase(value: string) {
-  return value.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+  // Handles both snake_case (adaptation_strategy) and the camelCase a few
+  // fields use (foundational_environment_signals' keys, e.g. caregiverReliability).
+  return value
+    .replace(/_/g, ' ')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+const DETAIL_KIND_LABEL: Record<NonNullable<DetailDrawerState>['type'], string> = {
+  attachment: 'ATTACHMENT',
+  starting: 'STARTING CONDITIONS',
+  pattern: 'ADAPTATION PATTERN',
+  hypothesis: 'PATTERN BEING CONSIDERED',
+}
+const DETAIL_KIND_COLOR: Record<NonNullable<DetailDrawerState>['type'], string> = {
+  attachment: '#b39bff',
+  starting: '#7fb2ff',
+  pattern: '#7fb2ff',
+  hypothesis: '#b39bff',
+}
+function detailDrawerTitle(d: NonNullable<DetailDrawerState>, persona: any): string {
+  if (d.type === 'attachment') return 'Attachment'
+  if (d.type === 'starting') return 'Where they started'
+  if (d.type === 'pattern') return d.data.pattern_name
+  return titleCase(d.data.pattern_key)
+}
+
+const ATTACHMENT_DIMENSION_LABELS: Record<string, string> = {
+  attachment_anxiety: 'Attachment anxiety',
+  attachment_avoidance: 'Attachment avoidance',
+  relational_security: 'Relational security',
+}
+
+/** Real baseline -> current -> delta for style and each dimension. Never fabricates a transition age unless the data genuinely supports it. */
+function AttachmentDetail({ persona }: { persona: any }) {
+  const baselineStyle = persona.baseline_attachment_style
+  const currentStyle = persona.current_attachment_style
+  const baselineDims = persona.baseline_attachment_dimensions || {}
+  const currentDims = persona.current_attachment_dimensions || {}
+  const delta = persona.attachment_delta || {}
+  const dimKeys = Array.from(new Set([...Object.keys(baselineDims), ...Object.keys(currentDims)]))
+
+  return (
+    <>
+      <RubixDrawerSection label="STYLE">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {baselineStyle && baselineStyle !== currentStyle ? (
+            <>
+              <RubixBadge tone={attachmentStyleTone(baselineStyle)}>{attachmentStyleLabel(baselineStyle)}</RubixBadge>
+              <span style={{ color: 'rgba(214,235,255,0.4)' }}>→</span>
+            </>
+          ) : null}
+          <RubixBadge tone={attachmentStyleTone(currentStyle)}>{attachmentStyleLabel(currentStyle)}</RubixBadge>
+        </div>
+      </RubixDrawerSection>
+
+      {dimKeys.length > 0 && (
+        <RubixDrawerSection label="DIMENSIONS">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {dimKeys.map((key) => (
+              <RubixMetric
+                key={key}
+                label={ATTACHMENT_DIMENSION_LABELS[key] || titleCase(key)}
+                valueLabel={currentDims[key] != null ? currentDims[key].toFixed(2) : '—'}
+                percent={Math.round((currentDims[key] ?? 0) * 100)}
+                markerPercent={baselineDims[key] != null ? Math.round(baselineDims[key] * 100) : undefined}
+                accent="#b39bff"
+              />
+            ))}
+          </div>
+        </RubixDrawerSection>
+      )}
+
+      {Object.keys(delta).length > 0 && (
+        <RubixDrawerSection label="CHANGE SINCE BASELINE">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {Object.entries(delta).map(([key, value]: [string, any]) => (
+              <RubixDelta
+                key={key}
+                label={`${ATTACHMENT_DIMENSION_LABELS[key] || titleCase(key)} ${value > 0 ? '+' : ''}${value.toFixed(2)}`}
+                tone={key === 'relational_security' ? (value > 0 ? 'positive' : value < 0 ? 'negative' : 'neutral') : (value < 0 ? 'positive' : value > 0 ? 'negative' : 'neutral')}
+              />
+            ))}
+          </div>
+        </RubixDrawerSection>
+      )}
+    </>
+  )
+}
+
+/** Real baseline snapshot - not an intake form, just what was recorded before any life events were added. */
+function StartingConditionsDetail({ persona }: { persona: any }) {
+  const signals: Record<string, number> = persona.foundational_environment_signals || {}
+  const signalEntries = Object.entries(signals).filter(([, v]) => v !== 0)
+
+  return (
+    <>
+      <RubixDrawerSection label="BACKGROUND" meta={`AGE ${persona.baseline_age}`}>
+        <div style={{ fontSize: 14.5, lineHeight: 1.65, color: 'rgba(230,242,255,0.92)', whiteSpace: 'pre-wrap' }}>{persona.baseline_background}</div>
+      </RubixDrawerSection>
+
+      <RubixDrawerSection label="IDENTITY">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13.5 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ color: 'rgba(214,235,255,0.6)' }}>Gender</span>
+            <span>{persona.baseline_gender}</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ color: 'rgba(214,235,255,0.6)' }}>Starting age</span>
+            <span>{persona.baseline_age}</span>
+          </div>
+          {persona.baseline_attachment_style && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ color: 'rgba(214,235,255,0.6)' }}>Starting attachment</span>
+              <RubixBadge tone={attachmentStyleTone(persona.baseline_attachment_style)}>{attachmentStyleLabel(persona.baseline_attachment_style)}</RubixBadge>
+            </div>
+          )}
+        </div>
+      </RubixDrawerSection>
+
+      {persona.baseline_personality && (
+        <RubixDrawerSection label="STARTING PERSONALITY">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {Object.entries(persona.baseline_personality as Record<string, number>).map(([trait, value]) => (
+              <RubixMetric key={trait} label={titleCase(trait)} valueLabel={`${Math.round(value * 100)}%`} percent={value * 100} accent="#7fb2ff" />
+            ))}
+          </div>
+        </RubixDrawerSection>
+      )}
+
+      {signalEntries.length > 0 && (
+        <RubixDrawerSection label="ENVIRONMENT SIGNALS (INFERRED)">
+          <div style={{ fontSize: 12, color: 'rgba(200,226,255,0.55)', marginBottom: 8 }}>
+            What Rubix read out of the background text above, on a -5 to +5 scale.
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {signalEntries.map(([key, value]) => (
+              <div key={key} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+                <span style={{ color: 'rgba(214,235,255,0.7)' }}>{titleCase(key)}</span>
+                <RubixDelta label={value > 0 ? `+${value}` : String(value)} tone={value > 0 ? 'positive' : value < 0 ? 'negative' : 'neutral'} />
+              </div>
+            ))}
+          </div>
+        </RubixDrawerSection>
+      )}
+    </>
+  )
+}
+
+/** Real reinforcement_history - a genuine chronological record, not a fabricated line chart. */
+function PatternDetail({ pattern }: { pattern: AdaptationPattern }) {
+  return (
+    <>
+      <RubixDrawerSection label="STATUS" meta={pattern.confidence != null ? `${pattern.confidence}%` : undefined}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <RubixBadge tone={PATTERN_STATUS_TONE[pattern.status] || 'muted'}>{pattern.status}</RubixBadge>
+          {pattern.adaptation_strategy && <span style={{ fontSize: 13.5, color: 'rgba(226,240,255,0.85)' }}>{titleCase(pattern.adaptation_strategy)}</span>}
+        </div>
+        {pattern.first_emerged_age != null && (
+          <div style={{ marginTop: 8, fontSize: 12.5, color: 'rgba(200,226,255,0.6)' }}>First seen around age {pattern.first_emerged_age}</div>
+        )}
+      </RubixDrawerSection>
+
+      {pattern.reinforcement_history && pattern.reinforcement_history.length > 0 && (
+        <RubixDrawerSection label="HISTORY">
+          <div style={{ position: 'relative', paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ position: 'absolute', left: 6, top: 10, bottom: 10, width: 2, borderRadius: 2, background: 'linear-gradient(180deg, rgba(200,232,255,0.7), rgba(150,205,255,0.15))' }} />
+            {pattern.reinforcement_history.map((h, i) => (
+              <div key={i} style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 11, flexWrap: 'wrap' }}>
+                <div style={{ position: 'absolute', left: -18, width: 10, height: 10, borderRadius: 999, background: '#7fb2ff', boxShadow: '0 0 10px #7fb2ff' }} />
+                <div style={{ fontSize: 13, fontWeight: 700 }}>{h.age != null ? `Age ${h.age}` : '—'}</div>
+                <RubixBadge tone={h.effect === 'weakened' ? 'caution' : 'muted'}>{String(h.effect || 'noted')}</RubixBadge>
+              </div>
+            ))}
+          </div>
+        </RubixDrawerSection>
+      )}
+    </>
+  )
+}
+
+/** Equal visual weight for supporting and contradicting evidence - never framed as diagnosis. */
+function HypothesisDetail({ hypothesis }: { hypothesis: ClinicalPatternHypothesis }) {
+  return (
+    <>
+      <RubixDrawerSection label="STATUS" meta={hypothesis.confidence != null ? `${hypothesis.confidence}%` : undefined}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <RubixBadge tone="muted">{hypothesis.status}</RubixBadge>
+          {hypothesis.direction && <span style={{ fontSize: 13, color: 'rgba(214,235,255,0.65)' }}>{HYPOTHESIS_DIRECTION_LABEL[hypothesis.direction] || hypothesis.direction}</span>}
+        </div>
+        <div style={{ marginTop: 10, fontSize: 12, color: 'rgba(200,226,255,0.55)' }}>
+          A working hypothesis based on this person&apos;s history so far — not a diagnosis. It moves up and down as more of their life is added.
+        </div>
+        {hypothesis.opened_at_age != null && (
+          <div style={{ marginTop: 8, fontSize: 12.5, color: 'rgba(200,226,255,0.6)' }}>First considered around age {hypothesis.opened_at_age}</div>
+        )}
+      </RubixDrawerSection>
+
+      <RubixDrawerSection label="SUPPORTING EVIDENCE" meta={String(hypothesis.supporting_evidence?.length ?? 0)}>
+        {hypothesis.supporting_evidence && hypothesis.supporting_evidence.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {hypothesis.supporting_evidence.map((e, i) => (
+              <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                <div style={{ width: 8, height: 8, borderRadius: 3, marginTop: 6, flex: '0 0 8px', background: '#6fe3b0', boxShadow: '0 0 9px #6fe3b0' }} />
+                <div style={{ fontSize: 13.5, lineHeight: 1.6, color: 'rgba(226,240,255,0.88)' }}>{e.description || 'Evidence recorded'}{e.age != null ? ` (age ${e.age})` : ''}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ fontSize: 13, color: 'rgba(200,226,255,0.5)' }}>None yet.</div>
+        )}
+      </RubixDrawerSection>
+
+      <RubixDrawerSection label="CONTRADICTING EVIDENCE" meta={String(hypothesis.contradicting_evidence?.length ?? 0)}>
+        {hypothesis.contradicting_evidence && hypothesis.contradicting_evidence.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {hypothesis.contradicting_evidence.map((e, i) => (
+              <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                <div style={{ width: 8, height: 8, borderRadius: 3, marginTop: 6, flex: '0 0 8px', background: '#ff9282', boxShadow: '0 0 9px #ff9282' }} />
+                <div style={{ fontSize: 13.5, lineHeight: 1.6, color: 'rgba(226,240,255,0.88)' }}>{e.description || 'Evidence recorded'}{e.age != null ? ` (age ${e.age})` : ''}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ fontSize: 13, color: 'rgba(200,226,255,0.5)' }}>None yet.</div>
+        )}
+      </RubixDrawerSection>
+
+      {hypothesis.developmental_precursors && hypothesis.developmental_precursors.length > 0 && (
+        <RubixDrawerSection label="DEVELOPMENTAL PRECURSORS">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {hypothesis.developmental_precursors.map((p, i) => <RubixBadge key={i} tone="muted">{titleCase(p)}</RubixBadge>)}
+          </div>
+        </RubixDrawerSection>
+      )}
+    </>
+  )
 }
 
 /**
@@ -1132,54 +1353,54 @@ function titleCase(value: string) {
  * become. This is the layer that shows continuity across different kinds of
  * events - several unrelated experiences can reinforce one adaptation.
  */
-function AdaptationPatternsPanel({ patterns }: { patterns: any[] }) {
+const PATTERN_STATUS_TONE: Record<string, 'violet' | 'positive' | 'caution' | 'muted'> = {
+  emerging: 'violet',
+  established: 'positive',
+  weakening: 'caution',
+  resolved: 'muted',
+}
+
+function AdaptationPatternsPanel({ patterns, onSelect }: { patterns: any[]; onSelect: (p: any) => void }) {
   if (!patterns || patterns.length === 0) return null
 
   return (
-    <div className="bg-white border-2 border-border rounded-xl p-6">
-      <div className="flex items-center gap-2 mb-2">
-        <h3 className="text-xl font-display text-foreground">How They've Learned to Cope</h3>
+    <RubixCard style={{ padding: 24 }}>
+      <div style={{ fontSize: 15.5, fontWeight: 700 }}>How they&apos;ve learned to cope</div>
+      <div style={{ marginTop: 3, fontSize: 12.5, color: 'rgba(214,235,255,0.65)', lineHeight: 1.5 }}>
+        Adaptations developed in response to what happened to them. These strengthen as related experiences reinforce them.
       </div>
-      <HelpText type="info">
-        Adaptations this person developed in response to what happened to them. These
-        strengthen as related experiences reinforce them.
-      </HelpText>
-      <div className="space-y-4 mt-4">
+      <div style={{ marginTop: 18, display: 'flex', flexDirection: 'column', gap: 16 }}>
         {patterns.map((pattern, i) => (
-          <div key={i}>
-            <div className="flex justify-between items-center text-sm mb-2 gap-3">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="text-foreground font-medium truncate">{pattern.pattern_name}</span>
-                <span
-                  className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${
-                    PATTERN_STATUS_STYLES[pattern.status] || 'bg-muted/30 text-muted-foreground'
-                  }`}
-                >
-                  {pattern.status}
-                </span>
+          <button
+            key={i}
+            type="button"
+            onClick={() => onSelect(pattern)}
+            style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'inherit' }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, marginBottom: 7 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                <span style={{ fontSize: 13.5, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pattern.pattern_name}</span>
+                <RubixBadge tone={PATTERN_STATUS_TONE[pattern.status] || 'muted'}>{pattern.status}</RubixBadge>
               </div>
               {pattern.confidence !== null && pattern.confidence !== undefined && (
-                <span className="text-muted-foreground whitespace-nowrap">{pattern.confidence}%</span>
+                <span style={{ fontSize: 12, color: 'rgba(214,235,255,0.6)', whiteSpace: 'nowrap' }}>{pattern.confidence}%</span>
               )}
             </div>
-            <div className="bg-muted/30 rounded-full h-3 overflow-hidden">
-              <div
-                className="bg-deep-purple h-full rounded-full transition-all duration-700"
-                style={{ width: `${pattern.confidence ?? 5}%` }}
-              />
+            <div className="rubix-meter-track">
+              <div className="rubix-meter-fill" style={{ width: `${pattern.confidence ?? 5}%`, background: 'linear-gradient(90deg, rgba(255,255,255,0.35), #7fb2ff)', boxShadow: '0 0 10px #7fb2ff' }} />
             </div>
             {pattern.adaptation_strategy && (
-              <p className="text-xs text-muted-foreground mt-1">
+              <p style={{ marginTop: 5, fontSize: 12, color: 'rgba(214,235,255,0.6)' }}>
                 {titleCase(pattern.adaptation_strategy)}
                 {pattern.first_emerged_age !== null && pattern.first_emerged_age !== undefined
                   ? ` · first seen around age ${pattern.first_emerged_age}`
                   : ''}
               </p>
             )}
-          </div>
+          </button>
         ))}
       </div>
-    </div>
+    </RubixCard>
   )
 }
 
@@ -1188,45 +1409,41 @@ function AdaptationPatternsPanel({ patterns }: { patterns: any[] }) {
  * hypotheses too - watching the engine consider and revise a pattern is the
  * point. Copy here must never imply diagnosis.
  */
-function PatternHypothesesPanel({ hypotheses }: { hypotheses: any[] }) {
+function PatternHypothesesPanel({ hypotheses, onSelect }: { hypotheses: any[]; onSelect: (h: any) => void }) {
   if (!hypotheses || hypotheses.length === 0) return null
 
   return (
-    <div className="bg-white border-2 border-border rounded-xl p-6">
-      <div className="flex items-center gap-2 mb-2">
-        <h3 className="text-xl font-display text-foreground">Patterns Being Considered</h3>
+    <RubixCard style={{ padding: 24 }}>
+      <div style={{ fontSize: 15.5, fontWeight: 700 }}>Patterns being considered</div>
+      <div style={{ marginTop: 3, fontSize: 12.5, color: 'rgba(214,235,255,0.65)', lineHeight: 1.5 }}>
+        How closely this person&apos;s history so far resembles known psychological patterns. Working hypotheses, not diagnoses — they shift as more of their life is added.
       </div>
-      <HelpText type="info">
-        How closely this person's history so far resembles known psychological patterns.
-        These are working hypotheses, not diagnoses — they shift up and down as more of
-        their life is added.
-      </HelpText>
-      <div className="space-y-4 mt-4">
+      <div style={{ marginTop: 18, display: 'flex', flexDirection: 'column', gap: 16 }}>
         {hypotheses.map((h, i) => (
-          <div key={i}>
-            <div className="flex justify-between items-center text-sm mb-2 gap-3">
-              <span className="text-foreground font-medium truncate">{titleCase(h.pattern_key)}</span>
-              <div className="flex items-center gap-2 whitespace-nowrap">
+          <button
+            key={i}
+            type="button"
+            onClick={() => onSelect(h)}
+            style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'inherit' }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, marginBottom: 7 }}>
+              <span style={{ fontSize: 13.5, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{titleCase(h.pattern_key)}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
                 {h.direction && (
-                  <span className="text-xs text-muted-foreground">
-                    {HYPOTHESIS_DIRECTION_LABEL[h.direction] || ''}
-                  </span>
+                  <span style={{ fontSize: 11.5, color: 'rgba(214,235,255,0.6)' }}>{HYPOTHESIS_DIRECTION_LABEL[h.direction] || ''}</span>
                 )}
                 {h.confidence !== null && h.confidence !== undefined && (
-                  <span className="text-muted-foreground">{h.confidence}%</span>
+                  <span style={{ fontSize: 12, color: 'rgba(214,235,255,0.6)' }}>{h.confidence}%</span>
                 )}
               </div>
             </div>
-            <div className="bg-muted/30 rounded-full h-3 overflow-hidden">
-              <div
-                className="bg-periwinkle h-full rounded-full transition-all duration-700"
-                style={{ width: `${h.confidence ?? 5}%` }}
-              />
+            <div className="rubix-meter-track">
+              <div className="rubix-meter-fill" style={{ width: `${h.confidence ?? 5}%`, background: 'linear-gradient(90deg, rgba(255,255,255,0.35), #b39bff)', boxShadow: '0 0 10px #b39bff' }} />
             </div>
-          </div>
+          </button>
         ))}
       </div>
-    </div>
+    </RubixCard>
   )
 }
 
@@ -1407,8 +1624,31 @@ function AddExperienceModal({ personaId, currentAge, onClose, onSuccess }: any) 
   )
 }
 
+const THERAPY_TYPES = [
+  { value: 'CBT', label: 'CBT (Cognitive Behavioral Therapy)' },
+  { value: 'ACT', label: 'ACT (Acceptance & Commitment Therapy)' },
+  { value: 'EMDR', label: 'EMDR (Eye Movement Desensitization)' },
+  { value: 'IFS', label: 'IFS (Internal Family Systems)' },
+  { value: 'DBT', label: 'DBT (Dialectical Behavior Therapy)' },
+  { value: 'Psychodynamic', label: 'Psychodynamic Therapy' },
+  { value: 'Somatic_Experiencing', label: 'Somatic Experiencing' },
+  { value: 'ERP', label: 'ERP (Exposure & Response Prevention)' },
+]
+const DURATIONS = [
+  { value: '3_months', label: '3 months' },
+  { value: '6_months', label: '6 months' },
+  { value: '1_year', label: '1 year' },
+  { value: '2_years', label: '2 years' },
+]
+const INTENSITIES = [
+  { value: 'monthly', label: 'Monthly' },
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'twice_weekly', label: 'Twice weekly' },
+]
+
 function AddInterventionModal({ personaId, currentAge, onClose, onSuccess }: any) {
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     therapy_type: 'CBT',
     duration: '6_months',
@@ -1420,135 +1660,118 @@ function AddInterventionModal({ personaId, currentAge, onClose, onSuccess }: any
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
+    setError(null)
     try {
       await api.addIntervention(personaId, formData)
-      
-      // Show success feedback
-      alert('✓ Support added successfully! Timeline updating...')
-      
       onSuccess()
-    } catch (error) {
-      console.error('Support error:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Failed to add support'
-      alert(`Error: ${errorMessage}\n\nCheck the browser console (F12) for details.`)
+    } catch (err) {
+      console.error('Support error:', err)
+      setError(err instanceof Error ? err.message : 'Failed to add support')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="fixed inset-0 bg-background/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center gap-2 mb-2">
-          <h2 className="text-3xl font-display text-foreground">Add Support or Healing</h2>
-          <Tooltip content={SITE_HELP.intervention.pageHelp.content} />
-        </div>
-        <HelpText type="info">{SITE_HELP.intervention.whatIs}</HelpText>
-        <form onSubmit={handleSubmit} className="space-y-6">
+    <RubixModal
+      open
+      onClose={onClose}
+      eyebrow="ADD THERAPY / SUPPORT"
+      title="Apply support to their life"
+      subtitle="Support is another force acting on their trajectory. It applies from the age you choose forward."
+      width={520}
+    >
+      <form onSubmit={handleSubmit}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <label className="block text-sm font-medium text-foreground">
-                Age at Support
-              </label>
-              <Tooltip content={SITE_HELP.intervention.age.tooltip} />
-            </div>
+            <label className="rubix-field-label" htmlFor="iv-age">AGE</label>
             <input
+              id="iv-age"
               type="number"
               required
               min={0}
               max={120}
+              className="rubix-input"
+              style={{ marginTop: 9, width: '100%' }}
               value={formData.age_at_intervention}
-              onChange={(e) => setFormData({ ...formData, age_at_intervention: parseInt(e.target.value) })}
-              className="w-full px-4 py-3 rounded-lg border-2 border-border bg-white focus:border-deep-purple focus:outline-none"
+              onChange={(e) => setFormData({ ...formData, age_at_intervention: parseInt(e.target.value, 10) })}
             />
-            <p className="text-xs text-muted-foreground mt-1">
-              Add moments of support at any age (0-120) to build complete therapy history
-            </p>
           </div>
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <label className="block text-sm font-medium text-foreground">
-                Therapy Type
-              </label>
-              <Tooltip content={SITE_HELP.intervention.modalityPicker.tooltip} />
-            </div>
+            <label className="rubix-field-label" htmlFor="iv-type">TYPE</label>
             <select
+              id="iv-type"
+              className="rubix-input"
+              style={{ marginTop: 9, width: '100%' }}
               value={formData.therapy_type}
               onChange={(e) => setFormData({ ...formData, therapy_type: e.target.value })}
-              className="w-full px-4 py-3 rounded-lg border-2 border-border bg-white focus:border-deep-purple focus:outline-none"
             >
-              <option value="CBT">CBT (Cognitive Behavioral Therapy)</option>
-              <option value="ACT">ACT (Acceptance & Commitment Therapy)</option>
-              <option value="EMDR">EMDR (Eye Movement Desensitization)</option>
-              <option value="IFS">IFS (Internal Family Systems)</option>
-              <option value="DBT">DBT (Dialectical Behavior Therapy)</option>
-              <option value="Psychodynamic">Psychodynamic Therapy</option>
-              <option value="Somatic_Experiencing">Somatic Experiencing</option>
-              <option value="ERP">ERP (Exposure & Response Prevention)</option>
+              {THERAPY_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <label className="block text-sm font-medium text-foreground">
-                  Duration
-                </label>
-                <Tooltip content={"How long the support continues"} />
-              </div>
-              <select
-                value={formData.duration}
-                onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border-2 border-border bg-white focus:border-deep-purple focus:outline-none"
-              >
-                <option value="3_months">3 months</option>
-                <option value="6_months">6 months</option>
-                <option value="1_year">1 year</option>
-                <option value="2_years">2 years</option>
-              </select>
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <label className="block text-sm font-medium text-foreground">
-                  Intensity
-                </label>
-                <Tooltip content={"How intensive the support is"} />
-              </div>
-              <select
-                value={formData.intensity}
-                onChange={(e) => setFormData({ ...formData, intensity: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border-2 border-border bg-white focus:border-deep-purple focus:outline-none"
-              >
-                <option value="monthly">Monthly</option>
-                <option value="weekly">Weekly</option>
-                <option value="twice_weekly">Twice Weekly</option>
-              </select>
-            </div>
+          <div>
+            <label className="rubix-field-label" htmlFor="iv-duration">DURATION</label>
+            <select
+              id="iv-duration"
+              className="rubix-input"
+              style={{ marginTop: 9, width: '100%' }}
+              value={formData.duration}
+              onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+            >
+              {DURATIONS.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
+            </select>
           </div>
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <label className="block text-sm font-medium text-foreground">
-                Notes (Optional)
-              </label>
-              <Tooltip content={"Additional notes about the support"} />
+            <div className="rubix-field-label">INTENSITY</div>
+            <div style={{ marginTop: 9, display: 'flex', gap: 7 }}>
+              {INTENSITIES.map((i) => {
+                const active = formData.intensity === i.value
+                return (
+                  <button
+                    key={i.value}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, intensity: i.value })}
+                    aria-pressed={active}
+                    style={{
+                      flex: 1, padding: '12px 0', borderRadius: 12, textAlign: 'center', cursor: 'pointer', fontSize: 12.5, fontWeight: active ? 700 : 500,
+                      color: active ? '#04281c' : 'rgba(214,235,255,0.75)',
+                      background: active ? 'linear-gradient(160deg,#9df0c8,#4fd39c)' : 'rgba(255,255,255,0.07)',
+                      border: `1px solid ${active ? 'transparent' : 'rgba(175,212,255,0.18)'}`,
+                    }}
+                  >
+                    {i.label}
+                  </button>
+                )
+              })}
             </div>
-            <textarea
-              rows={3}
-              value={formData.user_notes}
-              onChange={(e) => setFormData({ ...formData, user_notes: e.target.value })}
-              className="w-full px-4 py-3 rounded-lg border-2 border-border bg-white focus:border-deep-purple focus:outline-none resize-none"
-              placeholder="Additional context about the therapy..."
-            />
           </div>
-          <div className="flex gap-4">
-            <button type="button" onClick={onClose} className="btn-secondary flex-1">
-              Cancel
-            </button>
-            <button type="submit" disabled={loading} className="btn-primary flex-1">
-              {loading ? 'Considering how this helps...' : 'Add Support'}
-            </button>
+        </div>
+
+        <div style={{ marginTop: 14 }}>
+          <label className="rubix-field-label" htmlFor="iv-notes">NOTES</label>
+          <textarea
+            id="iv-notes"
+            className="rubix-textarea"
+            style={{ marginTop: 9, width: '100%', minHeight: 76 }}
+            value={formData.user_notes}
+            onChange={(e) => setFormData({ ...formData, user_notes: e.target.value })}
+            placeholder="Optional — what the support focused on."
+          />
+        </div>
+
+        {error && (
+          <div style={{ marginTop: 14, padding: '11px 14px', borderRadius: 12, fontSize: 13, color: 'rgba(255,210,200,0.95)', background: 'rgba(255,120,100,0.12)', border: '1px solid rgba(255,150,135,0.28)' }} role="alert">
+            {error}
           </div>
-        </form>
-      </div>
-    </div>
+        )}
+
+        <div style={{ marginTop: 22, display: 'flex', alignItems: 'center', gap: 11, justifyContent: 'flex-end' }}>
+          <button type="button" className="rubix-btn-ghost" onClick={onClose} disabled={loading}>Cancel</button>
+          <button type="submit" className="rubix-btn-primary" disabled={loading}>
+            {loading ? 'Considering how this helps…' : 'Apply support'}
+          </button>
+        </div>
+      </form>
+    </RubixModal>
   )
 }

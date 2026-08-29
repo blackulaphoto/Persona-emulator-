@@ -197,6 +197,16 @@ class TimelineSnapshotResponse(BaseModel):
     personality_snapshot: Dict[str, float]
     trauma_markers_snapshot: Optional[List[str]] = None
     symptom_severity_snapshot: Optional[Dict[str, int]] = None
+    # Was already persisted by remix_service.create_timeline_snapshot (Step
+    # 11f) and read by compare_snapshots, but never declared here - Pydantic
+    # silently stripped it from every snapshot response since this schema
+    # has from_attributes=True. Additive fix, no service/model change.
+    state_profile_snapshot: Optional[Dict[str, float]] = None
+    # Attachment was never captured in snapshots at all (unlike State, which
+    # got wired in at Step 11f) - added alongside the model/service change
+    # that actually populates these two fields.
+    attachment_style_snapshot: Optional[str] = None
+    attachment_dimensions_snapshot: Optional[Dict[str, float]] = None
 
     # Step 9 (docs/MIGRATION_MAP.md) - frozen pattern/hypothesis state at
     # snapshot time. See app/models/timeline_snapshot.py for entry shape.

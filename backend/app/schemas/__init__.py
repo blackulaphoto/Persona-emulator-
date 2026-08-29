@@ -246,9 +246,20 @@ class InterventionResponse(BaseModel):
     limitations: Optional[List[str]] = None
     symptom_changes: Optional[Dict[str, int]] = None
     personality_changes: Optional[Dict[str, float]] = None
+    # Step 11e wrote these onto every intervention (state_trait_engine's
+    # gated State/Trait proposal - see interventions.py) but no schema ever
+    # exposed them, so the Therapy Detail view had no real "what changed"
+    # data to show beyond the eventual personality_changes. Additive only:
+    # both columns already existed on the model and were already populated.
+    # Loosely typed like InterpretationResponse's own state/trait_implications
+    # (not Dict[str, float]) - the AI-success path proposes plain numeric
+    # deltas, but state_trait_engine's heuristic fallback proposes
+    # {"direction": "decrease", "magnitude": "high"} per key instead.
+    state_implications: Optional[Dict] = None
+    trait_implications: Optional[Dict] = None
     coping_skills_gained: Optional[List[str]] = None
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 

@@ -262,10 +262,12 @@ async def add_intervention(
         "limitations": intervention.limitations,
         "symptom_changes": symptom_changes_for_response,
         "personality_changes": intervention.personality_changes,
+        "state_implications": intervention.state_implications,
+        "trait_implications": intervention.trait_implications,
         "coping_skills_gained": intervention.coping_skills_gained,
         "created_at": intervention.created_at
     }
-    
+
     try:
         return InterventionResponse(**intervention_dict)
     except Exception as e:
@@ -321,6 +323,8 @@ async def get_persona_interventions(
             "limitations": interv.limitations,
             "symptom_changes": interv.symptom_changes,
             "personality_changes": interv.personality_changes,
+            "state_implications": interv.state_implications,
+            "trait_implications": interv.trait_implications,
             "coping_skills_gained": interv.coping_skills_gained,
             "created_at": interv.created_at
         }

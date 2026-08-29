@@ -388,3 +388,281 @@
 .delay-300 { animation-delay: 0.3s; }
 .delay-400 { animation-delay: 0.4s; }
 .delay-500 { animation-delay: 0.5s; }
+
+/* ==========================================================================
+   RUBIX DESIGN SYSTEM
+   Approved visual system (Claude Design prototype, Rubix.dc.html). Scoped
+   under .rubix-* class names so it can live alongside the pre-existing
+   "Empathetic Modernism" purple theme above without colliding — login,
+   signup, the marketing landing page, and the template browser are out of
+   scope for the Rubix redesign and keep using the classes above unchanged.
+
+   Layered cobalt / rich blue / indigo. Atmospheric, glossy, dimensional,
+   luminous but restrained. Values below are extracted directly from
+   Rubix.dc.html, not approximated.
+   ========================================================================== */
+
+@keyframes rubixFloat { 0%, 100% { transform: translateY(0) rotate(45deg); } 50% { transform: translateY(-8px) rotate(45deg); } }
+@keyframes rubixPulse { 0%, 100% { opacity: 0.45; transform: scale(1); } 50% { opacity: 0.9; transform: scale(1.06); } }
+@keyframes rubixSweep { 0% { transform: translateX(-120%); } 100% { transform: translateX(220%); } }
+@keyframes rubixDrift { 0%, 100% { opacity: 0.55; } 50% { opacity: 0.95; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .rubix-scope * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+.rubix-scope {
+  --rubix-text: #eef4ff;
+  --rubix-text-dim: rgba(216, 234, 255, 0.7);
+  --rubix-text-dimmer: rgba(205, 230, 255, 0.55);
+  --rubix-border: rgba(165, 208, 255, 0.24);
+  --rubix-border-strong: rgba(200, 230, 255, 0.45);
+  --rubix-cyan: #6fe3ff;
+  --rubix-blue: #7fb2ff;
+  --rubix-violet: #b39bff;
+  --rubix-green: #6fe3b0;
+  --rubix-coral: #ff9282;
+  --rubix-gold: #ffcf7a;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  color: var(--rubix-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* App-wide layered background — radial blooms + linear base. Never a flat color. */
+.rubix-app-bg {
+  position: relative;
+  min-height: 100vh;
+  background:
+    radial-gradient(110% 75% at 18% -12%, #3f7dff 0%, rgba(63, 125, 255, 0) 58%),
+    radial-gradient(85% 65% at 100% 6%, #5a9bff 0%, rgba(90, 155, 255, 0) 52%),
+    radial-gradient(75% 70% at 78% 112%, #6244df 0%, rgba(98, 68, 223, 0) 58%),
+    radial-gradient(60% 50% at 8% 92%, #1b52c8 0%, rgba(27, 82, 200, 0) 60%),
+    linear-gradient(178deg, #10327f 0%, #16409c 38%, #123784 72%, #0c2566 100%);
+}
+
+.rubix-app-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(6, 18, 52, 0.35) 0%, rgba(6, 18, 52, 0) 28%, rgba(6, 18, 52, 0) 72%, rgba(5, 15, 45, 0.45) 100%);
+}
+
+.rubix-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+.rubix-scroll::-webkit-scrollbar-track { background: rgba(6, 20, 58, 0.25); }
+.rubix-scroll::-webkit-scrollbar-thumb { background: rgba(150, 195, 255, 0.28); border-radius: 20px; border: 2px solid transparent; background-clip: padding-box; }
+.rubix-scroll::-webkit-scrollbar-thumb:hover { background: rgba(180, 215, 255, 0.45); background-clip: padding-box; }
+
+.rubix-sidebar {
+  background: linear-gradient(180deg, rgba(7, 22, 62, 0.90) 0%, rgba(6, 18, 52, 0.94) 55%, rgba(5, 15, 44, 0.96) 100%);
+  border-right: 1px solid rgba(150, 195, 255, 0.16);
+  box-shadow: 26px 0 60px -40px rgba(3, 10, 32, 0.95), inset -1px 0 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(18px);
+}
+
+.rubix-nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 13px; border-radius: 13px; cursor: pointer;
+  font-size: 14.5px; font-weight: 400;
+  color: rgba(216, 234, 255, 0.76);
+  background: transparent; border: 1px solid transparent;
+  transition: background 160ms ease;
+}
+.rubix-nav-item:hover { background: rgba(255, 255, 255, 0.09); }
+.rubix-nav-item[data-active='true'] {
+  font-weight: 600; color: #f2f8ff;
+  background: linear-gradient(160deg, rgba(120, 180, 255, 0.42), rgba(45, 100, 225, 0.34));
+  border-color: rgba(180, 220, 255, 0.4);
+  box-shadow: 0 14px 30px -16px rgba(60, 140, 255, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Mobile shell: the sidebar becomes an off-canvas drawer instead of a fixed
+   258px column eating most of a narrow viewport, and a topbar with a menu
+   button takes its place at rest. */
+.rubix-mobile-topbar { display: none; }
+@media (max-width: 768px) {
+  .rubix-mobile-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px; position: relative; z-index: 5;
+    border-bottom: 1px solid rgba(150, 195, 255, 0.16);
+    background: rgba(6, 18, 52, 0.85); backdrop-filter: blur(18px);
+  }
+  .rubix-menu-button {
+    width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(170, 210, 255, 0.22); color: inherit; cursor: pointer;
+  }
+  .rubix-shell-sidebar-wrap {
+    position: fixed !important; inset: 0 auto 0 0; z-index: 40;
+    transform: translateX(-100%);
+    transition: transform 220ms ease;
+  }
+  .rubix-shell-sidebar-wrap[data-open='true'] { transform: translateX(0); }
+  .rubix-shell-backdrop {
+    display: none;
+    position: fixed; inset: 0; z-index: 35;
+    background: rgba(4, 14, 44, 0.55); backdrop-filter: blur(2px);
+  }
+  .rubix-shell-backdrop[data-open='true'] { display: block; }
+}
+
+/* Cards — translucent layered surfaces, never opaque rectangles. */
+.rubix-card {
+  position: relative;
+  border-radius: 24px;
+  border: 1px solid var(--rubix-border);
+  background: linear-gradient(158deg, rgba(130, 185, 255, 0.20) 0%, rgba(45, 95, 210, 0.14) 100%);
+  box-shadow: 0 34px 70px -38px rgba(4, 14, 46, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.24);
+  backdrop-filter: blur(16px);
+}
+.rubix-card-hero {
+  background: linear-gradient(158deg, rgba(150, 200, 255, 0.24) 0%, rgba(60, 115, 225, 0.16) 48%, rgba(30, 70, 180, 0.14) 100%);
+  box-shadow: 0 34px 70px -38px rgba(4, 14, 46, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+.rubix-card-flat {
+  border-radius: 15px;
+  border: 1px solid rgba(170, 210, 255, 0.18);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.04));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.rubix-card-interactive { cursor: pointer; transition: transform 180ms ease, border-color 180ms ease; }
+.rubix-card-interactive:hover { transform: translateY(-4px); border-color: var(--rubix-border-strong); }
+
+/* Buttons */
+.rubix-btn-primary {
+  position: relative; overflow: hidden;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 13px 24px; border-radius: 999px; cursor: pointer;
+  font-family: inherit; font-size: 14.5px; font-weight: 700; color: #03204d;
+  background: linear-gradient(160deg, #8fd0ff 0%, #4a93ff 45%, #2e6bf0 100%);
+  box-shadow: 0 18px 40px -16px rgba(60, 140, 255, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  border: none; transition: box-shadow 180ms ease;
+}
+.rubix-btn-primary:hover { box-shadow: 0 22px 48px -14px rgba(90, 170, 255, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.8); }
+.rubix-btn-primary:disabled,
+.rubix-btn-primary[aria-disabled='true'] { opacity: 0.45; pointer-events: none; }
+
+.rubix-btn-ghost {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 20px; border-radius: 999px; cursor: pointer;
+  font-family: inherit; font-size: 13.5px; font-weight: 500; color: var(--rubix-text);
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(180, 215, 255, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transition: background 160ms ease;
+}
+.rubix-btn-ghost:hover { background: rgba(255, 255, 255, 0.18); }
+.rubix-btn-ghost:disabled,
+.rubix-btn-ghost[aria-disabled='true'] { opacity: 0.45; pointer-events: none; }
+
+.rubix-btn-danger {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 20px; border-radius: 999px; cursor: pointer;
+  font-family: inherit; font-size: 13.5px; font-weight: 600;
+  color: rgba(255, 190, 180, 0.95);
+  background: rgba(255, 120, 100, 0.12);
+  border: 1px solid rgba(255, 150, 135, 0.28);
+  transition: background 160ms ease;
+}
+.rubix-btn-danger:hover { background: rgba(255, 120, 100, 0.22); }
+
+/* Chips (filters, kind tags, toggle selection) */
+.rubix-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 16px; border-radius: 999px; cursor: pointer;
+  font-size: 13px; font-weight: 600;
+  color: rgba(226, 240, 255, 0.85);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(175, 212, 255, 0.22);
+  transition: background 160ms ease, border-color 160ms ease;
+}
+.rubix-chip:hover { background: rgba(255, 255, 255, 0.14); }
+.rubix-chip[data-active='true'] {
+  color: #03204d;
+  background: linear-gradient(160deg, #a8dcff, #5b9dff 50%, #3b78f4);
+  border-color: rgba(200, 230, 255, 0.5);
+  box-shadow: 0 10px 24px -10px rgba(70, 150, 255, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Inputs */
+.rubix-input, .rubix-textarea {
+  width: 100%; padding: 14px 16px; border-radius: 14px;
+  font-family: inherit; font-size: 14.5px; color: #f0f7ff;
+  background: rgba(8, 28, 74, 0.42);
+  border: 1px solid rgba(175, 212, 255, 0.28);
+  outline: none;
+  box-shadow: inset 0 2px 6px rgba(4, 14, 46, 0.5);
+  transition: border-color 160ms ease;
+}
+.rubix-input::placeholder, .rubix-textarea::placeholder { color: rgba(200, 226, 255, 0.4); }
+.rubix-input:focus, .rubix-textarea:focus { border-color: rgba(140, 195, 255, 0.6); }
+.rubix-textarea { resize: vertical; line-height: 1.6; min-height: 120px; }
+.rubix-field-label {
+  font-size: 11.5px; font-weight: 600; letter-spacing: 0.09em;
+  color: rgba(200, 226, 255, 0.66); text-transform: uppercase;
+}
+
+/* Meters (State dimensions, Big Five bars) */
+.rubix-meter-track {
+  position: relative; height: 7px; border-radius: 999px; overflow: hidden;
+  background: rgba(10, 32, 80, 0.45);
+  box-shadow: inset 0 1px 2px rgba(4, 14, 46, 0.6);
+}
+.rubix-meter-fill { height: 100%; border-radius: 999px; transition: width 500ms ease; }
+.rubix-meter-marker {
+  position: absolute; top: -3px; width: 3px; height: 13px; border-radius: 2px;
+  background: rgba(232, 244, 255, 0.85); box-shadow: 0 0 8px rgba(220, 240, 255, 0.8);
+}
+
+/* Delta pill */
+.rubix-delta { display: inline-flex; padding: 2px 7px; border-radius: 6px; font-size: 10.5px; font-weight: 700; }
+
+/* Drawer / modal shell */
+.rubix-drawer-panel {
+  background: linear-gradient(180deg, rgba(16, 40, 100, 0.97) 0%, rgba(10, 28, 76, 0.98) 100%);
+  border-left: 1px solid rgba(180, 215, 255, 0.24);
+  box-shadow: -30px 0 80px -30px rgba(3, 12, 40, 0.9);
+  backdrop-filter: blur(24px);
+}
+/* Mobile: the right-overlay drawer becomes a full-screen sheet rather than a
+   560px panel fighting a narrow viewport. */
+@media (max-width: 640px) {
+  .rubix-drawer-panel { width: 100% !important; max-width: 100% !important; border-left: none; }
+}
+.rubix-modal-panel {
+  border-radius: 26px;
+  background: linear-gradient(200deg, rgba(50, 110, 230, 0.55) 0%, rgba(22, 62, 158, 0.75) 50%, rgba(32, 54, 155, 0.8) 100%);
+  border: 1px solid rgba(185, 220, 255, 0.32);
+  box-shadow: 0 50px 100px -30px rgba(3, 12, 40, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.26);
+  backdrop-filter: blur(24px);
+}
+
+.rubix-avatar {
+  border-radius: 999px;
+  border: 2px solid rgba(190, 225, 255, 0.4);
+  background: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.13) 0 6px, rgba(255, 255, 255, 0.05) 6px 12px);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: #06204f;
+  overflow: hidden;
+}
+
+.rubix-diamond {
+  border-radius: 11px;
+  transform: rotate(45deg);
+  background: linear-gradient(150deg, #a9dcff 0%, #4b8dff 45%, #2f5fe0 100%);
+  box-shadow: 0 0 24px rgba(110, 190, 255, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -6px 12px rgba(20, 50, 140, 0.6);
+  animation: rubixFloat 7s ease-in-out infinite;
+}
+
+/* Responsive grid utilities - raw inline gridTemplateColumns can't carry a
+   media query, so any Rubix page needing a real mobile breakpoint (not
+   already covered by Tailwind's own lg:/md: classes) uses one of these. */
+.rubix-grid-with-rail { grid-template-columns: minmax(0, 1fr) 280px; }
+.rubix-grid-2up { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 768px) {
+  .rubix-grid-with-rail,
+  .rubix-grid-2up { grid-template-columns: 1fr; }
+}
