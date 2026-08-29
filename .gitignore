@@ -27,6 +27,10 @@ backend/dev.db
 # Firebase
 backend/firebase-service-account.json
 backend/firebase/
+firebase-debug.log
+firebase-export-*/
+.firebase/
+ui-debug.log
 
 # Narrative folder
 Narrative/

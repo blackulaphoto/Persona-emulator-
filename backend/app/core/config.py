@@ -32,6 +32,16 @@ class Settings(BaseSettings):
     # Frontend
     frontend_url: str = Field(default="http://localhost:3000", env="FRONTEND_URL")
     additional_cors_origins_raw: Optional[str] = Field(default=None, env="ADDITIONAL_CORS_ORIGINS")
+
+    # Firebase Authentication (read directly via os.getenv in app/core/auth.py,
+    # not through this Settings object - declared here only so Config.extra =
+    # "forbid" below doesn't crash Settings() the moment any of these are set
+    # in a local backend/.env file, which is exactly how backend/.env.example
+    # documents setting them up for local dev).
+    firebase_service_account_json: Optional[str] = Field(default=None, env="FIREBASE_SERVICE_ACCOUNT_JSON")
+    firebase_auth_emulator_host: Optional[str] = Field(default=None, env="FIREBASE_AUTH_EMULATOR_HOST")
+    gcloud_project: Optional[str] = Field(default=None, env="GCLOUD_PROJECT")
+    auth_dev_bypass: bool = Field(default=False, env="AUTH_DEV_BYPASS")
     
     # Feature Flags - explicit env var names for clarity
     # Default to True in dev mode (can be overridden via .env)

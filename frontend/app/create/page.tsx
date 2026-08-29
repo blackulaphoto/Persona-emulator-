@@ -118,7 +118,7 @@ export default function CreateStartingPersonPage() {
           {step === 1 && (
             <div>
               <StepTitle>Who are they, to start?</StepTitle>
-              <StepSubtitle>The name and the age Rubix begins tracking their life from.</StepSubtitle>
+              <StepSubtitle>The name and the age Rubicks begins tracking their life from.</StepSubtitle>
               <div style={{ marginTop: 22, display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div>
                   <label className="rubix-field-label" htmlFor="create-name">NAME</label>
@@ -213,7 +213,7 @@ export default function CreateStartingPersonPage() {
           {step === 5 && (
             <div>
               <StepTitle>Where does trust start?</StepTitle>
-              <StepSubtitle>Optional. Leave this unset and Rubix starts them secure, then lets their life shape it from here.</StepSubtitle>
+              <StepSubtitle>Optional. Leave this unset and Rubicks starts them secure, then lets their life shape it from here.</StepSubtitle>
               <div style={{ marginTop: 18, display: 'flex', gap: 8, flexWrap: 'wrap' }} role="group" aria-label="Starting attachment style">
                 {ATTACHMENT_CHOICES.map((c) => (
                   <button
@@ -237,7 +237,7 @@ export default function CreateStartingPersonPage() {
                   <ReviewRow label="Gender" value={gender.trim() || '—'} />
                 </div>
                 <div style={{ marginTop: 14, fontSize: 12.5, lineHeight: 1.6, color: 'rgba(205,230,255,0.6)' }}>
-                  Personality isn&apos;t set by hand — Rubix reads what you&apos;ve shared and infers a starting Big Five baseline from it.
+                  Personality isn&apos;t set by hand — Rubicks reads what you&apos;ve shared and infers a starting Big Five baseline from it.
                 </div>
               </div>
             </div>
