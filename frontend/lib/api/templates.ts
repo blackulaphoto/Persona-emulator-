@@ -181,6 +181,9 @@ export interface TimelineSnapshot {
   personality_snapshot: Record<string, number>;
   trauma_markers_snapshot?: string[];
   symptom_severity_snapshot?: Record<string, number>;
+  state_profile_snapshot?: Record<string, number>;
+  adaptation_patterns_snapshot?: Array<Record<string, any>>;
+  clinical_pattern_hypotheses_snapshot?: Array<Record<string, any>>;
   personality_difference?: Record<string, number>;
   symptom_difference?: Record<string, number>;
   created_at: string;

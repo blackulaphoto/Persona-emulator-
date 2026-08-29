@@ -9,9 +9,14 @@ export interface Persona {
   baseline_age: number;
   baseline_gender: string;
   baseline_background: string;
+  baseline_personality?: PersonalityTraits | null;
   current_age: number;
   current_personality: PersonalityTraits;
   current_attachment_style: string;
+  attachment_style_semantics?: 'static_creation_value';
+  personality_delta?: Partial<PersonalityTraits> | null;
+  foundational_environment_signals?: Record<string, unknown>;
+  narrative_mode?: 'case_subject' | 'self_authored';
   current_trauma_markers: string[];
   /**
    * Fast-moving psychological state (0.0-1.0 per dimension). Reacts to a
@@ -154,6 +159,18 @@ class ApiClient {
     const headers = await this.getAuthHeaders();
     const response = await fetch(`${API_BASE}/personas/${id}`, { headers });
     if (!response.ok) throw new Error('Failed to fetch persona');
+    return response.json();
+  }
+
+  async updatePersona(id: string, data: {
+    name?: string;
+    baseline_background?: string;
+  }): Promise<Persona> {
+    const headers = await this.getAuthHeaders();
+    const response = await fetch(`${API_BASE}/personas/${id}`, {
+      method: 'PUT', headers, body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Failed to update persona');
     return response.json();
   }
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Plus, Sparkles, Pill, TrendingDown, TrendingUp, AlertCircle, Camera, GitCompare, Wand2, Trash2 } from 'lucide-react'
+import { ArrowLeft, Plus, Sparkles, Pill, TrendingDown, TrendingUp, AlertCircle, Camera, GitCompare, Wand2, Trash2, Pencil } from 'lucide-react'
 import { api, type Timeline, type TimelineEvent } from '@/lib/api'
 import { remixAPI, templatesAPI, type TimelineSnapshot, type Template, type TemplateDetails } from '@/lib/api/templates'
 import { useAuth } from '@/contexts/AuthContext'
@@ -36,6 +36,8 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
   const [applyingExperiences, setApplyingExperiences] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [showEditPersona, setShowEditPersona] = useState(false)
+  const [deletingSnapshotId, setDeletingSnapshotId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -104,6 +106,40 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
       setTemplates([])
     } finally {
       setLoadingTemplates(false)
+    }
+  }
+
+  async function handleDeleteSnapshot(snapshotId: string) {
+    if (!confirm('Delete this snapshot?')) return
+    setDeletingSnapshotId(snapshotId)
+    try {
+      await remixAPI.deleteSnapshot(snapshotId)
+      await loadSnapshots()
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to delete snapshot')
+    } finally {
+      setDeletingSnapshotId(null)
+    }
+  }
+
+  async function handleShowSuggestions() {
+    try {
+      const result = await remixAPI.getSuggestions(params.id)
+      alert(result.suggestions.length
+        ? result.suggestions.map((item) => `${item.title}\n${item.hypothesis}`).join('\n\n')
+        : 'No what-if suggestions are available yet.')
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to load suggestions')
+    }
+  }
+
+  async function handleShowInterventionImpact() {
+    if (!snapshots.length) return
+    try {
+      const result = await remixAPI.getInterventionImpact(params.id, snapshots[0].id)
+      alert(JSON.stringify(result, null, 2))
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to load intervention impact')
     }
   }
 
@@ -219,6 +255,12 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
               <h1 className="text-4xl font-display text-foreground mb-2">
                 {persona.name}
               </h1>
+              <button
+                onClick={() => setShowEditPersona(true)}
+                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-deep-purple mb-2"
+              >
+                <Pencil size={14} /> Edit name and background
+              </button>
               <div className="flex items-center gap-4 text-muted-foreground text-sm">
                 <span>Age {persona.current_age}</span>
                 <span>•</span>
@@ -342,6 +384,16 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
                     Compare Snapshots
                   </button>
                 )}
+                <div className="flex gap-2">
+                  <button onClick={handleShowSuggestions} className="btn-secondary text-sm">
+                    What-if Suggestions
+                  </button>
+                  {snapshots.length > 0 && (
+                    <button onClick={handleShowInterventionImpact} className="btn-secondary text-sm">
+                      Intervention Impact
+                    </button>
+                  )}
+                </div>
               </div>
               <HelpText type="info">
                 <p className="mb-2">{SITE_HELP.snapshot.whatIs}</p>
@@ -388,6 +440,13 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
                             Compare
                           </button>
                         )}
+                        <button
+                          onClick={() => handleDeleteSnapshot(snapshot.id)}
+                          disabled={deletingSnapshotId === snapshot.id}
+                          className="text-xs text-red-500 py-1 px-2"
+                        >
+                          {deletingSnapshotId === snapshot.id ? 'Deleting...' : 'Delete'}
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -547,9 +606,63 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
         </div>
       )}
 
+      {showEditPersona && (
+        <EditPersonaModal
+          persona={persona}
+          onClose={() => setShowEditPersona(false)}
+          onSuccess={async () => {
+            setShowEditPersona(false)
+            await loadTimeline()
+          }}
+        />
+      )}
+
       {/* Chat Box */}
       <ChatBox personaId={params.id} personaName={persona.name} />
     </main>
+  )
+}
+
+function EditPersonaModal({ persona, onClose, onSuccess }: {
+  persona: Timeline['persona']
+  onClose: () => void
+  onSuccess: () => void
+}) {
+  const [name, setName] = useState(persona.name)
+  const [background, setBackground] = useState(persona.baseline_background)
+  const [saving, setSaving] = useState(false)
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault()
+    setSaving(true)
+    try {
+      await api.updatePersona(persona.id, { name: name.trim(), baseline_background: background.trim() })
+      onSuccess()
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to update persona')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-background/50 flex items-center justify-center p-4 z-50">
+      <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-8 max-w-xl w-full space-y-5">
+        <h2 className="text-2xl font-display">Edit Persona</h2>
+        <input required maxLength={100} value={name} onChange={(event) => setName(event.target.value)}
+          className="w-full px-4 py-3 rounded-lg border-2 border-border" aria-label="Persona name" />
+        <textarea required maxLength={1000} rows={6} value={background}
+          onChange={(event) => setBackground(event.target.value)}
+          className="w-full px-4 py-3 rounded-lg border-2 border-border resize-none"
+          aria-label="Persona background" />
+        <div className="flex gap-3">
+          <button type="button" onClick={onClose} className="btn-secondary flex-1">Cancel</button>
+          <button type="submit" disabled={saving} className="btn-primary flex-1">
+            {saving ? 'Saving...' : 'Save'}
+          </button>
+        </div>
+      </form>
+    </div>
   )
 }
 
