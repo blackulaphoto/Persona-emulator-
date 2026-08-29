@@ -170,17 +170,15 @@ class BatchExperienceCreate(BaseModel):
     experiences: List[BatchExperienceItem] = Field(min_length=1, max_length=100)
 
 
-class BatchExperienceItemResult(BaseModel):
-    input_index: int
-    status: str
-    result: Optional["ExperienceResponse"] = None
-    error: Optional[str] = None
-
-
-class BatchExperienceResponse(BaseModel):
-    results: List[BatchExperienceItemResult]
-    processed_count: int
-    failed_count: int
+class ProtectiveFactorResponse(BaseModel):
+    id: str
+    factor_type: str
+    description: Optional[str] = None
+    domains_buffered: List[str] = Field(default_factory=list)
+    source_event_id: Optional[str] = None
+    active_from_age: Optional[int] = None
+    active_to_age: Optional[int] = None
+    speaker_role: str
 
 
 class ExperienceResponse(BaseModel):
@@ -202,22 +200,24 @@ class ExperienceResponse(BaseModel):
     interpretation: Optional[InterpretationResponse] = None
     pattern_connections: List[ExperiencePatternLink] = Field(default_factory=list)
     hypothesis_connections: List[ExperienceHypothesisLink] = Field(default_factory=list)
-    protective_factors: List["ProtectiveFactorResponse"] = Field(default_factory=list)
+    protective_factors: List[ProtectiveFactorResponse] = Field(default_factory=list)
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
 
-class ProtectiveFactorResponse(BaseModel):
-    id: str
-    factor_type: str
-    description: Optional[str] = None
-    domains_buffered: List[str] = Field(default_factory=list)
-    source_event_id: Optional[str] = None
-    active_from_age: Optional[int] = None
-    active_to_age: Optional[int] = None
-    speaker_role: str
+class BatchExperienceItemResult(BaseModel):
+    input_index: int
+    status: str
+    result: Optional[ExperienceResponse] = None
+    error: Optional[str] = None
+
+
+class BatchExperienceResponse(BaseModel):
+    results: List[BatchExperienceItemResult]
+    processed_count: int
+    failed_count: int
 
 
 class InterventionCreate(BaseModel):
