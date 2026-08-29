@@ -64,6 +64,12 @@ export default function SignupPage() {
       <div className="max-w-md w-full animate-fade-in-up">
         {/* Glass Card Container */}
         <div className="glass-card p-8 space-y-6">
+          {/* Brand */}
+          <div className="flex items-center justify-center gap-2">
+            <img src="/rubicks-icon.png" alt="" aria-hidden="true" className="w-8 h-8" />
+            <span className="text-lg font-semibold text-foreground font-display">Rubicks</span>
+          </div>
+
           {/* Header */}
           <div className="text-center">
             <h1 className="text-4xl font-bold text-foreground font-display mb-2">

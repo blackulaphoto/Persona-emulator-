@@ -72,8 +72,8 @@ export function RubixShell({ persona, children }: RubixShellProps) {
           <span aria-hidden="true" style={{ fontSize: 18, lineHeight: 1 }}>☰</span>
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, fontSize: 15 }}>
-          <div className="rubix-diamond" style={{ width: 22, height: 22 }} />
-          Rubix
+          <img src="/rubicks-icon.png" alt="" aria-hidden="true" style={{ width: 22, height: 22, objectFit: 'contain' }} />
+          Rubicks
         </div>
         <div style={{ width: 40 }} aria-hidden="true" />
       </div>
