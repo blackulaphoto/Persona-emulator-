@@ -93,18 +93,24 @@ def rebuild_persona_from_timeline(db, persona_id: str):
     for row in interpretations:
         source = experience_by_id.get(str(row.source_event_id)) if row.source_event_id else None
         items.append((row.age_at_event if row.age_at_event is not None else persona.baseline_age,
+                      source.sequence_index if source else 0,
                       source.created_at if source else row.created_at, 0, "interpretation", row))
     for row in interventions:
-        items.append((row.age_at_intervention, row.created_at, 1, "intervention", row))
+        items.append((row.age_at_intervention, row.sequence_number or 0,
+                      row.created_at, 1, "intervention", row))
     for row in protective:
+        source = experience_by_id.get(str(row.source_event_id)) if row.source_event_id else None
         items.append((row.active_from_age if row.active_from_age is not None else persona.baseline_age,
-                      row.created_at, 1, "protective", row))
+                      source.sequence_index if source else 0,
+                      source.created_at if source else row.created_at, 1, "protective", row))
     for row in exposures:
+        source = experience_by_id.get(str(row.source_event_id)) if row.source_event_id else None
         items.append((row.age_at_exposure if row.age_at_exposure is not None else persona.baseline_age,
-                      row.created_at, -1, "exposure", row))
-    items.sort(key=lambda item: (item[0], item[1], item[2]))
+                      source.sequence_index if source else 0,
+                      source.created_at if source else row.created_at, -1, "exposure", row))
+    items.sort(key=lambda item: (item[0], item[1], item[2], item[3], str(item[5].id)))
 
-    for age, _, _, kind, row in items:
+    for age, _, _, _, kind, row in items:
         if kind == "exposure":
             persona.current_attachment_dimensions = apply_attachment_exposure(
                 persona.current_attachment_dimensions, [_exposure_dict(row)]

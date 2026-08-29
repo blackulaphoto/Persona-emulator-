@@ -6,7 +6,7 @@ from sqlalchemy.pool import StaticPool
 
 from app.core.database import Base
 from app.models import (
-    AdaptationPattern, ClinicalPatternHypothesis, Experience, Interpretation,
+    AdaptationPattern, ClinicalPatternHypothesis, Experience, Interpretation, ProtectiveFactor,
     Persona, PersonalitySnapshot, User,
 )
 from app.services.api_projection import experience_psychology_projection, persona_projection
@@ -28,6 +28,9 @@ def _persona(db):
         baseline_personality={"openness": .4, "conscientiousness": .5, "extraversion": .6, "agreeableness": .7, "neuroticism": .2},
         current_personality={"openness": .5, "conscientiousness": .5, "extraversion": .4, "agreeableness": .7, "neuroticism": .5},
         current_attachment_style="secure", current_trauma_markers=[], current_state={"trust": .3},
+        baseline_attachment_style="secure",
+        baseline_attachment_dimensions={"attachment_anxiety": .15, "attachment_avoidance": .15, "relational_security": .85},
+        current_attachment_dimensions={"attachment_anxiety": .56, "attachment_avoidance": .31, "relational_security": .61},
         foundational_environment_signals={"caregiver_stability": 2}, narrative_mode="case_subject",
     )
     db.add(persona)
@@ -44,6 +47,13 @@ def test_persona_projection_keeps_baseline_stable_and_computes_delta():
     assert projected["personality_delta"]["neuroticism"] == .3
     assert projected["foundational_environment_signals"] == {"caregiver_stability": 2}
     assert projected["narrative_mode"] == "case_subject"
+    assert projected["baseline_attachment_dimensions"]["attachment_anxiety"] == .15
+    assert projected["current_attachment_dimensions"]["attachment_anxiety"] == .56
+    assert projected["attachment_delta"] == {
+        "attachment_anxiety": .41,
+        "attachment_avoidance": .16,
+        "relational_security": -.24,
+    }
 
 
 def test_experience_projection_exposes_persisted_interpretation_and_links():
@@ -72,6 +82,11 @@ def test_experience_projection_exposes_persisted_interpretation_and_links():
         supporting_evidence=[{"source_id": "event-1", "description": "social withdrawal"}],
         contradicting_evidence=[], evidence_strength=.35, previous_evidence_strength=.2,
     ))
+    db.add(ProtectiveFactor(
+        id="factor-1", persona_id=persona.id, source_event_id="event-1",
+        factor_type="mentor", description="A teacher remained supportive",
+        active_from_age=10, domains_buffered=["identity", "competence"],
+    ))
     db.commit()
 
     projected = experience_psychology_projection(db, experience)
@@ -79,6 +94,13 @@ def test_experience_projection_exposes_persisted_interpretation_and_links():
     assert projected["pattern_connections"][0]["effect"] == "originated"
     assert projected["hypothesis_connections"][0]["evidence_role"] == "supporting"
     assert projected["hypothesis_connections"][0]["direction"] == "strengthening"
+    assert projected["protective_factors"] == [{
+        "id": "factor-1", "factor_type": "mentor",
+        "description": "A teacher remained supportive",
+        "domains_buffered": ["identity", "competence"],
+        "source_event_id": "event-1", "active_from_age": 10,
+        "active_to_age": None, "speaker_role": "case_author",
+    }]
 
 
 def test_snapshot_schema_has_state_profile_column():

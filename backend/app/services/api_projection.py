@@ -1,7 +1,7 @@
 """Canonical read-only API projections for persisted psychological data."""
 from typing import Dict, Optional
 
-from app.models import AdaptationPattern, ClinicalPatternHypothesis, Interpretation
+from app.models import AdaptationPattern, ClinicalPatternHypothesis, Interpretation, ProtectiveFactor
 from app.services.persona_board import board_sections_for_persona, _direction
 
 
@@ -21,6 +21,12 @@ def persona_projection(db, persona) -> Dict:
             trait: round(persona.current_personality.get(trait, value) - value, 6)
             for trait, value in baseline.items()
         }
+    baseline_attachment = dict(persona.baseline_attachment_dimensions or {})
+    current_attachment = dict(persona.current_attachment_dimensions or {})
+    attachment_delta = {
+        dimension: round(current_attachment.get(dimension, value) - value, 6)
+        for dimension, value in baseline_attachment.items()
+    }
     return {
         "id": str(persona.id), "name": persona.name,
         "baseline_age": persona.baseline_age, "current_age": persona.current_age,
@@ -31,7 +37,9 @@ def persona_projection(db, persona) -> Dict:
         "personality_delta": delta,
         "current_attachment_style": persona.current_attachment_style,
         "baseline_attachment_style": persona.baseline_attachment_style or persona.current_attachment_style,
-        "current_attachment_dimensions": persona.current_attachment_dimensions or {},
+        "baseline_attachment_dimensions": baseline_attachment,
+        "current_attachment_dimensions": current_attachment,
+        "attachment_delta": attachment_delta,
         "attachment_style_semantics": "derived_from_developmental_dimensions",
         "current_trauma_markers": persona.current_trauma_markers,
         "current_state": persona.current_state,
@@ -91,4 +99,23 @@ def experience_psychology_projection(db, experience) -> Dict:
                     "direction": _direction(hypothesis.evidence_strength, hypothesis.previous_evidence_strength),
                     "evidence_count": len(hypothesis.supporting_evidence or []) + len(hypothesis.contradicting_evidence or []),
                 })
-    return {"interpretation": interpretation_data, "pattern_connections": pattern_links, "hypothesis_connections": hypothesis_links}
+    protective_factors = [
+        {
+            "id": str(factor.id), "factor_type": factor.factor_type,
+            "description": factor.description,
+            "domains_buffered": list(factor.domains_buffered or []),
+            "source_event_id": factor.source_event_id,
+            "active_from_age": factor.active_from_age,
+            "active_to_age": factor.active_to_age,
+            "speaker_role": factor.speaker_role,
+        }
+        for factor in db.query(ProtectiveFactor).filter(
+            ProtectiveFactor.source_event_id == event_id
+        ).order_by(ProtectiveFactor.created_at, ProtectiveFactor.id).all()
+    ]
+    return {
+        "interpretation": interpretation_data,
+        "pattern_connections": pattern_links,
+        "hypothesis_connections": hypothesis_links,
+        "protective_factors": protective_factors,
+    }

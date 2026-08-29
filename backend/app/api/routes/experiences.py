@@ -27,6 +27,29 @@ router = APIRouter(prefix="/api/v1/personas", tags=["experiences"])
 logger = logging.getLogger(__name__)
 
 
+def _next_sequence_index(db: Session, persona_id: str, age: int) -> int:
+    rows = db.query(Experience.sequence_index).filter(
+        Experience.persona_id == persona_id, Experience.age_at_event == age
+    ).all()
+    return max((row[0] or 0 for row in rows), default=0) + 1
+
+
+def _ensure_sequence_available(db: Session, persona_id: str, age: int, sequence_index: int,
+                               exclude_experience_id: str = None) -> None:
+    query = db.query(Experience).filter(
+        Experience.persona_id == persona_id,
+        Experience.age_at_event == age,
+        Experience.sequence_index == sequence_index,
+    )
+    if exclude_experience_id:
+        query = query.filter(Experience.id != exclude_experience_id)
+    if query.first():
+        raise HTTPException(
+            status_code=409,
+            detail=f"Sequence {sequence_index} is already used for age {age}",
+        )
+
+
 def _delete_event_derived_rows(db: Session, event_id: str) -> None:
     narration_ids = [row.id for row in db.query(NarrationRecord).filter_by(source_event_id=event_id).all()]
     if narration_ids:
@@ -45,11 +68,20 @@ async def update_experience(
     experience = db.query(Experience).filter(Experience.id == experience_id, Experience.persona_id == persona_id).first()
     if not persona or not experience:
         raise HTTPException(status_code=404, detail="Experience not found")
+    target_age = update.age_at_event if update.age_at_event is not None else experience.age_at_event
+    if update.sequence_index is not None:
+        target_sequence_index = update.sequence_index
+        _ensure_sequence_available(db, persona_id, target_age, target_sequence_index, experience_id)
+    elif update.age_at_event is not None and target_age != experience.age_at_event:
+        target_sequence_index = _next_sequence_index(db, persona_id, target_age)
+    else:
+        target_sequence_index = experience.sequence_index
     _delete_event_derived_rows(db, experience_id)
     if update.user_description is not None:
         experience.user_description = update.user_description
     if update.age_at_event is not None:
         experience.age_at_event = update.age_at_event
+    experience.sequence_index = target_sequence_index
     try:
         await process_developmental_text(db, persona, experience.user_description, source="experience",
                                          age=experience.age_at_event, source_event_id=experience.id)
@@ -75,7 +107,9 @@ async def delete_experience(
     db.delete(experience)
     db.flush()
     rebuild_persona_from_timeline(db, persona_id)
-    remaining = db.query(Experience).filter_by(persona_id=persona_id).order_by(Experience.age_at_event, Experience.created_at).all()
+    remaining = db.query(Experience).filter_by(persona_id=persona_id).order_by(
+        Experience.age_at_event, Experience.sequence_index, Experience.sequence_number, Experience.created_at
+    ).all()
     for index, row in enumerate(remaining, 1):
         row.sequence_number = index
     db.commit()
@@ -91,13 +125,24 @@ async def add_experiences_batch(
     db: Session = Depends(get_db),
 ):
     """Apply freeform experiences chronologically through the single-item path."""
-    ordered = sorted(enumerate(batch.experiences), key=lambda pair: (pair[1].age_at_event, pair[0]))
+    ordered = sorted(
+        enumerate(batch.experiences),
+        key=lambda pair: (
+            pair[1].age_at_event,
+            pair[1].sequence_index if pair[1].sequence_index is not None else pair[0] + 1,
+            pair[0],
+        ),
+    )
     results = []
     for input_index, item in ordered:
         try:
             result = await add_experience(
                 persona_id,
-                ExperienceCreate(user_description=item.description, age_at_event=item.age_at_event),
+                ExperienceCreate(
+                    user_description=item.description,
+                    age_at_event=item.age_at_event,
+                    sequence_index=item.sequence_index,
+                ),
                 user_id,
                 db,
             )
@@ -155,6 +200,10 @@ async def add_experience(
 
     # Calculate sequence number
     sequence_number = len(previous_experiences) + 1
+    sequence_index = experience_data.sequence_index or _next_sequence_index(
+        db, persona_id, experience_data.age_at_event
+    )
+    _ensure_sequence_available(db, persona_id, experience_data.age_at_event, sequence_index)
 
     # Create experience record. Legacy analysis fields (immediate_effects,
     # symptoms_developed, etc.) are filled in AFTER the developmental
@@ -165,6 +214,7 @@ async def add_experience(
         user_id=user_id,
         persona_id=persona_id,
         sequence_number=sequence_number,
+        sequence_index=sequence_index,
         age_at_event=experience_data.age_at_event,
         user_description=experience_data.user_description,
     )
@@ -252,6 +302,7 @@ async def add_experience(
         "id": str(experience.id),
         "persona_id": str(experience.persona_id),
         "sequence_number": experience.sequence_number,
+        "sequence_index": experience.sequence_index,
         "age_at_event": experience.age_at_event,
         "user_description": experience.user_description,
         "immediate_effects": experience.immediate_effects,
@@ -289,7 +340,10 @@ async def get_persona_experiences(
     # Get experiences
     experiences = db.query(Experience).filter(
         Experience.persona_id == persona_id
-    ).order_by(Experience.sequence_number).all()
+    ).order_by(
+        Experience.age_at_event, Experience.sequence_index,
+        Experience.sequence_number, Experience.created_at,
+    ).all()
     
     # Convert to response format
     response_list = []
@@ -304,6 +358,7 @@ async def get_persona_experiences(
             "id": str(exp.id),
             "persona_id": str(exp.persona_id),
             "sequence_number": exp.sequence_number,
+            "sequence_index": exp.sequence_index,
             "age_at_event": exp.age_at_event,
             "user_description": exp.user_description,
             "immediate_effects": exp.immediate_effects,

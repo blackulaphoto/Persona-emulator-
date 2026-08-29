@@ -25,6 +25,7 @@ def convert_experience_to_response(db: Session, exp: Experience) -> Dict[str, An
         "id": str(exp.id),
         "persona_id": str(exp.persona_id),
         "sequence_number": exp.sequence_number,
+        "sequence_index": exp.sequence_index,
         "age_at_event": exp.age_at_event,
         "user_description": exp.user_description,
         "immediate_effects": exp.immediate_effects,
@@ -93,7 +94,10 @@ def get_persona_timeline(persona_id: str, db: Session = Depends(get_db)):
     # Get experiences
     experiences = db.query(Experience).filter(
         Experience.persona_id == persona_id
-    ).order_by(Experience.age_at_event).all()
+    ).order_by(
+        Experience.age_at_event, Experience.sequence_index,
+        Experience.sequence_number, Experience.created_at,
+    ).all()
 
     # Get interventions
     interventions = db.query(Intervention).filter(
@@ -120,6 +124,7 @@ def get_persona_timeline(persona_id: str, db: Session = Depends(get_db)):
             "type": "experience",
             "age": exp.age_at_event,
             "sequence_number": exp.sequence_number,
+            "sequence_index": exp.sequence_index,
             "description": exp.user_description,
             "symptoms_developed": exp.symptoms_developed,
             "symptom_severity": exp.symptom_severity,
@@ -154,8 +159,14 @@ def get_persona_timeline(persona_id: str, db: Session = Depends(get_db)):
         }
         timeline_events.append(event)
     
-    # Sort timeline by age
-    timeline_events.sort(key=lambda x: x["age"])
+    # Same-age experiences have an explicit psychological sequence. Other
+    # event kinds retain their existing deterministic sequence fallback.
+    timeline_events.sort(key=lambda event: (
+        event["age"],
+        event.get("sequence_index", event.get("sequence_number", 0)),
+        0 if event["type"] == "experience" else 1,
+        event.get("sequence_number", 0),
+    ))
     
     # Convert to response format
     response = {

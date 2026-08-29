@@ -94,6 +94,19 @@ class TestPsychologyEngineFullyRetiredFromThisRoute:
 
 class TestPipelineActuallyRunsOnExperienceAdd:
     @pytest.mark.asyncio
+    async def test_explicit_same_age_sequence_is_persisted_and_returned(self, db):
+        persona = _make_persona(db)
+        response = await add_experience(
+            persona_id=persona.id,
+            experience_data=ExperienceCreate(
+                user_description="A later same-age event", age_at_event=16, sequence_index=2
+            ),
+            user_id="user-1", db=db,
+        )
+        assert response.sequence_index == 2
+        assert db.get(Experience, response.id).sequence_index == 2
+
+    @pytest.mark.asyncio
     async def test_creates_developmental_exposures_for_this_experience(self, db):
         persona = _make_persona(db)
         response = await add_experience(

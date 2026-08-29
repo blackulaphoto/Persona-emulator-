@@ -16,6 +16,7 @@ export interface Persona {
   baseline_attachment_style?: string;
   baseline_attachment_dimensions?: AttachmentDimensions;
   current_attachment_dimensions?: AttachmentDimensions;
+  attachment_delta?: AttachmentDimensions;
   attachment_style_semantics?: 'derived_from_developmental_dimensions';
   personality_delta?: Partial<PersonalityTraits> | null;
   foundational_environment_signals?: Record<string, unknown>;
@@ -79,12 +80,25 @@ export interface Experience {
   id: string;
   persona_id: string;
   sequence_number: number;
+  sequence_index: number;
   age_at_event: number;
   user_description: string;
   symptoms_developed: string[];
   symptom_severity: Record<string, number>;
   long_term_patterns: string[];
   recommended_therapies: string[];
+  protective_factors: ProtectiveFactor[];
+}
+
+export interface ProtectiveFactor {
+  id: string;
+  factor_type: string;
+  description?: string | null;
+  domains_buffered: string[];
+  source_event_id?: string | null;
+  active_from_age?: number | null;
+  active_to_age?: number | null;
+  speaker_role: string;
 }
 
 export interface Intervention {
@@ -106,6 +120,7 @@ export interface TimelineEvent {
   type: 'experience' | 'intervention';
   age: number;
   sequence_number: number;
+  sequence_index?: number;
   description?: string;
   therapy_type?: string;
   personality_snapshot: {

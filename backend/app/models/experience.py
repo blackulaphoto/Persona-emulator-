@@ -20,6 +20,8 @@ class Experience(Base):
     # Sequencing
     sequence_number = Column(Integer, nullable=False)  # Order of events
     age_at_event = Column(Integer, nullable=False)
+    # Stable psychological order among experiences at the same age.
+    sequence_index = Column(Integer, nullable=False, default=1)
     
     # User input
     user_description = Column(Text, nullable=False)

@@ -115,7 +115,9 @@ class PersonaResponse(BaseModel):
     personality_delta: Optional[Dict[str, float]] = None
     current_attachment_style: str
     baseline_attachment_style: Optional[str] = None
+    baseline_attachment_dimensions: Dict[str, float] = Field(default_factory=dict)
     current_attachment_dimensions: Dict[str, float] = Field(default_factory=dict)
+    attachment_delta: Dict[str, float] = Field(default_factory=dict)
     attachment_style_semantics: str = "derived_from_developmental_dimensions"
     current_trauma_markers: List[str]
     # Step 11f (docs/MIGRATION_MAP.md): the State tier (app/services/
@@ -149,15 +151,18 @@ class ExperienceCreate(BaseModel):
     """Schema for creating a new experience."""
     user_description: str = Field(min_length=1, max_length=2000)
     age_at_event: int = Field(ge=0, le=120)
+    sequence_index: Optional[int] = Field(None, ge=1)
 
 
 class ExperienceUpdate(BaseModel):
     user_description: Optional[str] = Field(None, min_length=1, max_length=2000)
     age_at_event: Optional[int] = Field(None, ge=0, le=120)
+    sequence_index: Optional[int] = Field(None, ge=1)
 
 
 class BatchExperienceItem(BaseModel):
     age_at_event: int = Field(ge=0, le=120)
+    sequence_index: Optional[int] = Field(None, ge=1)
     description: str = Field(min_length=1, max_length=2000)
 
 
@@ -183,6 +188,7 @@ class ExperienceResponse(BaseModel):
     id: str
     persona_id: str
     sequence_number: int
+    sequence_index: int
     age_at_event: int
     user_description: str
     immediate_effects: Optional[Dict] = None
@@ -196,10 +202,22 @@ class ExperienceResponse(BaseModel):
     interpretation: Optional[InterpretationResponse] = None
     pattern_connections: List[ExperiencePatternLink] = Field(default_factory=list)
     hypothesis_connections: List[ExperienceHypothesisLink] = Field(default_factory=list)
+    protective_factors: List["ProtectiveFactorResponse"] = Field(default_factory=list)
     created_at: datetime
     
     class Config:
         from_attributes = True
+
+
+class ProtectiveFactorResponse(BaseModel):
+    id: str
+    factor_type: str
+    description: Optional[str] = None
+    domains_buffered: List[str] = Field(default_factory=list)
+    source_event_id: Optional[str] = None
+    active_from_age: Optional[int] = None
+    active_to_age: Optional[int] = None
+    speaker_role: str
 
 
 class InterventionCreate(BaseModel):

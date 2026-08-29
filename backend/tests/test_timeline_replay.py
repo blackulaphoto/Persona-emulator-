@@ -7,6 +7,7 @@ from app.models import DevelopmentalExposure, Experience, Interpretation, Person
 from app.services.attachment_engine import dimensions_for_style
 from app.services.timeline_replay import rebuild_persona_from_timeline
 from app.api.routes.experiences import delete_experience, update_experience
+from app.api.routes.timeline import get_persona_timeline
 from app.schemas import ExperienceUpdate
 from unittest.mock import AsyncMock, patch
 import pytest
@@ -31,9 +32,9 @@ def _setup(db):
     return persona
 
 
-def _event(db, event_id, age, magnitude="moderate", description=None):
+def _event(db, event_id, age, magnitude="moderate", description=None, sequence_index=1):
     event = Experience(id=event_id, user_id="owner", persona_id="p", sequence_number=age,
-        age_at_event=age, user_description=description or event_id)
+        sequence_index=sequence_index, age_at_event=age, user_description=description or event_id)
     db.add(event)
     db.add(DevelopmentalExposure(id=f"x-{event_id}", persona_id="p", source_event_id=event_id,
         source="experience", age_at_exposure=age, exposure_type="caregiver_absence",
@@ -128,3 +129,58 @@ async def test_patch_route_regenerates_edited_event_then_replays():
     assert after["state"]["trust"] > before["state"]["trust"]
     assert db.get(Experience, "b").user_description == "A reliable partner stayed"
     assert db.query(Interpretation).filter_by(source_event_id="b").count() == 1
+
+
+def test_same_age_replay_uses_sequence_index_not_creation_time():
+    db = _db(); persona = _setup(db)
+    persona.baseline_attachment_dimensions = {
+        "attachment_anxiety": .2, "attachment_avoidance": .2, "relational_security": .8,
+    }
+    db.add_all([
+        Experience(id="positive", user_id="owner", persona_id="p", sequence_number=1,
+                   sequence_index=1, age_at_event=16, user_description="support"),
+        Experience(id="negative", user_id="owner", persona_id="p", sequence_number=2,
+                   sequence_index=2, age_at_event=16, user_description="betrayal"),
+        Interpretation(id="positive-i", persona_id="p", source_event_id="positive", age_at_event=16,
+            belief_statement="People can be safe", developmental_domains=["attachment_security"],
+            state_implications={"trust": {"direction": "increase", "magnitude": "high"}}),
+        Interpretation(id="negative-i", persona_id="p", source_event_id="negative", age_at_event=16,
+            belief_statement="People can betray me", developmental_domains=["attachment_security"],
+            state_implications={"trust": {"direction": "decrease", "magnitude": "high"}}),
+    ])
+    db.commit()
+    rebuild_persona_from_timeline(db, "p")
+    support_then_betrayal = db.get(Persona, "p").current_attachment_dimensions["relational_security"]
+
+    db.get(Experience, "positive").sequence_index = 2
+    db.get(Experience, "negative").sequence_index = 1
+    rebuild_persona_from_timeline(db, "p")
+    betrayal_then_support = db.get(Persona, "p").current_attachment_dimensions["relational_security"]
+
+    assert support_then_betrayal < betrayal_then_support
+    assert support_then_betrayal == .78
+    assert betrayal_then_support == .8
+
+
+@pytest.mark.asyncio
+async def test_patch_preserves_or_updates_same_age_sequence():
+    db = _db(); _setup(db)
+    _event(db, "first", 16, sequence_index=1)
+    _event(db, "second", 16, sequence_index=2)
+
+    with patch("app.api.routes.experiences.process_developmental_text", new=AsyncMock(return_value={})):
+        await update_experience("p", "first", ExperienceUpdate(user_description="edited"), "owner", db)
+        assert db.get(Experience, "first").sequence_index == 1
+        await update_experience("p", "first", ExperienceUpdate(sequence_index=3), "owner", db)
+        assert db.get(Experience, "first").sequence_index == 3
+
+
+def test_timeline_orders_same_age_experiences_and_reuses_persona_projection():
+    db = _db(); _setup(db)
+    _event(db, "later", 16, sequence_index=2)
+    _event(db, "earlier", 16, sequence_index=1)
+    response = get_persona_timeline("p", db)
+    assert [item["id"] for item in response["experiences"]] == ["earlier", "later"]
+    assert [item["sequence_index"] for item in response["timeline_events"]] == [1, 2]
+    assert response["persona"]["baseline_attachment_dimensions"] == dimensions_for_style("secure")
+    assert "attachment_delta" in response["persona"]
