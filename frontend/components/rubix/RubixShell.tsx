@@ -3,6 +3,7 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { RubixSidebar, RubixSidebarPersonaContext } from './RubixSidebar';
+import { SaveWorkBanner } from './SaveWorkBanner';
 import { useFocusTrap } from '@/lib/rubix/useFocusTrap';
 
 interface RubixShellProps {
@@ -95,6 +96,7 @@ export function RubixShell({ persona, children }: RubixShellProps) {
             sibling chrome like .rubix-mobile-topbar instead of letting it
             escape to the viewport-level stack where it belongs. */}
         <main className="rubix-scroll" style={{ position: 'relative', flex: 1, minWidth: 0, height: '100%', overflowY: 'auto', overflowX: 'hidden', padding: '22px 30px 60px' }}>
+          <SaveWorkBanner />
           {children}
         </main>
       </div>

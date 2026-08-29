@@ -65,6 +65,15 @@ export function RubixSidebar({ persona, onClose }: RubixSidebarProps) {
   const isActive = (href: string) => (href === '/personas' ? pathname === '/personas' : pathname === href);
 
   async function handleLogout() {
+    // Signing out an anonymous demo session can't be undone from the sign-in
+    // screen - there's no password to sign back in with, so make sure that's
+    // clear before it happens rather than silently stranding their data.
+    if (user?.isAnonymous) {
+      const confirmed = window.confirm(
+        "You're exploring as a guest. Signing out now means this session's work won't be reachable again unless you saved it first. Sign out anyway?"
+      );
+      if (!confirmed) return;
+    }
     try {
       await logout();
       router.push('/login');
@@ -73,7 +82,8 @@ export function RubixSidebar({ persona, onClose }: RubixSidebarProps) {
     }
   }
 
-  const initial = (user?.displayName || user?.email || '?').trim().charAt(0).toUpperCase();
+  const displayName = user?.isAnonymous ? 'Guest' : user?.displayName || user?.email || '?';
+  const initial = displayName.trim().charAt(0).toUpperCase();
 
   return (
     <aside className="rubix-sidebar rubix-scroll" style={{ position: 'relative', zIndex: 3, width: 258, flex: '0 0 258px', height: '100vh', overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column', padding: '26px 18px 20px' }}>
@@ -110,8 +120,11 @@ export function RubixSidebar({ persona, onClose }: RubixSidebarProps) {
             </div>
             <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ fontSize: 12.5, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {user.displayName || user.email}
+                {displayName}
               </div>
+              {user.isAnonymous && (
+                <div style={{ fontSize: 10.5, color: 'rgba(200,224,255,0.5)', marginTop: 1 }}>Exploring — not saved</div>
+              )}
             </div>
             <button
               type="button"

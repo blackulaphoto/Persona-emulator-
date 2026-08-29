@@ -17,10 +17,12 @@ import { useAuth } from '../contexts/AuthContext';
 
 export default function LandingPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, startDemo } = useAuth();
   const [scrollY, setScrollY] = useState(0);
   const [activeQuestion, setActiveQuestion] = useState(0);
   const [isChecking, setIsChecking] = useState(true);
+  const [starting, setStarting] = useState(false);
+  const [startError, setStartError] = useState('');
 
   // Check if user is authenticated or has seen landing page before
   useEffect(() => {
@@ -58,13 +60,24 @@ export default function LandingPage() {
     return () => clearInterval(interval);
   }, []);
 
-  function handleCTA() {
+  async function handleCTA() {
     localStorage.setItem('hasSeenLanding', 'true');
-    // If user is authenticated, go to personas; otherwise go to signup
+    // Already authenticated (registered or an existing demo session) -
+    // continue as that user. Never start a second anonymous account for
+    // someone who's already signed in.
     if (user) {
       router.push('/personas');
-    } else {
-      router.push('/signup');
+      return;
+    }
+    // Try Rubicks: real Firebase anonymous sign-in, no registration step.
+    setStartError('');
+    setStarting(true);
+    try {
+      await startDemo();
+      router.push('/personas');
+    } catch (err: any) {
+      setStartError(err?.message || 'Could not start your demo. Please try again.');
+      setStarting(false);
     }
   }
 
@@ -119,13 +132,18 @@ export default function LandingPage() {
 
           <button
             onClick={handleCTA}
-            className="bg-[#5B6B4D] hover:bg-[#4a5a3e] text-white font-semibold text-lg px-8 py-4 rounded-lg shadow-2xl transition-all transform hover:scale-105 font-['Outfit']"
+            disabled={starting}
+            className="bg-[#5B6B4D] hover:bg-[#4a5a3e] disabled:opacity-70 disabled:cursor-wait text-white font-semibold text-lg px-8 py-4 rounded-lg shadow-2xl transition-all transform hover:scale-105 font-['Outfit'] flex flex-col items-center gap-0.5"
             style={{
               opacity: 1 - scrollY / 500
             }}
           >
-            Create Your First Persona
+            <span>{starting ? 'Starting…' : 'Try Rubicks'}</span>
+            {!starting && <span className="text-xs font-normal text-white/70">No account required</span>}
           </button>
+          {startError && (
+            <p className="mt-4 text-sm text-red-300 font-['Outfit']">{startError}</p>
+          )}
         </div>
 
         {/* Scroll indicator */}
@@ -167,9 +185,10 @@ export default function LandingPage() {
 
           <button
             onClick={handleCTA}
-            className="bg-[#5B6B4D] hover:bg-[#4a5a3e] text-white font-semibold text-lg px-8 py-4 rounded-lg transition-all font-['Outfit']"
+            disabled={starting}
+            className="bg-[#5B6B4D] hover:bg-[#4a5a3e] disabled:opacity-70 disabled:cursor-wait text-white font-semibold text-lg px-8 py-4 rounded-lg transition-all font-['Outfit']"
           >
-            Create Your First Persona
+            {starting ? 'Starting…' : 'Try Rubicks'}
           </button>
         </div>
       </section>
@@ -311,9 +330,10 @@ export default function LandingPage() {
 
           <button
             onClick={handleCTA}
-            className="bg-[#5B6B4D] hover:bg-[#4a5a3e] text-white font-semibold text-lg px-12 py-5 rounded-lg shadow-2xl transition-all transform hover:scale-105 font-['Outfit']"
+            disabled={starting}
+            className="bg-[#5B6B4D] hover:bg-[#4a5a3e] disabled:opacity-70 disabled:cursor-wait text-white font-semibold text-lg px-12 py-5 rounded-lg shadow-2xl transition-all transform hover:scale-105 font-['Outfit']"
           >
-            Create Your First Persona
+            {starting ? 'Starting…' : 'Try Rubicks — No account required'}
           </button>
         </div>
       </section>

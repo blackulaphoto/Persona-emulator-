@@ -4,23 +4,23 @@
  * Previously duplicated three times (lib/api.ts, components/PersonaNarrative.tsx,
  * components/FeedbackModal.tsx). Every authenticated backend call should go
  * through this one function so there is exactly one place that knows how to
- * get a real Firebase ID token.
+ * get a real Firebase ID token. Anonymous demo users, email/password users,
+ * and Google users all reach this the same way - auth.currentUser.getIdToken()
+ * works identically for all three, so there is no demo-specific branch here.
  */
-import { auth, hasConfig } from '@/lib/firebase';
+import { auth, hasConfig, devBypassEnabled } from '@/lib/firebase';
 
 export async function getAuthHeaders(): Promise<HeadersInit> {
-  // QA-ONLY LOCAL FALLBACK - mirrors backend/app/core/auth.py's
-  // _DEV_NO_FIREBASE_CONFIGURED branch. Only reachable when this checkout
-  // has no NEXT_PUBLIC_FIREBASE_* env vars at all, i.e. real auth is
-  // already impossible here regardless of this branch. Never fires once
-  // real Firebase config exists.
-  if (!hasConfig) {
+  // LOCAL-DEV-ONLY AUTH BYPASS - see devBypassEnabled in lib/firebase.ts for
+  // the full gating (explicit opt-in env var, non-production, no Firebase
+  // config reachable at all). Mirrors backend/app/core/auth.py's own gate.
+  if (devBypassEnabled) {
     return {
       Authorization: 'Bearer dev-local-bypass',
       'Content-Type': 'application/json',
     };
   }
-  if (!auth) {
+  if (!hasConfig || !auth) {
     throw new Error('Authentication is not configured. Set NEXT_PUBLIC_FIREBASE_* env vars.');
   }
   const user = auth.currentUser;

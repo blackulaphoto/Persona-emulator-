@@ -15,7 +15,7 @@ import { Mail, Lock } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, loginWithGoogle, resetPassword } = useAuth();
+  const { login, loginWithGoogle, resetPassword, isAnonymous } = useAuth();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -91,6 +91,15 @@ export default function LoginPage() {
               Log in to continue your simulations
             </p>
           </div>
+
+          {/* Guest-session warning - signing into a different account here leaves today's demo work behind unless it was saved first. */}
+          {isAnonymous && (
+            <div className="alert-apple-error animate-scale-in">
+              <p className="text-apple-red text-sm font-medium">
+                You&apos;re currently exploring as a guest. Signing in here won&apos;t bring that work with it - go back and use <strong>Save your work</strong> first if you want to keep it.
+              </p>
+            </div>
+          )}
 
           {/* Error Message */}
           {error && (
