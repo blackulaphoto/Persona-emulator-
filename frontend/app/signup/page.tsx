@@ -12,11 +12,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Mail, Lock, CheckCircle } from 'lucide-react';
+import { isAccountCollision, friendlyAuthErrorMessage } from '@/lib/authErrors';
 
 export default function SignupPage() {
   const router = useRouter();
-  const { signup, loginWithGoogle } = useAuth();
-  
+  const { signup, loginWithGoogle, isAnonymous, convertAnonymousWithEmail, convertAnonymousWithGoogle } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -37,10 +38,22 @@ export default function SignupPage() {
     try {
       setError('');
       setLoading(true);
-      await signup(email, password);
+      // Currently exploring as a guest - link these credentials onto that
+      // SAME session instead of creating a brand new one, so everything
+      // already built stays attached. A plain signup() here would silently
+      // strand it under the old anonymous UID.
+      if (isAnonymous) {
+        await convertAnonymousWithEmail(email, password);
+      } else {
+        await signup(email, password);
+      }
       router.push('/personas');
     } catch (err: any) {
-      setError(err.message || 'Failed to create account');
+      if (isAnonymous && isAccountCollision(err)) {
+        setError(`${friendlyAuthErrorMessage(err)} Sign in to it from the login page instead - just know that won't bring today's guest session with it.`);
+      } else {
+        setError(err.message || 'Failed to create account');
+      }
     } finally {
       setLoading(false);
     }
@@ -50,10 +63,18 @@ export default function SignupPage() {
     try {
       setError('');
       setLoading(true);
-      await loginWithGoogle();
+      if (isAnonymous) {
+        await convertAnonymousWithGoogle();
+      } else {
+        await loginWithGoogle();
+      }
       router.push('/personas');
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in with Google');
+      if (isAnonymous && isAccountCollision(err)) {
+        setError(`${friendlyAuthErrorMessage(err)} Sign in with Google from the login page instead - just know that won't bring today's guest session with it.`);
+      } else {
+        setError(err.message || 'Failed to sign in with Google');
+      }
     } finally {
       setLoading(false);
     }
@@ -64,13 +85,19 @@ export default function SignupPage() {
       <div className="max-w-md w-full animate-fade-in-up">
         {/* Glass Card Container */}
         <div className="glass-card p-8 space-y-6">
+          {/* Brand */}
+          <div className="flex items-center justify-center gap-2">
+            <img src="/rubicks-icon.png" alt="" aria-hidden="true" className="w-8 h-8" />
+            <span className="text-lg font-semibold text-foreground font-display">Rubicks</span>
+          </div>
+
           {/* Header */}
           <div className="text-center">
             <h1 className="text-4xl font-bold text-foreground font-display mb-2">
-              Create Account
+              {isAnonymous ? 'Save Your Work' : 'Create Account'}
             </h1>
             <p className="text-muted-foreground">
-              Start exploring psychological simulations
+              {isAnonymous ? "Keep what you've already built - nothing is lost." : 'Start exploring psychological simulations'}
             </p>
           </div>
 
