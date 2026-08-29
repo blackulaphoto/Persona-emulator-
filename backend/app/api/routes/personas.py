@@ -14,7 +14,7 @@ from app.utils.foundational_baseline import (
     infer_foundational_signals
 )
 from app.services.developmental_pipeline import process_developmental_text
-from app.services.persona_board import board_sections_for_persona
+from app.services.api_projection import persona_projection
 from app.schemas import PersonaCreate, PersonaUpdate, PersonaResponse
 
 logger = logging.getLogger(__name__)
@@ -71,6 +71,7 @@ async def create_persona(
         baseline_gender=persona_data.baseline_gender,
         baseline_background=persona_data.baseline_background,
         current_personality=baseline_personality,
+        baseline_personality=dict(baseline_personality),
         current_attachment_style=persona_data.baseline_attachment_style or "secure",
         current_trauma_markers=[],
         foundational_environment_signals=foundational_signals,
@@ -108,26 +109,7 @@ async def create_persona(
             logger.exception("Developmental pipeline failed for persona %s during creation", persona.id)
             db.rollback()
 
-    # Convert to dict and add counts
-    persona_dict = {
-        "id": str(persona.id),
-        "name": persona.name,
-        "baseline_age": persona.baseline_age,
-        "current_age": persona.current_age,
-        "baseline_gender": persona.baseline_gender,
-        "baseline_background": persona.baseline_background,
-        "current_personality": persona.current_personality,
-        "current_attachment_style": persona.current_attachment_style,
-        "current_trauma_markers": persona.current_trauma_markers,
-        "current_state": persona.current_state,
-        **board_sections_for_persona(db, persona.id),
-        "experiences_count": 0,
-        "interventions_count": 0,
-        "created_at": persona.created_at,
-        "updated_at": persona.updated_at
-    }
-    
-    return PersonaResponse(**persona_dict)
+    return PersonaResponse(**persona_projection(db, persona))
 
 
 @router.get("", response_model=List[PersonaResponse])
@@ -143,24 +125,7 @@ async def list_personas(
     # Convert to response format
     response_list = []
     for persona in personas:
-        persona_dict = {
-            "id": str(persona.id),
-            "name": persona.name,
-            "baseline_age": persona.baseline_age,
-            "current_age": persona.current_age,
-            "baseline_gender": persona.baseline_gender,
-            "baseline_background": persona.baseline_background,
-            "current_personality": persona.current_personality,
-            "current_attachment_style": persona.current_attachment_style,
-            "current_trauma_markers": persona.current_trauma_markers,
-            "current_state": persona.current_state,
-            **board_sections_for_persona(db, persona.id),
-            "experiences_count": len(persona.experiences),
-            "interventions_count": len(persona.interventions),
-            "created_at": persona.created_at,
-            "updated_at": persona.updated_at
-        }
-        response_list.append(PersonaResponse(**persona_dict))
+        response_list.append(PersonaResponse(**persona_projection(db, persona)))
     
     return response_list
 
@@ -182,26 +147,7 @@ async def get_persona(
     if not persona:
         raise HTTPException(status_code=404, detail="Persona not found")
     
-    # Convert to response format
-    persona_dict = {
-        "id": str(persona.id),
-        "name": persona.name,
-        "baseline_age": persona.baseline_age,
-        "current_age": persona.current_age,
-        "baseline_gender": persona.baseline_gender,
-        "baseline_background": persona.baseline_background,
-        "current_personality": persona.current_personality,
-        "current_attachment_style": persona.current_attachment_style,
-        "current_trauma_markers": persona.current_trauma_markers,
-        "current_state": persona.current_state,
-        **board_sections_for_persona(db, persona.id),
-        "experiences_count": len(persona.experiences),
-        "interventions_count": len(persona.interventions),
-        "created_at": persona.created_at,
-        "updated_at": persona.updated_at
-    }
-    
-    return PersonaResponse(**persona_dict)
+    return PersonaResponse(**persona_projection(db, persona))
 
 
 @router.put("/{persona_id}", response_model=PersonaResponse)
@@ -231,26 +177,7 @@ async def update_persona(
     db.commit()
     db.refresh(persona)
     
-    # Convert to response format
-    persona_dict = {
-        "id": str(persona.id),
-        "name": persona.name,
-        "baseline_age": persona.baseline_age,
-        "current_age": persona.current_age,
-        "baseline_gender": persona.baseline_gender,
-        "baseline_background": persona.baseline_background,
-        "current_personality": persona.current_personality,
-        "current_attachment_style": persona.current_attachment_style,
-        "current_trauma_markers": persona.current_trauma_markers,
-        "current_state": persona.current_state,
-        **board_sections_for_persona(db, persona.id),
-        "experiences_count": len(persona.experiences),
-        "interventions_count": len(persona.interventions),
-        "created_at": persona.created_at,
-        "updated_at": persona.updated_at
-    }
-    
-    return PersonaResponse(**persona_dict)
+    return PersonaResponse(**persona_projection(db, persona))
 
 
 @router.delete("/{persona_id}", status_code=204)

@@ -44,6 +44,7 @@ class AdaptationPatternSummary(BaseModel):
     evidence_strength: Optional[float] = None
     confidence: Optional[int] = None
     first_emerged_age: Optional[int] = None
+    reinforcement_history: List[Dict] = Field(default_factory=list)
 
 
 class ClinicalPatternHypothesisSummary(BaseModel):
@@ -66,6 +67,39 @@ class ClinicalPatternHypothesisSummary(BaseModel):
     direction: Optional[str] = None
     opened_at_age: Optional[int] = None
     developmental_precursors: List[str] = Field(default_factory=list)
+    supporting_evidence: List[Dict] = Field(default_factory=list)
+    contradicting_evidence: List[Dict] = Field(default_factory=list)
+    evidence_count: int = 0
+
+
+class InterpretationResponse(BaseModel):
+    id: str
+    source_event_id: Optional[str] = None
+    belief_statement: Optional[str] = None
+    adaptation_strategy: Optional[str] = None
+    reasoning: Optional[str] = None
+    state_implications: Optional[Dict] = None
+    trait_implications: Optional[Dict] = None
+
+
+class ExperiencePatternLink(BaseModel):
+    pattern_id: str
+    pattern_name: str
+    adaptation_strategy: Optional[str] = None
+    effect: str
+    age: Optional[int] = None
+    current_status: str
+    current_evidence_strength: Optional[float] = None
+
+
+class ExperienceHypothesisLink(BaseModel):
+    hypothesis_id: str
+    pattern_key: str
+    evidence_role: str
+    evidence: List[Dict] = Field(default_factory=list)
+    current_strength: Optional[float] = None
+    direction: Optional[str] = None
+    evidence_count: int = 0
 
 
 class PersonaResponse(BaseModel):
@@ -76,8 +110,11 @@ class PersonaResponse(BaseModel):
     current_age: int
     baseline_gender: str
     baseline_background: str
+    baseline_personality: Optional[Dict[str, float]] = None
     current_personality: Dict[str, float]
+    personality_delta: Optional[Dict[str, float]] = None
     current_attachment_style: str
+    attachment_style_semantics: str = "static_creation_value"
     current_trauma_markers: List[str]
     # Step 11f (docs/MIGRATION_MAP.md): the State tier (app/services/
     # state_trait_engine.py) - fast-moving, reactive psychological state,
@@ -87,6 +124,8 @@ class PersonaResponse(BaseModel):
     # at {} and a persona with no earned State movement yet has nothing to
     # show - not the same as an unearned 0.5 baseline for every variable.
     current_state: Optional[Dict[str, float]] = None
+    foundational_environment_signals: Dict = Field(default_factory=dict)
+    narrative_mode: str = "case_subject"
     # Step 12: the adaptation/hypothesis layers were computed and persisted
     # since Step 11c but had no API surface at all, so the board could only
     # ever render Big Five + current_trauma_markers - which is why a persona
@@ -125,6 +164,9 @@ class ExperienceResponse(BaseModel):
     worldview_shifts: Optional[Dict[str, float]] = None
     cross_experience_triggers: Optional[List[str]] = None
     recommended_therapies: Optional[List[str]] = None
+    interpretation: Optional[InterpretationResponse] = None
+    pattern_connections: List[ExperiencePatternLink] = Field(default_factory=list)
+    hypothesis_connections: List[ExperienceHypothesisLink] = Field(default_factory=list)
     created_at: datetime
     
     class Config:
@@ -173,6 +215,7 @@ class PersonalitySnapshotResponse(BaseModel):
     attachment_style: str
     trauma_markers: List[str]
     symptom_severity: Optional[Dict[str, int]] = None
+    state_profile: Optional[Dict[str, float]] = None
     created_at: datetime
     
     class Config:

@@ -235,6 +235,7 @@ def create_persona_from_template(
         baseline_gender=template.baseline_gender,
         baseline_background=template.baseline_background,
         current_personality=baseline_personality,
+        baseline_personality=dict(baseline_personality),
         current_attachment_style=template.baseline_attachment_style,
         current_age=template.baseline_age,
         current_trauma_markers=[],

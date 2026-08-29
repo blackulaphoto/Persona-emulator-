@@ -61,6 +61,7 @@ def adaptation_pattern_summaries(db, persona_id: str) -> List[Dict]:
             "evidence_strength": row.evidence_strength,
             "confidence": _confidence(row.evidence_strength),
             "first_emerged_age": row.first_emerged_age,
+            "reinforcement_history": row.reinforcement_history or [],
         }
         for row in rows
     ]
@@ -94,6 +95,9 @@ def clinical_pattern_hypothesis_summaries(db, persona_id: str) -> List[Dict]:
             "direction": _direction(row.evidence_strength, row.previous_evidence_strength),
             "opened_at_age": row.opened_at_age,
             "developmental_precursors": row.developmental_precursors or [],
+            "supporting_evidence": row.supporting_evidence or [],
+            "contradicting_evidence": row.contradicting_evidence or [],
+            "evidence_count": len(row.supporting_evidence or []) + len(row.contradicting_evidence or []),
         }
         for row in rows
         if row.status != "dismissed" and (row.evidence_strength or 0) > 0

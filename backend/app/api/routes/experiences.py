@@ -12,6 +12,7 @@ from app.models import Persona, Experience, PersonalitySnapshot
 from app.schemas import ExperienceCreate, ExperienceResponse
 from app.services.developmental_pipeline import process_developmental_text
 from app.services.legacy_experience_adapter import to_legacy_experience_fields
+from app.services.api_projection import experience_psychology_projection
 
 
 router = APIRouter(prefix="/api/v1/personas", tags=["experiences"])
@@ -165,7 +166,8 @@ async def add_experience(
         "worldview_shifts": experience.worldview_shifts,
         "cross_experience_triggers": experience.cross_experience_triggers,
         "recommended_therapies": experience.recommended_therapies,
-        "created_at": experience.created_at
+        "created_at": experience.created_at,
+        **experience_psychology_projection(db, experience),
     }
     
     return ExperienceResponse(**experience_dict)
@@ -216,7 +218,8 @@ async def get_persona_experiences(
             "worldview_shifts": exp.worldview_shifts,
             "cross_experience_triggers": exp.cross_experience_triggers,
             "recommended_therapies": exp.recommended_therapies,
-            "created_at": exp.created_at
+            "created_at": exp.created_at,
+            **experience_psychology_projection(db, exp),
         }
         response_list.append(ExperienceResponse(**exp_dict))
     

@@ -13,33 +13,13 @@ from app.schemas import (
     PersonalitySnapshotResponse,
     TimelineResponse
 )
+from app.services.api_projection import persona_projection, experience_psychology_projection
 
 
 router = APIRouter(prefix="/api/v1/personas", tags=["timeline"])
 
 
-def convert_persona_to_response(persona: Persona) -> Dict[str, Any]:
-    """Convert Persona model to response dict."""
-    return {
-        "id": str(persona.id),
-        "name": persona.name,
-        "baseline_age": persona.baseline_age,
-        "baseline_gender": persona.baseline_gender,
-        "baseline_background": persona.baseline_background,
-        "baseline_personality": persona.current_personality,  # Initially same as baseline
-        "baseline_attachment_style": persona.current_attachment_style,
-        "current_personality": persona.current_personality,
-        "current_attachment_style": persona.current_attachment_style,
-        "current_trauma_markers": persona.current_trauma_markers,
-        "current_age": persona.current_age,
-        "experiences_count": len(persona.experiences),
-        "interventions_count": len(persona.interventions),
-        "created_at": persona.created_at,
-        "updated_at": persona.updated_at
-    }
-
-
-def convert_experience_to_response(exp: Experience) -> Dict[str, Any]:
+def convert_experience_to_response(db: Session, exp: Experience) -> Dict[str, Any]:
     """Convert Experience model to response dict."""
     return {
         "id": str(exp.id),
@@ -55,7 +35,8 @@ def convert_experience_to_response(exp: Experience) -> Dict[str, Any]:
         "worldview_shifts": exp.worldview_shifts,
         "cross_experience_triggers": exp.cross_experience_triggers,
         "recommended_therapies": exp.recommended_therapies,
-        "created_at": exp.created_at
+        "created_at": exp.created_at,
+        **experience_psychology_projection(db, exp),
     }
 
 
@@ -92,6 +73,7 @@ def convert_snapshot_to_response(snapshot: PersonalitySnapshot) -> Dict[str, Any
         "attachment_style": snapshot.attachment_style,
         "trauma_markers": snapshot.trauma_markers,
         "symptom_severity": snapshot.symptom_severity,
+        "state_profile": snapshot.state_profile,
         "created_at": snapshot.created_at
     }
 
@@ -176,8 +158,8 @@ def get_persona_timeline(persona_id: str, db: Session = Depends(get_db)):
     
     # Convert to response format
     response = {
-        "persona": convert_persona_to_response(persona),
-        "experiences": [convert_experience_to_response(exp) for exp in experiences],
+        "persona": persona_projection(db, persona),
+        "experiences": [convert_experience_to_response(db, exp) for exp in experiences],
         "interventions": [convert_intervention_to_response(interv) for interv in interventions],
         "snapshots": [convert_snapshot_to_response(snap) for snap in snapshots],
         "timeline_events": timeline_events

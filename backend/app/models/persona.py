@@ -23,6 +23,9 @@ class Persona(Base):
     baseline_background = Column(Text, nullable=True)  # Early environment context
     
     # Current personality state (Big Five: 0.0 - 1.0 scale)
+    # Immutable creation-time profile. Nullable for legacy rows because their
+    # true baseline cannot be reconstructed once current_personality evolved.
+    baseline_personality = Column(JSON, nullable=True)
     current_personality = Column(JSON, nullable=False, default={
         "openness": 0.5,
         "conscientiousness": 0.5,
