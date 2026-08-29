@@ -151,6 +151,11 @@ class ExperienceCreate(BaseModel):
     age_at_event: int = Field(ge=0, le=120)
 
 
+class ExperienceUpdate(BaseModel):
+    user_description: Optional[str] = Field(None, min_length=1, max_length=2000)
+    age_at_event: Optional[int] = Field(None, ge=0, le=120)
+
+
 class BatchExperienceItem(BaseModel):
     age_at_event: int = Field(ge=0, le=120)
     description: str = Field(min_length=1, max_length=2000)

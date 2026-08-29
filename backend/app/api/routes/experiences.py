@@ -8,18 +8,79 @@ from sqlalchemy.orm.attributes import flag_modified
 from typing import List
 from app.core.database import get_db
 from app.core.auth import get_current_user
-from app.models import Persona, Experience, PersonalitySnapshot
+from app.models import (
+    Persona, Experience, PersonalitySnapshot, DevelopmentalExposure, ProtectiveFactor,
+    NarrationRecord, PersonaBelief, FunctionalObservation, Interpretation,
+)
 from app.schemas import (
     BatchExperienceCreate, BatchExperienceItemResult, BatchExperienceResponse,
-    ExperienceCreate, ExperienceResponse,
+    ExperienceCreate, ExperienceUpdate, ExperienceResponse, PersonaResponse,
 )
 from app.services.developmental_pipeline import process_developmental_text
 from app.services.legacy_experience_adapter import to_legacy_experience_fields
 from app.services.api_projection import experience_psychology_projection
+from app.services.api_projection import persona_projection
+from app.services.timeline_replay import rebuild_persona_from_timeline
 
 
 router = APIRouter(prefix="/api/v1/personas", tags=["experiences"])
 logger = logging.getLogger(__name__)
+
+
+def _delete_event_derived_rows(db: Session, event_id: str) -> None:
+    narration_ids = [row.id for row in db.query(NarrationRecord).filter_by(source_event_id=event_id).all()]
+    if narration_ids:
+        db.query(PersonaBelief).filter(PersonaBelief.source_narration_id.in_(narration_ids)).delete(synchronize_session=False)
+    for model in (DevelopmentalExposure, ProtectiveFactor, NarrationRecord, FunctionalObservation, Interpretation):
+        db.query(model).filter(model.source_event_id == event_id).delete(synchronize_session=False)
+    db.query(PersonalitySnapshot).filter(PersonalitySnapshot.experience_id == event_id).delete(synchronize_session=False)
+
+
+@router.patch("/{persona_id}/experiences/{experience_id}", response_model=PersonaResponse)
+async def update_experience(
+    persona_id: str, experience_id: str, update: ExperienceUpdate,
+    user_id: str = Depends(get_current_user), db: Session = Depends(get_db),
+):
+    persona = db.query(Persona).filter(Persona.id == persona_id, Persona.user_id == user_id).first()
+    experience = db.query(Experience).filter(Experience.id == experience_id, Experience.persona_id == persona_id).first()
+    if not persona or not experience:
+        raise HTTPException(status_code=404, detail="Experience not found")
+    _delete_event_derived_rows(db, experience_id)
+    if update.user_description is not None:
+        experience.user_description = update.user_description
+    if update.age_at_event is not None:
+        experience.age_at_event = update.age_at_event
+    try:
+        await process_developmental_text(db, persona, experience.user_description, source="experience",
+                                         age=experience.age_at_event, source_event_id=experience.id)
+        rebuild_persona_from_timeline(db, persona_id)
+        db.commit()
+        db.refresh(persona)
+    except Exception:
+        db.rollback()
+        raise
+    return PersonaResponse(**persona_projection(db, persona))
+
+
+@router.delete("/{persona_id}/experiences/{experience_id}", response_model=PersonaResponse)
+async def delete_experience(
+    persona_id: str, experience_id: str,
+    user_id: str = Depends(get_current_user), db: Session = Depends(get_db),
+):
+    persona = db.query(Persona).filter(Persona.id == persona_id, Persona.user_id == user_id).first()
+    experience = db.query(Experience).filter(Experience.id == experience_id, Experience.persona_id == persona_id).first()
+    if not persona or not experience:
+        raise HTTPException(status_code=404, detail="Experience not found")
+    _delete_event_derived_rows(db, experience_id)
+    db.delete(experience)
+    db.flush()
+    rebuild_persona_from_timeline(db, persona_id)
+    remaining = db.query(Experience).filter_by(persona_id=persona_id).order_by(Experience.age_at_event, Experience.created_at).all()
+    for index, row in enumerate(remaining, 1):
+        row.sequence_number = index
+    db.commit()
+    db.refresh(persona)
+    return PersonaResponse(**persona_projection(db, persona))
 
 
 @router.post("/{persona_id}/experiences/batch", response_model=BatchExperienceResponse, status_code=207)
