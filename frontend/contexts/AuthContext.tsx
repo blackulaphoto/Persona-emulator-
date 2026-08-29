@@ -45,6 +45,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // If auth isn't configured (e.g., missing env vars), skip initializing Firebase on server/SSR.
     if (!auth) {
+      // QA-ONLY LOCAL FALLBACK - mirrors lib/authHeaders.ts and
+      // backend/app/core/auth.py's _DEV_NO_FIREBASE_CONFIGURED branch. Real
+      // login is already impossible with no Firebase config present, so a
+      // synthetic signed-in user here unblocks local route guards without
+      // ever masking a real auth state. Never fires once real Firebase
+      // config exists (that path goes through onAuthStateChanged below).
+      setUser({ uid: 'dev-local-user', email: 'dev@local.test', displayName: 'Dev User (no auth configured)' } as unknown as User);
       setLoading(false);
       return;
     }

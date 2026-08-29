@@ -58,6 +58,15 @@ class TimelineSnapshot(Base):
     # current_state was {} at snapshot time (no State movement earned yet).
     state_profile_snapshot = Column(JSON, nullable=True)
 
+    # Frozen copy of Persona.current_attachment_style/current_attachment_
+    # dimensions at snapshot time - same point-in-time-copy reasoning as
+    # state_profile_snapshot above. Attachment was tracked live on Persona
+    # since the attachment engine shipped but was never captured here, so
+    # Compare could show State/Trait movement between two points in a life
+    # but never attachment movement. Mirrors the Step 11f precedent.
+    attachment_style_snapshot = Column(String, nullable=True)
+    attachment_dimensions_snapshot = Column(JSON, nullable=True)
+
     # Difference calculations - NEW FIELDS to match service
     personality_difference = Column(JSON, nullable=True)  # Difference from baseline
     symptom_difference = Column(JSON, nullable=True)  # Symptom changes

@@ -8,7 +8,8 @@
 
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { auth } from '@/lib/firebase';
+import { getAuthHeaders } from '@/lib/authHeaders';
+import { RubixCard } from '@/components/rubix';
 
 interface NarrativeData {
   id: string;
@@ -43,18 +44,6 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
   useEffect(() => {
     loadNarrativeHistory();
   }, [personaId]);
-
-  async function getAuthHeaders() {
-    if (!auth) throw new Error('Authentication is not configured. Set NEXT_PUBLIC_FIREBASE_* env vars.');
-
-    const user = auth.currentUser;
-    if (!user) throw new Error('Not authenticated');
-    const token = await user.getIdToken();
-    return {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
-  }
 
   async function generateNarrative() {
     setGenerating(true);
@@ -147,227 +136,143 @@ export default function PersonaNarrative({ personaId, personaName }: PersonaNarr
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header with generate button */}
-      <div className="flex items-center justify-between">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
         <div>
-          <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: 'var(--font-display)' }}>
-            {personaName}'s Story
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            See how their life has unfolded—the whole picture, woven together
-          </p>
+          <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em' }}>{personaName}&apos;s story</div>
+          <div style={{ marginTop: 5, fontSize: 13.5, color: 'rgba(214,235,255,0.68)' }}>
+            The whole picture, woven together from everything you&apos;ve built.
+          </div>
         </div>
 
-        <div className="flex gap-3">
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           {narrativeHistory.length > 0 && (
-            <button
-              onClick={() => setShowHistory(!showHistory)}
-              className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {showHistory ? 'Hide' : 'Show'} History ({narrativeHistory.length})
+            <button type="button" className="rubix-btn-ghost" onClick={() => setShowHistory(!showHistory)}>
+              {showHistory ? 'Hide' : 'Show'} history ({narrativeHistory.length})
             </button>
           )}
-
-          <button
-            onClick={generateNarrative}
-            disabled={generating}
-            className="btn-primary"
-          >
-            {generating ? (
-              <span className="flex items-center gap-2">
-                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                </svg>
-                Weaving their story...
-              </span>
-            ) : (
-              'See How Their Story Unfolds'
-            )}
+          <button type="button" className="rubix-btn-primary" onClick={generateNarrative} disabled={generating} aria-busy={generating || undefined}>
+            {generating ? 'Weaving their story…' : narrative ? 'Generate new version' : 'See how their story unfolds'}
           </button>
         </div>
       </div>
 
-      {/* Error display */}
       {error && (
-        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
-          <p className="text-red-500 font-['Outfit']">{error}</p>
+        <div style={{ padding: '12px 15px', borderRadius: 12, fontSize: 13, color: 'rgba(255,210,200,0.95)', background: 'rgba(255,120,100,0.12)', border: '1px solid rgba(255,150,135,0.28)' }} role="alert">
+          {error}
         </div>
       )}
 
-      {/* History sidebar */}
       {showHistory && narrativeHistory.length > 0 && (
-        <div className="bg-apple-bg-tertiary/20 border border-apple-border-light rounded-xl p-4">
-          <h3 className="text-lg font-semibold text-apple-text-primary mb-3 font-['Crimson_Pro']">
-            Narrative History
-          </h3>
-          <div className="space-y-2">
-            {narrativeHistory.map((n) => (
-              <button
-                key={n.id}
-                onClick={() => setNarrative(n)}
-                className={`w-full text-left p-3 rounded-lg transition-colors font-['Outfit'] ${
-                  narrative?.id === n.id
-                    ? 'bg-deep-purple/20 border border-lavender'
-                    : 'bg-white hover:bg-apple-bg-tertiary/30 border border-apple-border-light'
-                }`}
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="font-semibold text-apple-text-primary">
-                      Generation #{n.generation_number}
+        <RubixCard variant="flat" style={{ padding: 18 }}>
+          <div style={{ fontSize: 14, fontWeight: 600 }}>Narrative history</div>
+          <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {narrativeHistory.map((n) => {
+              const active = narrative?.id === n.id
+              return (
+                <button
+                  key={n.id}
+                  type="button"
+                  onClick={() => setNarrative(n)}
+                  style={{
+                    width: '100%', textAlign: 'left', padding: '11px 14px', borderRadius: 12, cursor: 'pointer',
+                    background: active ? 'linear-gradient(160deg, rgba(150,200,255,0.22), rgba(90,140,255,0.14))' : 'rgba(255,255,255,0.05)',
+                    border: `1px solid ${active ? 'rgba(200,230,255,0.4)' : 'rgba(170,210,255,0.16)'}`,
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 13.5, fontWeight: 600 }}>Generation #{n.generation_number}</div>
+                      <div style={{ marginTop: 2, fontSize: 12, color: 'rgba(214,235,255,0.65)' }}>
+                        Age {n.persona_age_at_generation} · {n.total_experiences_count} experiences
+                      </div>
                     </div>
-                    <div className="text-sm text-apple-text-secondary">
-                      Age {n.persona_age_at_generation} • {n.total_experiences_count} experiences
-                    </div>
+                    <div style={{ fontSize: 11, color: 'rgba(200,226,255,0.5)', whiteSpace: 'nowrap' }}>{formatDate(n.generated_at)}</div>
                   </div>
-                  <div className="text-xs text-apple-text-secondary">
-                    {formatDate(n.generated_at)}
-                  </div>
-                </div>
-              </button>
-            ))}
+                </button>
+              )
+            })}
           </div>
-        </div>
+        </RubixCard>
       )}
 
-      {/* Narrative display */}
       {narrative ? (
-        <div className="space-y-6">
-          {/* Metadata bar */}
-          <div className="bg-lavender/10 border border-lavender/30 rounded-lg p-4">
-            <div className="grid grid-cols-4 gap-4 text-center">
-              <div>
-                <div className="text-2xl font-bold text-foreground" style={{ fontFamily: 'var(--font-display)' }}>
-                  {narrative.persona_age_at_generation}
-                </div>
-                <div className="text-xs text-muted-foreground">years old</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-foreground" style={{ fontFamily: 'var(--font-display)' }}>
-                  {narrative.total_experiences_count}
-                </div>
-                <div className="text-xs text-muted-foreground">life moments</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-foreground" style={{ fontFamily: 'var(--font-display)' }}>
-                  {Math.ceil(narrative.word_count / 200)}
-                </div>
-                <div className="text-xs text-muted-foreground">min read</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-foreground" style={{ fontFamily: 'var(--font-display)' }}>
-                  #{narrative.generation_number}
-                </div>
-                <div className="text-xs text-muted-foreground">version</div>
-              </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+          <RubixCard variant="flat" style={{ padding: 18 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, textAlign: 'center' }}>
+              <MetaStat value={narrative.persona_age_at_generation} label="years old" />
+              <MetaStat value={narrative.total_experiences_count} label="life moments" />
+              <MetaStat value={Math.ceil(narrative.word_count / 200)} label="min read" />
+              <MetaStat value={`#${narrative.generation_number}`} label="version" />
             </div>
-          </div>
+          </RubixCard>
 
-          {/* Narrative sections */}
-          <div className="space-y-6">
-            {/* Executive Summary */}
-            <NarrativeSection
-              title="The Whole Picture"
-              content={narrative.executive_summary}
-              icon="summary"
-            />
-
-            {/* Developmental Timeline */}
-            <NarrativeSection
-              title="How They Got Here"
-              content={narrative.developmental_timeline}
-              icon="timeline"
-            />
-
-            {/* Current Presentation */}
-            <NarrativeSection
-              title="Where They Are Now"
-              content={narrative.current_presentation}
-              icon="presentation"
-            />
-
-            {/* Treatment Response (if exists) */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <NarrativeSection title="The whole picture" content={narrative.executive_summary} />
+            <NarrativeSection title="How they got here" content={narrative.developmental_timeline} />
+            <NarrativeSection title="Where they are now" content={narrative.current_presentation} />
             {narrative.treatment_response && (
-              <NarrativeSection
-                title="How Support Has Helped"
-                content={narrative.treatment_response}
-                icon="treatment"
-              />
+              <NarrativeSection title="How support has helped" content={narrative.treatment_response} />
             )}
-
-            {/* Prognosis */}
-            <NarrativeSection
-              title="Looking Ahead"
-              content={narrative.prognosis}
-              icon="prognosis"
-            />
+            <NarrativeSection title="Looking ahead" content={narrative.prognosis} />
           </div>
 
-          {/* Actions */}
-          <div className="flex gap-3">
-            <button
-              onClick={exportNarrative}
-              className="btn-secondary"
-            >
-              Export Markdown
-            </button>
+          <div>
+            <button type="button" className="rubix-btn-ghost" onClick={exportNarrative}>Export markdown</button>
           </div>
         </div>
       ) : (
         !generating && (
-          <div className="text-center py-12 bg-card border border-border rounded-lg">
-            <div className="text-6xl mb-4">📖</div>
-            <h3 className="text-lg font-semibold text-foreground mb-2" style={{ fontFamily: 'var(--font-display)' }}>
-              Their Story Awaits
-            </h3>
-            <p className="text-muted-foreground mb-4">
-              Click above to weave together everything you know about this person into one cohesive narrative
-            </p>
-          </div>
+          <RubixCard style={{ padding: '48px 24px', textAlign: 'center' }}>
+            <div style={{ width: 44, height: 44, margin: '0 auto 16px' }}>
+              <div className="rubix-diamond" style={{ width: 44, height: 44 }} />
+            </div>
+            <div style={{ fontSize: 15.5, fontWeight: 600 }}>Their story awaits</div>
+            <div style={{ marginTop: 8, fontSize: 13.5, lineHeight: 1.6, color: 'rgba(214,235,255,0.65)', maxWidth: 420, marginLeft: 'auto', marginRight: 'auto' }}>
+              Generate a narrative to weave together everything you know about this person into one cohesive story.
+            </div>
+          </RubixCard>
         )
       )}
 
-      {/* Generating state */}
       {generating && (
-        <div className="text-center py-12 bg-lavender/10 border border-lavender/30 rounded-lg">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: 'var(--deep-purple)' }}></div>
-          <h3 className="text-lg font-semibold mb-2" style={{ fontFamily: 'var(--font-display)', color: 'var(--deep-purple)' }}>
-            Weaving Their Story...
-          </h3>
-          <p className="text-muted-foreground">
-            Looking at their whole journey—the moments that shaped them, where they are now (15-30 seconds)
-          </p>
-        </div>
+        <RubixCard style={{ padding: '48px 24px', textAlign: 'center' }}>
+          <div className="animate-spin" style={{ width: 30, height: 30, margin: '0 auto', borderRadius: 999, border: '3px solid rgba(150,205,255,0.25)', borderTopColor: '#7fb2ff' }} />
+          <div style={{ marginTop: 16, fontSize: 15.5, fontWeight: 600 }}>Weaving their story…</div>
+          <div style={{ marginTop: 8, fontSize: 13, color: 'rgba(214,235,255,0.65)' }}>
+            Looking at their whole journey — the moments that shaped them, where they are now (15-30 seconds).
+          </div>
+        </RubixCard>
       )}
     </div>
   );
 }
 
-// Section component
+function MetaStat({ value, label }: { value: string | number; label: string }) {
+  return (
+    <div>
+      <div style={{ fontSize: 22, fontWeight: 700 }}>{value}</div>
+      <div style={{ marginTop: 2, fontSize: 11, color: 'rgba(214,235,255,0.6)' }}>{label}</div>
+    </div>
+  );
+}
+
 interface NarrativeSectionProps {
   title: string;
   content: string;
-  icon: string;
 }
 
-function NarrativeSection({ title, content, icon }: NarrativeSectionProps) {
-  // Debug: log content
-  console.log(`${title}:`, content ? `${content.substring(0, 100)}...` : 'EMPTY');
-
+function NarrativeSection({ title, content }: NarrativeSectionProps) {
   return (
-    <div className="bg-white border border-apple-border-light rounded-xl p-6">
-      <h3 className="text-xl font-bold text-apple-text-primary mb-4 font-['Crimson_Pro']">
-        {title}
-      </h3>
+    <RubixCard style={{ padding: 24 }}>
+      <div style={{ fontSize: 16.5, fontWeight: 700, marginBottom: 12 }}>{title}</div>
       {content && content.trim().length > 0 ? (
-        <div className="prose prose-sm max-w-none font-['Outfit'] text-apple-text-primary whitespace-pre-wrap">
+        <div style={{ fontSize: 14, lineHeight: 1.7, color: 'rgba(226,240,255,0.88)' }}>
           <ReactMarkdown>{content}</ReactMarkdown>
         </div>
       ) : (
-        <div className="text-apple-text-secondary italic">No content available for this section</div>
+        <div style={{ fontSize: 13.5, fontStyle: 'italic', color: 'rgba(200,226,255,0.5)' }}>No content available for this section</div>
       )}
-    </div>
+    </RubixCard>
   );
 }
