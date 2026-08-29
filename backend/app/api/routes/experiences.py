@@ -9,7 +9,10 @@ from typing import List
 from app.core.database import get_db
 from app.core.auth import get_current_user
 from app.models import Persona, Experience, PersonalitySnapshot
-from app.schemas import ExperienceCreate, ExperienceResponse
+from app.schemas import (
+    BatchExperienceCreate, BatchExperienceItemResult, BatchExperienceResponse,
+    ExperienceCreate, ExperienceResponse,
+)
 from app.services.developmental_pipeline import process_developmental_text
 from app.services.legacy_experience_adapter import to_legacy_experience_fields
 from app.services.api_projection import experience_psychology_projection
@@ -17,6 +20,37 @@ from app.services.api_projection import experience_psychology_projection
 
 router = APIRouter(prefix="/api/v1/personas", tags=["experiences"])
 logger = logging.getLogger(__name__)
+
+
+@router.post("/{persona_id}/experiences/batch", response_model=BatchExperienceResponse, status_code=207)
+async def add_experiences_batch(
+    persona_id: str,
+    batch: BatchExperienceCreate,
+    user_id: str = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Apply freeform experiences chronologically through the single-item path."""
+    ordered = sorted(enumerate(batch.experiences), key=lambda pair: (pair[1].age_at_event, pair[0]))
+    results = []
+    for input_index, item in ordered:
+        try:
+            result = await add_experience(
+                persona_id,
+                ExperienceCreate(user_description=item.description, age_at_event=item.age_at_event),
+                user_id,
+                db,
+            )
+            results.append(BatchExperienceItemResult(input_index=input_index, status="processed", result=result))
+        except HTTPException as exc:
+            results.append(BatchExperienceItemResult(input_index=input_index, status="failed", error=str(exc.detail)))
+            break
+
+    failed_count = sum(item.status == "failed" for item in results)
+    return BatchExperienceResponse(
+        results=results,
+        processed_count=sum(item.status == "processed" for item in results),
+        failed_count=failed_count,
+    )
 
 
 @router.post("/{persona_id}/experiences", response_model=ExperienceResponse, status_code=201)

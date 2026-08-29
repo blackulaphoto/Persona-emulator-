@@ -149,6 +149,28 @@ class ExperienceCreate(BaseModel):
     age_at_event: int = Field(ge=0, le=120)
 
 
+class BatchExperienceItem(BaseModel):
+    age_at_event: int = Field(ge=0, le=120)
+    description: str = Field(min_length=1, max_length=2000)
+
+
+class BatchExperienceCreate(BaseModel):
+    experiences: List[BatchExperienceItem] = Field(min_length=1, max_length=100)
+
+
+class BatchExperienceItemResult(BaseModel):
+    input_index: int
+    status: str
+    result: Optional["ExperienceResponse"] = None
+    error: Optional[str] = None
+
+
+class BatchExperienceResponse(BaseModel):
+    results: List[BatchExperienceItemResult]
+    processed_count: int
+    failed_count: int
+
+
 class ExperienceResponse(BaseModel):
     """Schema for experience response."""
     id: str

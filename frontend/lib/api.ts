@@ -188,6 +188,22 @@ class ApiClient {
     return response.json();
   }
 
+  async addExperiencesBatch(personaId: string, experiences: Array<{
+    description: string;
+    age_at_event: number;
+  }>): Promise<{
+    results: Array<{ input_index: number; status: 'processed' | 'failed'; result?: Experience; error?: string }>;
+    processed_count: number;
+    failed_count: number;
+  }> {
+    const headers = await this.getAuthHeaders();
+    const response = await fetch(`${API_BASE}/personas/${personaId}/experiences/batch`, {
+      method: 'POST', headers, body: JSON.stringify({ experiences }),
+    });
+    if (!response.ok) throw new Error('Failed to add experience batch');
+    return response.json();
+  }
+
   async addIntervention(personaId: string, data: {
     therapy_type: string;
     duration: string;
