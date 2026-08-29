@@ -71,6 +71,7 @@ def convert_snapshot_to_response(snapshot: PersonalitySnapshot) -> Dict[str, Any
         "age": snapshot.age,
         "personality_profile": snapshot.personality_profile,
         "attachment_style": snapshot.attachment_style,
+        "attachment_dimensions": snapshot.attachment_dimensions,
         "trauma_markers": snapshot.trauma_markers,
         "symptom_severity": snapshot.symptom_severity,
         "state_profile": snapshot.state_profile,

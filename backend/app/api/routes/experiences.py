@@ -170,6 +170,7 @@ async def add_experience(
         age=experience_data.age_at_event,
         personality_profile=dict(persona.current_personality),
         attachment_style=persona.current_attachment_style,
+        attachment_dimensions=dict(persona.current_attachment_dimensions) if persona.current_attachment_dimensions else None,
         trauma_markers=list(persona.current_trauma_markers),
         symptom_severity=legacy_fields.get("symptom_severity") or {},
         state_profile=dict(persona.current_state) if persona.current_state else None,

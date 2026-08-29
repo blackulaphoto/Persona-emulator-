@@ -114,7 +114,9 @@ class PersonaResponse(BaseModel):
     current_personality: Dict[str, float]
     personality_delta: Optional[Dict[str, float]] = None
     current_attachment_style: str
-    attachment_style_semantics: str = "static_creation_value"
+    baseline_attachment_style: Optional[str] = None
+    current_attachment_dimensions: Dict[str, float] = Field(default_factory=dict)
+    attachment_style_semantics: str = "derived_from_developmental_dimensions"
     current_trauma_markers: List[str]
     # Step 11f (docs/MIGRATION_MAP.md): the State tier (app/services/
     # state_trait_engine.py) - fast-moving, reactive psychological state,
@@ -235,6 +237,7 @@ class PersonalitySnapshotResponse(BaseModel):
     age: int
     personality_profile: Dict[str, float]
     attachment_style: str
+    attachment_dimensions: Optional[Dict[str, float]] = None
     trauma_markers: List[str]
     symptom_severity: Optional[Dict[str, int]] = None
     state_profile: Optional[Dict[str, float]] = None

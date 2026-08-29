@@ -16,6 +16,7 @@ from app.services.state_trait_engine import (
     apply_trait_update,
     intervention_trait_gate_open,
 )
+from app.services.attachment_engine import apply_attachment_update, derive_attachment_style
 
 
 router = APIRouter(prefix="/api/v1/personas", tags=["interventions"])
@@ -177,6 +178,8 @@ async def add_intervention(
     intervention.state_implications = state_changes or None
     intervention.trait_implications = trait_changes or None
     persona.current_state = apply_state_update(persona.current_state, state_changes)
+    persona.current_attachment_dimensions = apply_attachment_update(persona.current_attachment_dimensions, state_changes)
+    persona.current_attachment_style = derive_attachment_style(persona.current_attachment_dimensions)
     # allow_provisional=False: therapy keeps the strict Step 11e gate. Its
     # sustained-improvement rule ("one good round is a data point, not proof")
     # exists precisely to stop a single course of treatment moving Big Five;
@@ -211,6 +214,7 @@ async def add_intervention(
         age=intervention_data.age_at_intervention,
         personality_profile=dict(persona.current_personality),
         attachment_style=persona.current_attachment_style,
+        attachment_dimensions=dict(persona.current_attachment_dimensions) if persona.current_attachment_dimensions else None,
         trauma_markers=list(persona.current_trauma_markers),
         symptom_severity=symptom_severity_value,
         state_profile=dict(persona.current_state) if persona.current_state else None,

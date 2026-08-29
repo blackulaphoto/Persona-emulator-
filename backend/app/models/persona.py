@@ -36,6 +36,9 @@ class Persona(Base):
     
     # Current psychological state
     current_attachment_style = Column(String, nullable=False, default="secure")
+    baseline_attachment_style = Column(String, nullable=True)
+    baseline_attachment_dimensions = Column(JSON, nullable=True)
+    current_attachment_dimensions = Column(JSON, nullable=False, default={})
     # Projection derived from ClinicalPatternHypothesis rows above the display
     # threshold. No module should write to this directly - see
     # clinical_pattern_hypothesis.py.

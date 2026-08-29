@@ -23,6 +23,7 @@ class PersonalitySnapshot(Base):
     # State at this point in time
     personality_profile = Column(JSON, nullable=False)  # Big Five (Trait tier)
     attachment_style = Column(String, nullable=False)
+    attachment_dimensions = Column(JSON, nullable=True)
     trauma_markers = Column(JSON, nullable=False, default=[])
     symptom_severity = Column(JSON, nullable=False, default={})
     # Frozen copy of Persona.current_state (State tier) at snapshot time -

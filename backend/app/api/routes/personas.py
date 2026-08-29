@@ -15,6 +15,7 @@ from app.utils.foundational_baseline import (
 )
 from app.services.developmental_pipeline import process_developmental_text
 from app.services.api_projection import persona_projection
+from app.services.attachment_engine import dimensions_for_style
 from app.schemas import PersonaCreate, PersonaUpdate, PersonaResponse
 
 logger = logging.getLogger(__name__)
@@ -63,6 +64,8 @@ async def create_persona(
         )
     
     # Create persona
+    baseline_attachment_style = persona_data.baseline_attachment_style or "secure"
+    baseline_attachment_dimensions = dimensions_for_style(baseline_attachment_style)
     persona = Persona(
         user_id=user_id,  # Add Firebase UID
         name=persona_data.name,
@@ -72,7 +75,10 @@ async def create_persona(
         baseline_background=persona_data.baseline_background,
         current_personality=baseline_personality,
         baseline_personality=dict(baseline_personality),
-        current_attachment_style=persona_data.baseline_attachment_style or "secure",
+        current_attachment_style=baseline_attachment_style,
+        baseline_attachment_style=baseline_attachment_style,
+        baseline_attachment_dimensions=baseline_attachment_dimensions,
+        current_attachment_dimensions=dict(baseline_attachment_dimensions),
         current_trauma_markers=[],
         foundational_environment_signals=foundational_signals,
         baseline_initialized=True

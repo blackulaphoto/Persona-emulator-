@@ -13,6 +13,7 @@ import logging
 
 from app.models.clinical_template import ClinicalTemplate
 from app.models.persona import Persona
+from app.services.attachment_engine import dimensions_for_style
 
 logger = logging.getLogger(__name__)
 
@@ -228,6 +229,7 @@ def create_persona_from_template(
     # Template's baseline_personality becomes the persona's initial current_personality
     baseline_personality = template.baseline_personality.copy()
 
+    attachment_dimensions = dimensions_for_style(template.baseline_attachment_style)
     persona = Persona(
         user_id=owner_id,
         name=persona_name,
@@ -237,6 +239,9 @@ def create_persona_from_template(
         current_personality=baseline_personality,
         baseline_personality=dict(baseline_personality),
         current_attachment_style=template.baseline_attachment_style,
+        baseline_attachment_style=template.baseline_attachment_style,
+        baseline_attachment_dimensions=attachment_dimensions,
+        current_attachment_dimensions=dict(attachment_dimensions),
         current_age=template.baseline_age,
         current_trauma_markers=[],
         foundational_environment_signals={},
