@@ -99,7 +99,7 @@ export default function LivesPage() {
             <RubixCard>
               <RubixEmptyState
                 title="Couldn't load your lives"
-                description="Something went wrong reaching Rubix. Check your connection and try again."
+                description="Something went wrong reaching Rubicks. Check your connection and try again."
                 action={
                   <button type="button" className="rubix-btn-primary" onClick={loadPersonas}>
                     Retry
@@ -111,7 +111,7 @@ export default function LivesPage() {
             <RubixCard>
               <RubixEmptyState
                 title="No lives yet"
-                description="Start with a name, an age, and what home was like. Rubix builds a real developmental history from there."
+                description="Start with a name, an age, and what home was like. Rubicks builds a real developmental history from there."
                 action={
                   <Link href="/create" className="rubix-btn-primary">
                     Start your first life

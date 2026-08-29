@@ -1242,7 +1242,7 @@ function StartingConditionsDetail({ persona }: { persona: any }) {
       {signalEntries.length > 0 && (
         <RubixDrawerSection label="ENVIRONMENT SIGNALS (INFERRED)">
           <div style={{ fontSize: 12, color: 'rgba(200,226,255,0.55)', marginBottom: 8 }}>
-            What Rubix read out of the background text above, on a -5 to +5 scale.
+            What Rubicks read out of the background text above, on a -5 to +5 scale.
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {signalEntries.map(([key, value]) => (

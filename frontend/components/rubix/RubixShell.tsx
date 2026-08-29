@@ -3,6 +3,7 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { RubixSidebar, RubixSidebarPersonaContext } from './RubixSidebar';
+import { SaveWorkBanner } from './SaveWorkBanner';
 import { useFocusTrap } from '@/lib/rubix/useFocusTrap';
 
 interface RubixShellProps {
@@ -72,8 +73,8 @@ export function RubixShell({ persona, children }: RubixShellProps) {
           <span aria-hidden="true" style={{ fontSize: 18, lineHeight: 1 }}>☰</span>
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, fontSize: 15 }}>
-          <div className="rubix-diamond" style={{ width: 22, height: 22 }} />
-          Rubix
+          <img src="/rubicks-icon.png" alt="" aria-hidden="true" style={{ width: 22, height: 22, objectFit: 'contain' }} />
+          Rubicks
         </div>
         <div style={{ width: 40 }} aria-hidden="true" />
       </div>
@@ -95,6 +96,7 @@ export function RubixShell({ persona, children }: RubixShellProps) {
             sibling chrome like .rubix-mobile-topbar instead of letting it
             escape to the viewport-level stack where it belongs. */}
         <main className="rubix-scroll" style={{ position: 'relative', flex: 1, minWidth: 0, height: '100%', overflowY: 'auto', overflowX: 'hidden', padding: '22px 30px 60px' }}>
+          <SaveWorkBanner />
           {children}
         </main>
       </div>

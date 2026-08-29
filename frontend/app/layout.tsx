@@ -4,21 +4,21 @@ import type { ReactNode } from 'react'
 import { AuthProvider } from '../contexts/AuthContext'
 
 export const metadata: Metadata = {
-  title: 'Persona Evolution Simulator | LifeStream Labs',
+  title: 'Rubicks | AI Life Simulation',
   description: 'AI-powered psychological development simulations. Explore how life experiences shape personality over time.',
 
   // Open Graph (Facebook, LinkedIn, etc.)
   openGraph: {
-    title: 'Persona Evolution Simulator',
+    title: 'Rubicks',
     description: 'AI-powered psychological development simulations. Explore how life experiences shape personality over time.',
     url: 'https://persona-emulator.vercel.app',
-    siteName: 'Persona Evolution Simulator',
+    siteName: 'Rubicks',
     images: [
       {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'Persona Evolution Simulator - LifeStream Labs',
+        url: '/rubicks-logo.png',
+        width: 1448,
+        height: 1086,
+        alt: 'Rubicks',
       },
     ],
     locale: 'en_US',
@@ -28,15 +28,15 @@ export const metadata: Metadata = {
   // Twitter Card
   twitter: {
     card: 'summary_large_image',
-    title: 'Persona Evolution Simulator',
+    title: 'Rubicks',
     description: 'AI-powered psychological development simulations',
-    images: ['/og-image.png'],
+    images: ['/rubicks-logo.png'],
   },
 
   // Favicon
   icons: {
-    icon: '/logo.png',
-    apple: '/logo.png',
+    icon: '/rubicks-icon.png',
+    apple: '/rubicks-icon.png',
   },
 }
 
