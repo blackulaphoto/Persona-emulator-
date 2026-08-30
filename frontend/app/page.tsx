@@ -123,11 +123,16 @@ export default function LandingPage() {
         {startError && (
           <p className="text-xs text-destructive font-body bg-white/90 rounded px-2 py-1">{startError}</p>
         )}
-        <p className="mt-1 max-w-md text-center text-[10px] leading-snug text-slate/80 font-body bg-white/70 backdrop-blur-sm rounded px-2 py-1">
-          This tool simulates psychological development for educational purposes.
-          It is not a diagnostic tool, medical advice, or substitute for therapy.
-          All personas are fictional.
-        </p>
+        {/* Mobile crop has less room below the CTA before running into the
+            feature list - the disclaimer text was getting clipped there, so
+            it's desktop/tablet only. */}
+        {!isMobile && (
+          <p className="mt-1 max-w-md text-center text-[10px] leading-snug text-slate/80 font-body bg-white/70 backdrop-blur-sm rounded px-2 py-1">
+            This tool simulates psychological development for educational purposes.
+            It is not a diagnostic tool, medical advice, or substitute for therapy.
+            All personas are fictional.
+          </p>
+        )}
       </div>
     </div>
   );
