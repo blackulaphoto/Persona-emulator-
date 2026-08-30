@@ -3,15 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Plus, Sparkles, Pill, TrendingDown, TrendingUp, AlertCircle, Camera, GitCompare, Wand2, Trash2, Pencil } from 'lucide-react'
-import { api, type Timeline, type TimelineEvent } from '@/lib/api'
-import { remixAPI, templatesAPI, type TimelineSnapshot, type Template, type TemplateDetails } from '@/lib/api/templates'
+import { ArrowLeft, Plus, TrendingDown, TrendingUp, AlertCircle, Camera, Wand2, Trash2, Pencil } from 'lucide-react'
+import { api, type Timeline } from '@/lib/api'
+import { remixAPI, templatesAPI, type Template, type TemplateDetails } from '@/lib/api/templates'
 import { useAuth } from '@/contexts/AuthContext'
-import { PageHelpBanner, QuickTip, TraitHelp, EmptyStateWithHelp } from '@/components/help/PageHelpComponents'
 import { Tooltip, HelpText } from '@/components/help/HelpComponents'
 import { SITE_HELP } from '@/lib/help/SiteWideHelpContent'
-import SnapshotComparisonView from '@/components/templates/SnapshotComparison'
-import PersonaNarrative from '@/components/PersonaNarrative'
 import { RubixShell, RubixCard, RubixBadge, RubixMetric, RubixModal, RubixDrawer, RubixDrawerSection, RubixDelta } from '@/components/rubix'
 import { attachmentStyleLabel, attachmentStyleTone } from '@/lib/rubix/attachmentStyle'
 import type { AdaptationPattern, ClinicalPatternHypothesis } from '@/lib/api'
@@ -28,15 +25,9 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [timeline, setTimeline] = useState<Timeline | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'timeline' | 'narrative'>('timeline')
   const [showAddExperience, setShowAddExperience] = useState(false)
   const [showAddSupport, setShowAddSupport] = useState(false)
-  const [snapshots, setSnapshots] = useState<TimelineSnapshot[]>([])
-  const [loadingSnapshots, setLoadingSnapshots] = useState(false)
   const [showCreateSnapshot, setShowCreateSnapshot] = useState(false)
-  const [showSnapshotComparison, setShowSnapshotComparison] = useState(false)
-  const [comparisonSnapshot1, setComparisonSnapshot1] = useState<string | null>(null)
-  const [comparisonSnapshot2, setComparisonSnapshot2] = useState<string | null>(null)
   const [showTemplateRemix, setShowTemplateRemix] = useState(false)
   const [templates, setTemplates] = useState<Template[]>([])
   const [loadingTemplates, setLoadingTemplates] = useState(false)
@@ -47,7 +38,6 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [showEditPersona, setShowEditPersona] = useState(false)
-  const [deletingSnapshotId, setDeletingSnapshotId] = useState<string | null>(null)
   const [detailDrawer, setDetailDrawer] = useState<DetailDrawerState>(null)
 
   useEffect(() => {
@@ -59,7 +49,6 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     if (user) {
       loadTimeline()
-      loadSnapshots()
       loadTemplates()
     }
   }, [params.id, user])
@@ -92,20 +81,6 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
     }
   }
 
-  async function loadSnapshots() {
-    setLoadingSnapshots(true)
-    try {
-      const data = await remixAPI.listSnapshots(params.id)
-      setSnapshots(data)
-    } catch (error) {
-      // Feature may be disabled, fail silently
-      console.log('Snapshots not available (feature may be disabled):', error)
-      setSnapshots([])
-    } finally {
-      setLoadingSnapshots(false)
-    }
-  }
-
   async function loadTemplates() {
     setLoadingTemplates(true)
     try {
@@ -117,40 +92,6 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
       setTemplates([])
     } finally {
       setLoadingTemplates(false)
-    }
-  }
-
-  async function handleDeleteSnapshot(snapshotId: string) {
-    if (!confirm('Delete this snapshot?')) return
-    setDeletingSnapshotId(snapshotId)
-    try {
-      await remixAPI.deleteSnapshot(snapshotId)
-      await loadSnapshots()
-    } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to delete snapshot')
-    } finally {
-      setDeletingSnapshotId(null)
-    }
-  }
-
-  async function handleShowSuggestions() {
-    try {
-      const result = await remixAPI.getSuggestions(params.id)
-      alert(result.suggestions.length
-        ? result.suggestions.map((item) => `${item.title}\n${item.hypothesis}`).join('\n\n')
-        : 'No what-if suggestions are available yet.')
-    } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to load suggestions')
-    }
-  }
-
-  async function handleShowInterventionImpact() {
-    if (!snapshots.length) return
-    try {
-      const result = await remixAPI.getInterventionImpact(params.id, snapshots[0].id)
-      alert(JSON.stringify(result, null, 2))
-    } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to load intervention impact')
     }
   }
 
@@ -180,8 +121,7 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
       
       // Reload timeline to show new experiences
       await loadTimeline()
-      await loadSnapshots()
-      
+
       // Close remix modal and reset state
       setShowTemplateRemix(false)
       setSelectedTemplate(null)
@@ -315,188 +255,6 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
         )}
       </div>
 
-      {/* The sections below (Timeline & Snapshots, Narrative) are being split
-          into their own dedicated Full Life / Narrative / Compare / Talk
-          routes next - kept fully functional here in the meantime inside a
-          bounded light surface rather than left broken against the dark
-          shell or deleted before their real replacement exists. */}
-      <div style={{ maxWidth: 1420, marginTop: 28, background: '#fff', borderRadius: 24, padding: '8px 8px 1px', boxShadow: '0 34px 70px -38px rgba(4,14,46,0.6)' }}>
-      <div className="px-6 pt-6">
-        <PageHelpBanner pageKey="personaDetail" />
-        <div className="mb-6">
-          <QuickTip tip="Hover the ? icons to see what each section means." />
-        </div>
-
-        {/* Tab Navigation */}
-        <div className="mt-2 border-b border-border">
-          <nav className="flex space-x-4 md:space-x-8 overflow-x-auto">
-            <button
-              onClick={() => setActiveTab('timeline')}
-              className={`pb-4 px-2 font-medium transition-colors whitespace-nowrap text-sm md:text-base ${
-                activeTab === 'timeline'
-                  ? 'border-b-2 border-deep-purple text-deep-purple'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <span className="hidden sm:inline">Timeline & Snapshots</span>
-              <span className="sm:hidden">Timeline</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('narrative')}
-              className={`pb-4 px-2 font-medium transition-colors whitespace-nowrap text-sm md:text-base ${
-                activeTab === 'narrative'
-                  ? 'border-b-2 border-deep-purple text-deep-purple'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              📖 Narrative
-            </button>
-          </nav>
-        </div>
-
-        {/* Timeline Tab Content */}
-        {activeTab === 'timeline' && (
-          <>
-            {/* Snapshots Section */}
-            <div className="mt-12">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <h2 className="text-3xl font-display text-foreground">Moments in Time</h2>
-                  <Tooltip content={SITE_HELP.snapshot.whatIs} />
-                </div>
-                {snapshots.length >= 2 && (
-                  <button
-                    onClick={() => {
-                      setComparisonSnapshot1(snapshots[0].id)
-                      setComparisonSnapshot2(snapshots[1].id)
-                      setShowSnapshotComparison(true)
-                    }}
-                    className="btn-secondary flex items-center gap-2"
-                  >
-                    <GitCompare size={18} />
-                    Compare Snapshots
-                  </button>
-                )}
-                <div className="flex gap-2">
-                  <button onClick={handleShowSuggestions} className="btn-secondary text-sm">
-                    What-if Suggestions
-                  </button>
-                  {snapshots.length > 0 && (
-                    <button onClick={handleShowInterventionImpact} className="btn-secondary text-sm">
-                      Intervention Impact
-                    </button>
-                  )}
-                </div>
-              </div>
-              <HelpText type="info">
-                <p className="mb-2">{SITE_HELP.snapshot.whatIs}</p>
-                <ul className="list-disc list-inside space-y-1 text-xs">
-                  <li>{SITE_HELP.snapshot.howToUse}</li>
-                </ul>
-              </HelpText>
-              {snapshots.length === 0 ? (
-                <EmptyStateWithHelp
-                  icon="📸"
-                  title="No snapshots yet"
-                  description="Capture key moments to track how therapy and experiences change the persona."
-                  actionButton={{
-                    text: 'Create Snapshot',
-                    onClick: () => setShowCreateSnapshot(true),
-                    helpKey: 'snapshot'
-                  }}
-                  helpItems={[SITE_HELP.snapshot.howToUse]}
-                />
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                  {snapshots.map((snapshot) => (
-                    <div
-                      key={snapshot.id}
-                      className="bg-white border-2 border-border rounded-xl p-4 hover:border-lavender transition-colors"
-                    >
-                      <h3 className="text-xl font-display text-foreground mb-2">{snapshot.label}</h3>
-                      {snapshot.description && (
-                        <p className="text-muted-foreground text-sm mb-3">{snapshot.description}</p>
-                      )}
-                      <div className="text-xs text-muted-foreground">
-                        Created: {new Date(snapshot.created_at).toLocaleDateString()}
-                      </div>
-                      <div className="flex gap-2 mt-3">
-                        {snapshots.length >= 2 && snapshot.id !== snapshots[0].id && (
-                          <button
-                            onClick={() => {
-                              setComparisonSnapshot1(snapshots[0].id)
-                              setComparisonSnapshot2(snapshot.id)
-                              setShowSnapshotComparison(true)
-                            }}
-                            className="text-xs btn-secondary py-1 px-2"
-                          >
-                            Compare
-                          </button>
-                        )}
-                        <button
-                          onClick={() => handleDeleteSnapshot(snapshot.id)}
-                          disabled={deletingSnapshotId === snapshot.id}
-                          className="text-xs text-red-500 py-1 px-2"
-                        >
-                          {deletingSnapshotId === snapshot.id ? 'Deleting...' : 'Delete'}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-        {/* Timeline */}
-        <div className="mt-12">
-          <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-3xl font-display text-foreground">Their Journey</h2>
-            <Tooltip content={SITE_HELP.personaDetail.timeline.tooltip} />
-          </div>
-          <HelpText type="info">
-            {SITE_HELP.personaDetail.timeline.whatIs}
-          </HelpText>
-          {timeline.timeline_events.length === 0 ? (
-            <div className="text-center py-20 bg-muted/20 rounded-2xl">
-              <Sparkles size={48} className="mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-2xl font-display text-foreground mb-2">
-                Now Build Their Story
-              </h3>
-              <p className="text-muted-foreground mb-6">
-                You set their starting point. Now add specific life events, one at a time —
-                each one gets its own analysis and shifts who they become.
-              </p>
-              <div className="flex gap-3 justify-center flex-wrap">
-                <button
-                  onClick={() => setShowAddExperience(true)}
-                  className="btn-secondary"
-                >
-                  Add First Experience
-                </button>
-                <button
-                  onClick={() => setShowAddSupport(true)}
-                  className="btn-primary"
-                >
-                  Add Support
-                </button>
-              </div>
-            </div>
-          ) : (
-            <TimelineVisualization events={timeline.timeline_events} />
-          )}
-        </div>
-          </>
-        )}
-
-        {/* Narrative Tab Content */}
-        {activeTab === 'narrative' && (
-          <div className="mt-12">
-            <PersonaNarrative personaId={params.id} personaName={persona.name} />
-          </div>
-        )}
-      </div>
-      </div>
-
       {/* Modals */}
       {showAddExperience && (
         <AddExperienceModal
@@ -550,54 +308,18 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
             setSelectedTemplate(null)
             setSelectedExperienceIndices(new Set())
           }}
-          onSuccess={() => {
-            loadTimeline()
-            loadSnapshots()
-          }}
+          onSuccess={() => loadTimeline()}
         />
       )}
 
-      {/* Snapshot Modals */}
+      {/* Snapshot creation modal - viewing/comparing saved snapshots now lives
+          on the dedicated Compare route. */}
       {showCreateSnapshot && (
         <CreateSnapshotModal
           personaId={params.id}
           onClose={() => setShowCreateSnapshot(false)}
-          onSuccess={() => {
-            setShowCreateSnapshot(false)
-            loadSnapshots()
-          }}
+          onSuccess={() => setShowCreateSnapshot(false)}
         />
-      )}
-
-      {showSnapshotComparison && comparisonSnapshot1 && comparisonSnapshot2 && (
-        <div className="fixed inset-0 bg-background/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-auto">
-            <div className="p-6 border-b border-border flex items-center justify-between">
-              <h2 className="text-2xl font-display text-foreground">Snapshot Comparison</h2>
-              <button
-                onClick={() => {
-                  setShowSnapshotComparison(false)
-                  setComparisonSnapshot1(null)
-                  setComparisonSnapshot2(null)
-                }}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                ×
-              </button>
-            </div>
-            <div className="p-6">
-              <SnapshotComparisonView
-                snapshotId1={comparisonSnapshot1}
-                snapshotId2={comparisonSnapshot2}
-                onClose={() => {
-                  setShowSnapshotComparison(false)
-                  setComparisonSnapshot1(null)
-                  setComparisonSnapshot2(null)
-                }}
-              />
-            </div>
-          </div>
-        </div>
       )}
 
       {showEditPersona && (
@@ -1444,100 +1166,6 @@ function PatternHypothesesPanel({ hypotheses, onSelect }: { hypotheses: any[]; o
         ))}
       </div>
     </RubixCard>
-  )
-}
-
-function TimelineVisualization({ events }: { events: TimelineEvent[] }) {
-  return (
-    <div className="space-y-6">
-      {events.map((event, index) => (
-        <TimelineEventCard key={index} event={event} index={index} />
-      ))}
-    </div>
-  )
-}
-
-function TimelineEventCard({ event, index }: { event: TimelineEvent; index: number }) {
-  const isExperience = event.type === 'experience'
-
-  return (
-    <div
-      className="bg-white border-2 border-border rounded-xl p-6 animate-fade-in"
-      style={{ animationDelay: `${index * 0.1}s` }}
-    >
-      <div className="flex items-start gap-4">
-        {/* Icon */}
-        <div className={`p-3 rounded-xl ${isExperience ? 'bg-red-500/20' : 'bg-deep-purple/20'} flex-shrink-0`}>
-          {isExperience ? (
-            <Sparkles className="text-red-500" size={24} />
-          ) : (
-            <Pill className="text-deep-purple" size={24} />
-          )}
-        </div>
-
-        {/* Content */}
-        <div className="flex-1">
-          <div className="flex items-start justify-between mb-2">
-            <div>
-              <div className="flex items-center gap-3">
-                <span className="text-xl font-display text-foreground">
-                  Age {event.age}
-                </span>
-                <span className={`text-xs px-2 py-1 rounded-full ${isExperience ? 'bg-red-500/20 text-red-500' : 'bg-deep-purple/20 text-deep-purple'}`}>
-                  {isExperience ? 'Experience' : event.therapy_type}
-                </span>
-              </div>
-              <p className="text-muted-foreground text-sm mt-1">
-                Event #{event.sequence_number}
-              </p>
-            </div>
-          </div>
-
-          {/* Description */}
-          <p className="text-foreground mb-4">
-            {event.description || `Therapeutic support: ${event.therapy_type}`}
-          </p>
-
-          {/* Personality Snapshot */}
-          {event.personality_snapshot && (
-            <div className="bg-muted/20 rounded-lg p-4">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                <div>
-                  <span className="text-muted-foreground block mb-1">Neuroticism</span>
-                  <span className="text-foreground font-medium">
-                    {Math.round(event.personality_snapshot.personality_profile.neuroticism * 100)}%
-                  </span>
-                </div>
-                {(() => {
-                  const symptomSev = event.personality_snapshot.symptom_severity || {};
-                  // Handle both formats: direct {symptom: severity} or nested {before: {...}, after: {...}}
-                  const symptoms = symptomSev.after || symptomSev;
-                  const symptomKeys = typeof symptoms === 'object' && symptoms !== null ? Object.keys(symptoms) : [];
-                  
-                  return symptomKeys.length > 0 && (
-                    <div className="col-span-2">
-                      <span className="text-muted-foreground block mb-1">Symptoms</span>
-                      <div className="flex flex-wrap gap-2">
-                        {Object.entries(symptoms).map(([symptom, severity]) => {
-                          // Ensure severity is a number
-                          const severityValue = typeof severity === 'number' ? severity : 0;
-                          
-                          return (
-                            <span key={symptom} className="text-xs bg-red-500/10 text-red-500 px-2 py-1 rounded">
-                              {String(symptom).replace(/_/g, ' ')}: {severityValue}/10
-                            </span>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })()}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
   )
 }
 
