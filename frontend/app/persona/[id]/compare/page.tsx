@@ -29,6 +29,7 @@ export default function ComparePage({ params }: { params: { id: string } }) {
   const [comparison, setComparison] = useState<SnapshotComparison | null>(null)
   const [comparing, setComparing] = useState(false)
   const [compareError, setCompareError] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!authLoading && !user) router.push('/login')
@@ -62,6 +63,19 @@ export default function ComparePage({ params }: { params: { id: string } }) {
     if (idA && idB && idA !== idB) runCompare()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idA, idB])
+
+  async function handleDeleteSnapshot(snapshotId: string) {
+    if (!confirm('Delete this snapshot? This cannot be undone.')) return
+    setDeletingId(snapshotId)
+    try {
+      await remixAPI.deleteSnapshot(snapshotId)
+      await load()
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to delete snapshot')
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   async function runCompare() {
     setComparing(true)
@@ -136,9 +150,9 @@ export default function ComparePage({ params }: { params: { id: string } }) {
         ) : (
           <>
             <RubixCard variant="flat" style={{ marginTop: 22, padding: 18, display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-              <SnapshotPicker label="FIRST" value={idA} onChange={setIdA} snapshots={snapshots} />
+              <SnapshotPicker label="FIRST" value={idA} onChange={setIdA} onDelete={handleDeleteSnapshot} deletingId={deletingId} snapshots={snapshots} />
               <div style={{ fontSize: 20, color: 'rgba(200,226,255,0.5)', paddingBottom: 10 }}>→</div>
-              <SnapshotPicker label="SECOND" value={idB} onChange={setIdB} snapshots={snapshots} />
+              <SnapshotPicker label="SECOND" value={idB} onChange={setIdB} onDelete={handleDeleteSnapshot} deletingId={deletingId} snapshots={snapshots} />
             </RubixCard>
 
             {idA === idB && (
@@ -230,15 +244,37 @@ export default function ComparePage({ params }: { params: { id: string } }) {
   )
 }
 
-function SnapshotPicker({ label, value, onChange, snapshots }: { label: string; value: string; onChange: (v: string) => void; snapshots: TimelineSnapshot[] }) {
+function SnapshotPicker({ label, value, onChange, onDelete, deletingId, snapshots }: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  onDelete: (id: string) => void
+  deletingId: string | null
+  snapshots: TimelineSnapshot[]
+}) {
+  const isDeleting = deletingId === value
   return (
     <div>
       <label className="rubix-field-label" htmlFor={`snap-${label}`}>{label}</label>
-      <select id={`snap-${label}`} className="rubix-input" style={{ marginTop: 9, minWidth: 220 }} value={value} onChange={(e) => onChange(e.target.value)}>
-        {snapshots.map((s) => (
-          <option key={s.id} value={s.id}>{s.label}</option>
-        ))}
-      </select>
+      <div style={{ marginTop: 9, display: 'flex', gap: 8 }}>
+        <select id={`snap-${label}`} className="rubix-input" style={{ minWidth: 220 }} value={value} onChange={(e) => onChange(e.target.value)}>
+          {snapshots.map((s) => (
+            <option key={s.id} value={s.id}>{s.label}</option>
+          ))}
+        </select>
+        {value && (
+          <button
+            type="button"
+            className="rubix-btn-danger"
+            style={{ padding: '0 16px', fontSize: 12.5 }}
+            onClick={() => onDelete(value)}
+            disabled={deletingId !== null}
+            aria-label={`Delete snapshot ${snapshots.find((s) => s.id === value)?.label ?? ''}`}
+          >
+            {isDeleting ? 'Deleting…' : 'Delete'}
+          </button>
+        )}
+      </div>
     </div>
   )
 }
@@ -302,7 +338,7 @@ function PatternDiffCard({ title, diff, nameKey }: { title: string; diff: { new:
                 const strength2 = c.snapshot_2?.evidence_strength
                 return (
                   <div key={i} style={{ fontSize: 13, color: 'rgba(224,239,255,0.85)' }}>
-                    {titleCase(c[nameKey])}:{' '}
+                    {titleCase(c[nameKey] || c.pattern_name || c.adaptation_strategy || c.pattern_key || 'unknown')}:{' '}
                     {status1 || status2
                       ? `${status1 ?? '—'} → ${status2 ?? '—'}`
                       : `${strength1 != null ? Math.round(strength1 * 100) + '%' : 'no evidence yet'} → ${strength2 != null ? Math.round(strength2 * 100) + '%' : 'no evidence yet'}`}

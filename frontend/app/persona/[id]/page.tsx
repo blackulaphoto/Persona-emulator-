@@ -1172,6 +1172,7 @@ function PatternHypothesesPanel({ hypotheses, onSelect }: { hypotheses: any[]; o
 // Add modals for Experience and Support (simplified versions for now)
 function AddExperienceModal({ personaId, currentAge, onClose, onSuccess }: any) {
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     user_description: '',
     age_at_event: currentAge,
@@ -1180,75 +1181,73 @@ function AddExperienceModal({ personaId, currentAge, onClose, onSuccess }: any) 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
+    setError(null)
     try {
       await api.addExperience(personaId, formData)
       onSuccess()
-    } catch (error) {
-      alert('Failed to add experience')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add experience')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="fixed inset-0 bg-background/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center gap-2 mb-2">
-          <h2 className="text-3xl font-display text-foreground">Add a Moment That Matters</h2>
-          <Tooltip content={SITE_HELP.experience.pageHelp.content} />
+    <RubixModal
+      open
+      onClose={onClose}
+      eyebrow="ADD A MOMENT"
+      title="Add a moment that matters"
+      subtitle="Life experiences are how they become who they are. Add one at a time - each gets its own analysis and shifts their trajectory."
+      width={560}
+    >
+      <form onSubmit={handleSubmit}>
+        <label className="rubix-field-label" htmlFor="exp-age">AGE AT EVENT</label>
+        <input
+          id="exp-age"
+          type="number"
+          required
+          min={0}
+          max={120}
+          className="rubix-input"
+          style={{ marginTop: 9, width: '100%' }}
+          value={formData.age_at_event}
+          onChange={(e) => setFormData({ ...formData, age_at_event: parseInt(e.target.value, 10) })}
+        />
+        <p style={{ marginTop: 7, fontSize: 12, color: 'rgba(200,226,255,0.55)' }}>
+          Any age from 0-120 - build the complete life history in any order.
+        </p>
+
+        <div style={{ marginTop: 16 }}>
+          <label className="rubix-field-label" htmlFor="exp-description">WHAT HAPPENED?</label>
+          <textarea
+            id="exp-description"
+            required
+            className="rubix-textarea"
+            style={{ marginTop: 9, width: '100%', minHeight: 140 }}
+            value={formData.user_description}
+            onChange={(e) => setFormData({ ...formData, user_description: e.target.value })}
+            placeholder="Describe the experience in detail..."
+          />
+          <p style={{ marginTop: 7, fontSize: 12, color: 'rgba(200,226,255,0.55)' }}>
+            The engine analyzes psychological impact based on trauma research and developmental psychology.
+          </p>
         </div>
-        <HelpText type="info">{SITE_HELP.experience.whatIs}</HelpText>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <label className="block text-sm font-medium text-foreground">
-                Age at Event
-              </label>
-              <Tooltip content={SITE_HELP.experience.age.tooltip} />
-            </div>
-            <input
-              type="number"
-              required
-              min={0}
-              max={120}
-              value={formData.age_at_event}
-              onChange={(e) => setFormData({ ...formData, age_at_event: parseInt(e.target.value) })}
-              className="w-full px-4 py-3 rounded-lg border-2 border-border bg-white focus:border-deep-purple focus:outline-none"
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              Add experiences at any age (0-120) to build complete life history
-            </p>
+
+        {error && (
+          <div style={{ marginTop: 14, padding: '11px 14px', borderRadius: 12, fontSize: 13, color: 'rgba(255,210,200,0.95)', background: 'rgba(255,120,100,0.12)', border: '1px solid rgba(255,150,135,0.28)' }} role="alert">
+            {error}
           </div>
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <label className="block text-sm font-medium text-foreground">
-                What happened?
-              </label>
-              <Tooltip content={SITE_HELP.experience.description.tooltip} />
-            </div>
-            <textarea
-              required
-              rows={6}
-              value={formData.user_description}
-              onChange={(e) => setFormData({ ...formData, user_description: e.target.value })}
-              className="w-full px-4 py-3 rounded-lg border-2 border-border bg-white focus:border-deep-purple focus:outline-none resize-none"
-              placeholder="Describe the experience in detail..."
-            />
-            <p className="text-xs text-muted-foreground mt-2">
-              AI will analyze the psychological impact based on trauma research and developmental psychology
-            </p>
-          </div>
-          <div className="flex gap-4">
-            <button type="button" onClick={onClose} className="btn-secondary flex-1">
-              Cancel
-            </button>
-            <button type="submit" disabled={loading} className="btn-primary flex-1">
-              {loading ? 'Considering how this helps...' : 'Add Experience'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        )}
+
+        <div style={{ marginTop: 22, display: 'flex', alignItems: 'center', gap: 11, justifyContent: 'flex-end' }}>
+          <button type="button" className="rubix-btn-ghost" onClick={onClose} disabled={loading}>Cancel</button>
+          <button type="submit" className="rubix-btn-primary" disabled={loading}>
+            {loading ? 'Considering how this helps…' : 'Add experience'}
+          </button>
+        </div>
+      </form>
+    </RubixModal>
   )
 }
 
