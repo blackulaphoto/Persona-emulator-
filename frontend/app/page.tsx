@@ -3,9 +3,12 @@
  *
  * Route: / (root)
  *
- * Single hero image (public/landing-hero.png) carries the pitch - wordmark,
- * tagline, and feature list are baked into the artwork itself. This page's
- * job is just: show it, and get the visitor into a real anonymous demo
+ * Hero image carries the pitch - wordmark, tagline, and feature list are
+ * baked into the artwork itself. Two crops exist for two very different
+ * aspect ratios: public/landing-hero.png (landscape, desktop/tablet) and
+ * public/landing-hero-mobile.png (portrait, phone widths - same scene,
+ * feature list stacked below it instead of beside it). This page's job is
+ * just: show the right one, and get the visitor into a real anonymous demo
  * session with one click.
  */
 'use client';
@@ -15,12 +18,26 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useAuth } from '../contexts/AuthContext';
 
+const MOBILE_BREAKPOINT = '(max-width: 640px)';
+
 export default function LandingPage() {
   const router = useRouter();
   const { user, loading: authLoading, startDemo } = useAuth();
   const [isChecking, setIsChecking] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const [starting, setStarting] = useState(false);
   const [startError, setStartError] = useState('');
+
+  // Which hero crop to show. Only ever read once isChecking is false, i.e.
+  // after mount - never during SSR/hydration - so reading matchMedia here
+  // can't cause a hydration mismatch.
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_BREAKPOINT);
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
 
   // Check if user is authenticated or has seen landing page before
   useEffect(() => {
@@ -80,7 +97,8 @@ export default function LandingPage() {
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-background">
       <Image
-        src="/landing-hero.png"
+        key={isMobile ? 'mobile' : 'desktop'}
+        src={isMobile ? '/landing-hero-mobile.png' : '/landing-hero.png'}
         alt="Rubicks - Mapping the pieces. Understanding the person. Advanced human modeling that connects memories, experiences, and behaviors to reveal the full story of who we become."
         fill
         priority
@@ -88,10 +106,11 @@ export default function LandingPage() {
         className="object-cover object-center"
       />
 
-      {/* CTA sits on the rug, right where it meets the hardwood floor in the artwork. */}
+      {/* CTA sits on the rug, right where it meets the hardwood floor in the artwork - that
+          line falls at a different height in each crop, so its position differs per image. */}
       <div
         className="absolute inset-x-0 flex flex-col items-center gap-1.5 px-6"
-        style={{ top: '87%', transform: 'translateY(-50%)' }}
+        style={{ top: isMobile ? '66%' : '87%', transform: 'translateY(-50%)' }}
       >
         <button
           onClick={handleCTA}
