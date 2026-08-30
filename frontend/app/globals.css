@@ -393,10 +393,11 @@
    RUBIX DESIGN SYSTEM
    Approved visual system (Claude Design prototype, Rubix.dc.html). Scoped
    under .rubix-* class names so it can live alongside the pre-existing
-   "Empathetic Modernism" purple theme above without colliding — login now
-   uses this system too (see app/login/page.tsx); signup, the marketing
-   landing page, and the template browser are still out of scope and keep
-   using the classes above unchanged.
+   "Empathetic Modernism" purple theme above without colliding — login and
+   signup now use this system too (see app/login/page.tsx and
+   app/signup/page.tsx); the marketing landing page and the template
+   browser are still out of scope and keep using the classes above
+   unchanged.
 
    Layered cobalt / rich blue / indigo. Atmospheric, glossy, dimensional,
    luminous but restrained. Values below are extracted directly from
@@ -666,4 +667,17 @@
 @media (max-width: 768px) {
   .rubix-grid-with-rail,
   .rubix-grid-2up { grid-template-columns: 1fr; }
+}
+
+/* Landing hero viewport height - plain 100vh includes the space iOS Safari's
+   collapsing address/tab bar temporarily occupies, so the CTA can end up
+   below the actually-visible area on first paint. 100svh ("small viewport
+   height") is defined as the viewport with that browser chrome fully
+   expanded, i.e. the guaranteed-visible minimum, so the layout never
+   shifts as the chrome shows/hides. The plain vh line is a fallback for
+   browsers that don't support svh yet - an unsupported value is dropped,
+   leaving the earlier declaration in effect, not zero. */
+.hero-svh {
+  height: 100vh;
+  height: 100svh;
 }
