@@ -78,39 +78,38 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-12">
-      <div className="max-w-5xl w-full text-center">
-        <Image
-          src="/landing-hero.png"
-          alt="Rubicks - Mapping the pieces. Understanding the person. Advanced human modeling that connects memories, experiences, and behaviors to reveal the full story of who we become."
-          width={1672}
-          height={941}
-          priority
-          className="w-full h-auto rounded-3xl shadow-2xl border border-black/5"
-        />
+    <div className="relative w-screen h-screen overflow-hidden bg-background">
+      <Image
+        src="/landing-hero.png"
+        alt="Rubicks - Mapping the pieces. Understanding the person. Advanced human modeling that connects memories, experiences, and behaviors to reveal the full story of who we become."
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover object-center"
+      />
 
-        <div className="mt-10 flex flex-col items-center gap-3">
-          <button
-            onClick={handleCTA}
-            disabled={starting}
-            className="btn-primary disabled:opacity-70 disabled:cursor-wait text-lg px-10 py-4 flex flex-col items-center gap-0.5"
-          >
-            <span>{starting ? 'Starting…' : 'Try Rubicks'}</span>
-            {!starting && <span className="text-xs font-normal text-white/70">No account required</span>}
-          </button>
-          {startError && (
-            <p className="text-sm text-destructive font-body">{startError}</p>
-          )}
-        </div>
-      </div>
-
-      <footer className="mt-14 max-w-2xl text-center">
-        <p className="text-xs text-muted-foreground font-body leading-relaxed">
+      {/* CTA sits on the rug, right where it meets the hardwood floor in the artwork. */}
+      <div
+        className="absolute inset-x-0 flex flex-col items-center gap-1.5 px-6"
+        style={{ top: '87%', transform: 'translateY(-50%)' }}
+      >
+        <button
+          onClick={handleCTA}
+          disabled={starting}
+          className="btn-primary disabled:opacity-70 disabled:cursor-wait text-sm px-6 py-2.5 shadow-2xl flex flex-col items-center gap-0.5"
+        >
+          <span>{starting ? 'Starting…' : 'Try Rubicks'}</span>
+          {!starting && <span className="text-[10px] font-normal text-white/70">No account required</span>}
+        </button>
+        {startError && (
+          <p className="text-xs text-destructive font-body bg-white/90 rounded px-2 py-1">{startError}</p>
+        )}
+        <p className="mt-1 max-w-md text-center text-[10px] leading-snug text-slate/80 font-body bg-white/70 backdrop-blur-sm rounded px-2 py-1">
           This tool simulates psychological development for educational purposes.
           It is not a diagnostic tool, medical advice, or substitute for therapy.
           All personas are fictional.
         </p>
-      </footer>
+      </div>
     </div>
   );
 }
