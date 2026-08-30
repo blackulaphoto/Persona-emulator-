@@ -15,9 +15,9 @@ export const metadata: Metadata = {
     siteName: 'Rubicks',
     images: [
       {
-        url: '/rubicks-logo.png',
-        width: 1448,
-        height: 1086,
+        url: '/landing-hero.png',
+        width: 1672,
+        height: 941,
         alt: 'Rubicks',
       },
     ],
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Rubicks',
     description: 'AI-powered psychological development simulations',
-    images: ['/rubicks-logo.png'],
+    images: ['/landing-hero.png'],
   },
 
   // Favicon

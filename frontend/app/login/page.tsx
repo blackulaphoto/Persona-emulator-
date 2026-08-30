@@ -1,7 +1,11 @@
 /**
- * Login Page - Apple-Inspired Design
+ * Login Page - Rubix Design System
  *
- * User authentication with email/password or Google
+ * User authentication with email/password or Google. Uses the same
+ * .rubix-* token/class layer (app/globals.css) and layout patterns as the
+ * rest of the signed-in app (see components/rubix/SaveWorkModal.tsx for the
+ * equivalent auth form used mid-app), rather than the older Apple-inspired
+ * glass-card theme.
  */
 'use client';
 
@@ -9,14 +13,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Mail, Lock } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
   const { login, loginWithGoogle, resetPassword, isAnonymous } = useAuth();
-  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -72,131 +73,115 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted gradient-apple-mesh flex items-center justify-center px-6">
-      <div className="max-w-md w-full animate-fade-in-up">
-        {/* Glass Card Container */}
-        <div className="glass-card p-8 space-y-6">
-          {/* Brand */}
-          <div className="flex items-center justify-center gap-2">
-            <img src="/rubicks-icon.png" alt="" aria-hidden="true" className="w-8 h-8" />
-            <span className="text-lg font-semibold text-foreground font-display">Rubicks</span>
+    <div className="rubix-scope rubix-app-bg" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <div className="rubix-modal-panel" style={{ width: 440, maxWidth: '100%', padding: '30px 28px 26px' }}>
+        {/* Brand */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9 }}>
+          <img src="/rubicks-icon.png" alt="" aria-hidden="true" style={{ width: 26, height: 26, objectFit: 'contain' }} />
+          <span style={{ fontWeight: 700, fontSize: 16 }}>Rubicks</span>
+        </div>
+
+        {/* Header */}
+        <div style={{ marginTop: 20, textAlign: 'center' }}>
+          <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: '-0.02em' }}>Welcome back</div>
+          <div style={{ marginTop: 7, fontSize: 13.5, color: 'rgba(216,234,255,0.7)' }}>
+            Log in to continue your simulations
           </div>
+        </div>
 
-          {/* Header */}
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-foreground font-display mb-2">
-              Welcome Back
-            </h1>
-            <p className="text-muted-foreground">
-              Log in to continue your simulations
-            </p>
+        {/* Guest-session warning - signing into a different account here leaves today's demo work behind unless it was saved first. */}
+        {isAnonymous && (
+          <div style={{ marginTop: 20, padding: '11px 14px', borderRadius: 12, fontSize: 13, lineHeight: 1.55, color: 'rgba(255,210,200,0.95)', background: 'rgba(255,120,100,0.12)', border: '1px solid rgba(255,150,135,0.28)' }} role="alert">
+            You&apos;re currently exploring as a guest. Signing in here won&apos;t bring that work with it - go back and use <strong>Save your work</strong> first if you want to keep it.
           </div>
+        )}
 
-          {/* Guest-session warning - signing into a different account here leaves today's demo work behind unless it was saved first. */}
-          {isAnonymous && (
-            <div className="alert-apple-error animate-scale-in">
-              <p className="text-apple-red text-sm font-medium">
-                You&apos;re currently exploring as a guest. Signing in here won&apos;t bring that work with it - go back and use <strong>Save your work</strong> first if you want to keep it.
-              </p>
+        {/* Error Message */}
+        {error && (
+          <div style={{ marginTop: 20, padding: '11px 14px', borderRadius: 12, fontSize: 13, color: 'rgba(255,210,200,0.95)', background: 'rgba(255,120,100,0.12)', border: '1px solid rgba(255,150,135,0.28)' }} role="alert">
+            {error}
+          </div>
+        )}
+
+        {/* Success Message */}
+        {message && (
+          <div style={{ marginTop: 20, padding: '11px 14px', borderRadius: 12, fontSize: 13, color: 'rgba(180,255,210,0.95)', background: 'rgba(100,255,150,0.12)', border: '1px solid rgba(140,255,180,0.28)' }} role="status">
+            {message}
+          </div>
+        )}
+
+        {/* Login Form */}
+        <form onSubmit={handleSubmit} style={{ marginTop: 22 }}>
+          <label className="rubix-field-label" htmlFor="login-email">EMAIL ADDRESS</label>
+          <input
+            id="login-email"
+            type="email"
+            placeholder="you@example.com"
+            className="rubix-input"
+            style={{ marginTop: 9, width: '100%' }}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <div style={{ marginTop: 14 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <label className="rubix-field-label" htmlFor="login-password">PASSWORD</label>
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                style={{ background: 'none', border: 'none', padding: 0, fontSize: 12.5, fontWeight: 600, color: 'var(--rubix-blue)', cursor: 'pointer' }}
+              >
+                Forgot password?
+              </button>
             </div>
-          )}
-
-          {/* Error Message */}
-          {error && (
-            <div className="alert-apple-error animate-scale-in">
-              <p className="text-apple-red text-sm font-medium">{error}</p>
-            </div>
-          )}
-
-          {/* Success Message */}
-          {message && (
-            <div className="alert-apple-success animate-scale-in">
-              <p className="text-apple-green text-sm font-medium">{message}</p>
-            </div>
-          )}
-
-          {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <Input
-              type="email"
-              label="Email Address"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              icon={<Mail size={20} />}
+            <input
+              id="login-password"
+              type="password"
+              placeholder="••••••••"
+              className="rubix-input"
+              style={{ marginTop: 9, width: '100%' }}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
-
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="label-apple">Password</span>
-                <button
-                  type="button"
-                  onClick={handleForgotPassword}
-                  className="text-sm text-soft-purple hover:text-deep-purple font-medium transition-colors"
-                >
-                  Forgot password?
-                </button>
-              </div>
-              <Input
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                icon={<Lock size={20} />}
-                required
-              />
-            </div>
-
-            <Button
-              type="submit"
-              variant="primary"
-              className="w-full"
-              loading={loading}
-            >
-              {loading ? 'Logging in...' : 'Log In'}
-            </Button>
-          </form>
-
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-3 bg-white text-muted-foreground font-medium">
-                Or continue with
-              </span>
-            </div>
           </div>
 
-          {/* Google Sign In */}
-          <button
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-            className="w-full bg-white hover:bg-muted border border-border rounded-apple py-3 px-4 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-apple-sm hover:shadow-apple-md"
-          >
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
-            Sign in with Google
+          <button type="submit" className="rubix-btn-primary" style={{ width: '100%', marginTop: 20 }} disabled={loading}>
+            {loading ? 'Logging in…' : 'Log In'}
           </button>
+        </form>
 
-          {/* Sign Up Link */}
-          <div className="text-center pt-2">
-            <p className="text-muted-foreground text-sm">
-              Don't have an account?{' '}
-              <Link
-                href="/signup"
-                className="text-soft-purple hover:text-deep-purple font-semibold transition-colors"
-              >
-                Sign up
-              </Link>
-            </p>
-          </div>
+        {/* Divider */}
+        <div style={{ margin: '20px 0', display: 'flex', alignItems: 'center', gap: 12 }} aria-hidden="true">
+          <div style={{ flex: 1, height: 1, background: 'rgba(180,215,255,0.18)' }} />
+          <span style={{ fontSize: 11.5, color: 'rgba(200,226,255,0.55)' }}>OR</span>
+          <div style={{ flex: 1, height: 1, background: 'rgba(180,215,255,0.18)' }} />
+        </div>
+
+        {/* Google Sign In */}
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          disabled={loading}
+          className="rubix-btn-ghost"
+          style={{ width: '100%' }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Sign in with Google
+        </button>
+
+        {/* Sign Up Link */}
+        <div style={{ textAlign: 'center', marginTop: 18, fontSize: 13.5, color: 'rgba(216,234,255,0.7)' }}>
+          Don&apos;t have an account?{' '}
+          <Link href="/signup" style={{ color: 'var(--rubix-blue)', fontWeight: 600 }}>
+            Sign up
+          </Link>
         </div>
       </div>
     </div>
