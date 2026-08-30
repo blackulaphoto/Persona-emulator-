@@ -393,9 +393,10 @@
    RUBIX DESIGN SYSTEM
    Approved visual system (Claude Design prototype, Rubix.dc.html). Scoped
    under .rubix-* class names so it can live alongside the pre-existing
-   "Empathetic Modernism" purple theme above without colliding — login,
-   signup, the marketing landing page, and the template browser are out of
-   scope for the Rubix redesign and keep using the classes above unchanged.
+   "Empathetic Modernism" purple theme above without colliding — login now
+   uses this system too (see app/login/page.tsx); signup, the marketing
+   landing page, and the template browser are still out of scope and keep
+   using the classes above unchanged.
 
    Layered cobalt / rich blue / indigo. Atmospheric, glossy, dimensional,
    luminous but restrained. Values below are extracted directly from
