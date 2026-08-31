@@ -15,10 +15,18 @@ Key invariants:
   - The subject-attribution guard (from self_narration_engine) applies here
     too, since interpretation prose is a second place this could slip.
 """
+import pytest
+from unittest.mock import AsyncMock, patch
+
 from app.services.pattern_engine import (
     salient_domains_for_age,
     interpret_experience_heuristic,
+    interpret_experience_async,
+    interpret_reparative_experience_heuristic,
     _validate_interpretation,
+    _validate_reparative_interpretation,
+    _build_interpretation_prompt,
+    _build_reparative_prompt,
     accumulate_patterns,
     build_verdict,
     name_pattern_heuristic,
@@ -347,3 +355,123 @@ class TestTaxonomyIntegrity:
         all_tasks = {task for stage in DEVELOPMENTAL_STAGES.values() for task in stage["key_tasks"]}
         missing = all_tasks - set(STAGE_TASK_TO_DOMAIN.keys())
         assert not missing, f"developmental_stages.py key_tasks not bridged to a domain: {missing}"
+
+
+# ============================================================
+# P0-2 correction: reparative-interpretation path
+# (RELEASE_READINESS_2026-08-30.md)
+# ============================================================
+class TestReparativeInterpretationHeuristic:
+    def test_known_factor_type_returns_a_real_belief_no_adaptation_strategy(self):
+        result = interpret_reparative_experience_heuristic(
+            [{"factor_type": "corrective_emotional_experience", "domains_buffered": ["attachment_security"]}]
+        )
+        assert result["belief_statement"] is not None
+        assert result["adaptation_strategy"] is None
+        assert result["developmental_domains"] == ["attachment_security"]
+
+    def test_no_protective_factors_returns_nulls(self):
+        result = interpret_reparative_experience_heuristic([])
+        assert result["belief_statement"] is None
+        assert result["adaptation_strategy"] is None
+
+
+class TestValidateReparativeInterpretation:
+    def test_rejects_missing_belief(self):
+        assert _validate_reparative_interpretation({"reasoning": "..."}, set()) is None
+
+    def test_rejects_attribution_violation(self):
+        assert _validate_reparative_interpretation(
+            {"belief_statement": "You can trust again.", "reasoning": "..."}, set()
+        ) is None
+
+    def test_accepts_well_formed_response_with_null_contradicts(self):
+        result = _validate_reparative_interpretation(
+            {"belief_statement": "Michael believes trust can be rebuilt.", "reasoning": "A real repair occurred.",
+             "contradicts_pattern": None},
+            valid_prior_strategies={"self_reliance"},
+        )
+        assert result["adaptation_strategy"] is None
+        assert result["contradicts_pattern"] is None
+
+    def test_contradicts_pattern_must_be_one_of_the_valid_prior_strategies(self):
+        # A hallucinated/unknown strategy name is dropped, not trusted -
+        # same defensive posture as _validate_interpretation's adaptation_strategy check.
+        result = _validate_reparative_interpretation(
+            {"belief_statement": "X", "reasoning": "Y", "contradicts_pattern": "made_up_strategy"},
+            valid_prior_strategies={"self_reliance"},
+        )
+        assert result["contradicts_pattern"] is None
+
+    def test_contradicts_pattern_kept_when_valid(self):
+        result = _validate_reparative_interpretation(
+            {"belief_statement": "X", "reasoning": "Y", "contradicts_pattern": "self_reliance"},
+            valid_prior_strategies={"self_reliance"},
+        )
+        assert result["contradicts_pattern"] == "self_reliance"
+
+    def test_empty_response(self):
+        assert _validate_reparative_interpretation(None, set()) is None
+
+
+class TestInterpretExperienceAsyncDispatch:
+    """The single entry point developmental_pipeline.py calls - proves it
+    routes to the right path based on what's actually present, not just on
+    whether exposures happen to be empty."""
+
+    @pytest.mark.asyncio
+    async def test_exposures_present_takes_adverse_path_even_with_protective_factors_also_present(self):
+        with patch("app.services.pattern_engine.openai_service.analyze", new_callable=AsyncMock) as mock:
+            mock.side_effect = Exception("forces heuristic fallback")
+            result = await interpret_experience_async(
+                "Sam", 6,
+                exposures=[{"exposure_type": "caregiver_absence", "developmental_domains": ["attachment_security"]}],
+                protective_factors_this_batch=[{"factor_type": "friendship", "domains_buffered": ["social_belonging"]}],
+            )
+        assert result["adaptation_strategy"] == "self_reliance"  # the adverse heuristic default, not the reparative path
+
+    @pytest.mark.asyncio
+    async def test_no_exposures_but_protective_factors_takes_reparative_path(self):
+        with patch("app.services.pattern_engine.openai_service.analyze", new_callable=AsyncMock) as mock:
+            mock.side_effect = Exception("forces heuristic fallback")
+            result = await interpret_experience_async(
+                "Sam", 9, exposures=[],
+                protective_factors_this_batch=[{"factor_type": "corrective_emotional_experience", "domains_buffered": ["attachment_security"]}],
+            )
+        assert result["belief_statement"] is not None
+        assert result["adaptation_strategy"] is None
+
+    @pytest.mark.asyncio
+    async def test_neither_exposures_nor_protective_factors_returns_null_interpretation(self):
+        result = await interpret_experience_async("Sam", 10, exposures=[], protective_factors_this_batch=[])
+        assert result["belief_statement"] is None
+        assert result["adaptation_strategy"] is None
+
+
+class TestGroundingInstructionPresent:
+    """P1 correction: the generated 'reasoning' field previously described
+    events that were never supplied (RELEASE_READINESS_2026-08-30.md,
+    P1-1) - e.g. describing 'reliable close relationships and explicit
+    reassurance' for a betrayal experience where none were given. Both
+    interpretation prompts must carry an explicit, strict instruction
+    forbidding that. A prompt-text assertion is a deliberately narrow,
+    deterministic proxy for "the contract is asserted" - it cannot prove the
+    model obeys it on every call; that's verified separately against a real
+    running persona (see RELEASE_READINESS_2026-08-30.md's Reasoning
+    Grounding Re-Test)."""
+
+    def test_adverse_prompt_forbids_inventing_ungiven_evidence(self):
+        prompt = _build_interpretation_prompt(
+            "Sam", 8, exposures=[{"exposure_type": "caregiver_absence", "developmental_domains": ["attachment_security"]}],
+            salient_domains=["attachment_security"], narration_signals=[], protective_factors=[], prior_patterns=[],
+        )
+        assert "GROUNDING RULE" in prompt
+        assert "none active" in prompt  # confirms protective factors are explicitly told to be absent, not just omitted
+
+    def test_reparative_prompt_forbids_inventing_ungiven_evidence(self):
+        prompt = _build_reparative_prompt(
+            "Sam", 9, protective_factors_this_batch=[{"factor_type": "friendship", "domains_buffered": ["social_belonging"], "raw_text": "her friend"}],
+            narration_signals=[], prior_patterns=[],
+        )
+        assert "GROUNDING RULE" in prompt
+        assert "Do NOT invent" in prompt

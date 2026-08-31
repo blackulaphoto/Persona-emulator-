@@ -68,8 +68,25 @@ class TestHeuristicFallback:
         assert result["trait_changes"] == {}
 
     def test_unknown_or_missing_strategy_returns_empty(self):
+        # No belief_statement at all - the outer gate short-circuits before
+        # ever reaching the per-strategy lookup.
         assert propose_state_trait_implications_heuristic({"adaptation_strategy": None}) == {"state_changes": {}, "trait_changes": {}}
         assert propose_state_trait_implications_heuristic({}) == {"state_changes": {}, "trait_changes": {}}
+
+    def test_reparative_interpretation_gets_a_generic_positive_nudge(self):
+        # P0-2 correction: a real interpretation with no adaptation_strategy
+        # (the reparative path - see pattern_engine.
+        # interpret_reparative_experience_async) must not fall through to
+        # "unknown strategy -> empty" the way a genuinely missing belief does.
+        reparative = {
+            "belief_statement": "Trust, once broken, can still be rebuilt.",
+            "adaptation_strategy": None,
+            "reasoning": "A genuine repair occurred.",
+        }
+        result = propose_state_trait_implications_heuristic(reparative, pattern_status=None)
+        assert result["state_changes"]["trust"]["direction"] == "increase"
+        assert result["state_changes"]["threat_sensitivity"]["direction"] == "decrease"
+        assert result["trait_changes"] == {}
 
     def test_every_mapped_strategy_only_uses_controlled_vocab_keys(self):
         for strategy, default in ADAPTATION_STRATEGY_STATE_TRAIT_DEFAULTS.items():
@@ -150,11 +167,32 @@ class TestAIProposalPath:
         assert "neuroticism" in result["trait_changes"]
 
     @pytest.mark.asyncio
-    async def test_no_adaptation_strategy_short_circuits_without_calling_ai(self):
+    async def test_no_belief_statement_short_circuits_without_calling_ai(self):
         with patch("app.services.state_trait_engine.openai_service.analyze", new_callable=AsyncMock) as mock_analyze:
             result = await propose_state_trait_implications_ai("Michael", 14, {"adaptation_strategy": None}, "established")
         mock_analyze.assert_not_called()
         assert result == {"state_changes": {}, "trait_changes": {}}
+
+    @pytest.mark.asyncio
+    async def test_reparative_interpretation_with_no_adaptation_strategy_still_calls_ai(self):
+        # P0-2 correction: the gate is belief_statement, not adaptation_strategy
+        # (RELEASE_READINESS_2026-08-30.md). A reparative interpretation
+        # deliberately never sets adaptation_strategy (see pattern_engine.
+        # interpret_reparative_experience_async) but still forms a real
+        # belief and is just as entitled to propose State movement.
+        reparative_interpretation = {
+            "belief_statement": "Trust, once broken, can still be rebuilt.",
+            "adaptation_strategy": None,
+            "reasoning": "A genuine repair occurred.",
+        }
+        with patch("app.services.state_trait_engine.openai_service.analyze", new_callable=AsyncMock) as mock_analyze:
+            mock_analyze.return_value = {
+                "state_changes": {"trust": {"direction": "increase", "magnitude": "mild"}},
+                "trait_changes": {},
+            }
+            result = await propose_state_trait_implications_ai("Michael", 14, reparative_interpretation, None)
+        mock_analyze.assert_called_once()
+        assert result["state_changes"]["trust"]["direction"] == "increase"
 
 
 class TestSyncWrapperDegradesInAsyncContext:

@@ -100,6 +100,25 @@ class TestProtectiveFactors:
         factor_types = {f["factor_type"] for f in result["protective_factors"]}
         assert "reliable_close_relationship" in factor_types
 
+    def test_corrective_emotional_experience_detected(self):
+        # P0-2 correction: developmental significance isn't adversity-only -
+        # a genuine repair/reconciliation event has its own taxonomy entry,
+        # distinct from an ongoing relationship-quality factor.
+        result = extract_exposures_keyword(
+            "He took responsibility and repaired the relationship, and she trusted him again."
+        )
+        factor_types = {f["factor_type"] for f in result["protective_factors"]}
+        assert "corrective_emotional_experience" in factor_types
+
+    def test_corrective_emotional_experience_includes_attachment_security_domain(self):
+        # Deliberately tagged with attachment_security so a real repair also
+        # engages attachment_engine.apply_attachment_protection, not just the
+        # interpretation pipeline - see developmental_exposure_engine.py's
+        # comment on this entry.
+        result = extract_exposures_keyword("She trusted them again after they proved them wrong.")
+        factor = next(f for f in result["protective_factors"] if f["factor_type"] == "corrective_emotional_experience")
+        assert "attachment_security" in factor["domains_buffered"]
+
 
 class TestValidateAndFilter:
     """Defense against the AI path inventing types outside the controlled vocabulary."""

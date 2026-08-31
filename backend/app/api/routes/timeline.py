@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any
 from app.core.database import get_db
+from app.core.auth import get_current_user
 from app.models import Persona, Experience, Intervention, PersonalitySnapshot
 from app.schemas import (
     PersonaResponse, 
@@ -81,13 +82,24 @@ def convert_snapshot_to_response(snapshot: PersonalitySnapshot) -> Dict[str, Any
 
 
 @router.get("/{persona_id}/timeline")
-def get_persona_timeline(persona_id: str, db: Session = Depends(get_db)):
+def get_persona_timeline(
+    persona_id: str,
+    user_id: str = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     """
     Get complete timeline for a persona including experiences, interventions, and snapshots.
     Returns chronologically ordered events showing personality evolution over time.
     """
-    # Get persona with all relationships
-    persona = db.query(Persona).filter(Persona.id == persona_id).first()
+    # Get persona with all relationships - ownership enforced the same way as
+    # every other persona-scoped route (personas.py, experiences.py, etc.):
+    # ownership is verified server-side against the token's uid, never
+    # trusted from the caller. A persona that exists but belongs to another
+    # user 404s exactly like one that doesn't exist, so existence is never
+    # disclosed.
+    persona = db.query(Persona).filter(
+        Persona.id == persona_id, Persona.user_id == user_id
+    ).first()
     if not persona:
         raise HTTPException(status_code=404, detail="Persona not found")
 

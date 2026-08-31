@@ -193,6 +193,22 @@ PROTECTIVE_FACTOR_TAXONOMY: Dict[str, Dict] = {
         "domains": ["attachment_security", "identity"],
         "keywords": ["told me it wasn't my fault", "reassured me", "said i was safe"],
     },
+    # Distinct from the general relationship-quality factors above: this one
+    # is a specific EVENT that directly repairs or contradicts a prior
+    # negative expectation (trust broken and then rebuilt, a conflict
+    # actually resolved, care received where rejection was expected) rather
+    # than an ongoing trait of a relationship. Tagged with attachment_
+    # security specifically so it also engages apply_attachment_protection
+    # in attachment_engine.py, not just the interpretation pipeline.
+    "corrective_emotional_experience": {
+        "domains": ["attachment_security", "emotional_regulation", "identity"],
+        "keywords": [
+            "repaired the relationship", "repaired conflicts", "took responsibility and",
+            "stayed instead of leaving", "trusted them again", "proved them wrong",
+            "showed up for me", "made things right", "earned back my trust",
+            "different this time", "expected rejection but",
+        ],
+    },
 }
 
 

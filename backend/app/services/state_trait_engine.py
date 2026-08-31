@@ -271,8 +271,21 @@ async def propose_state_trait_implications_ai(
     interpretation: Dict,
     pattern_status: Optional[str] = None,
 ) -> Optional[Dict]:
-    """AI proposal path. Returns None on failure so the caller can fall back."""
-    if not interpretation or not interpretation.get("adaptation_strategy"):
+    """
+    AI proposal path. Returns None on failure so the caller can fall back.
+
+    Gated on belief_statement, not adaptation_strategy - a reparative
+    interpretation (pattern_engine.interpret_reparative_experience_async)
+    deliberately never sets adaptation_strategy (see that module's docstring
+    for why), but it still forms a real, grounded belief about the event and
+    is just as entitled to propose State movement as an adverse one. Trait
+    movement stays correctly conservative either way: trait_gate_open()
+    requires status == "established", which only ever comes from
+    accumulate_patterns() grouping by adaptation_strategy, so a reparative
+    interpretation can still only ever earn the small provisional Trait step,
+    never the full established-pattern one.
+    """
+    if not interpretation or not interpretation.get("belief_statement"):
         return {"state_changes": {}, "trait_changes": {}}
 
     try:
@@ -304,10 +317,26 @@ def propose_state_trait_implications_heuristic(interpretation: Dict, pattern_sta
     signal exists at all" rather than "this signal has not earned durable
     movement yet", which is exactly the frozen-dials behavior Step 12 fixes.
     """
-    if not interpretation or not interpretation.get("adaptation_strategy"):
+    if not interpretation or not interpretation.get("belief_statement"):
         return {"state_changes": {}, "trait_changes": {}}
 
-    default = ADAPTATION_STRATEGY_STATE_TRAIT_DEFAULTS.get(interpretation["adaptation_strategy"])
+    strategy = interpretation.get("adaptation_strategy")
+    if not strategy:
+        # Reparative interpretation (no adaptation_strategy by design - see
+        # pattern_engine.interpret_reparative_experience_async). Genuinely
+        # lower fidelity than the AI path, same as every other heuristic
+        # fallback in this rebuild: a small, generic, direction-only nudge
+        # rather than an attempt to approximate what a real reasoning pass
+        # over the specific reparative factor would conclude.
+        return {
+            "state_changes": {
+                "trust": {"direction": "increase", "magnitude": "mild"},
+                "threat_sensitivity": {"direction": "decrease", "magnitude": "mild"},
+            },
+            "trait_changes": {},
+        }
+
+    default = ADAPTATION_STRATEGY_STATE_TRAIT_DEFAULTS.get(strategy)
     if not default:
         return {"state_changes": {}, "trait_changes": {}}
 

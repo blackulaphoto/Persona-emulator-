@@ -213,3 +213,172 @@ class TestCurrentTraumaMarkersProjection:
         )
         db.commit()
         assert isinstance(result2["trauma_markers"], list)
+
+
+# ============================================================
+# P0-2 correction regression: developmental significance is not the same
+# thing as adversity (RELEASE_READINESS_2026-08-30.md). Positive/reparative
+# text that extract_developmental_exposures_async classifies as a
+# ProtectiveFactor (not an adverse Exposure) must still be eligible for
+# interpretation and State movement - it must not be silently skipped the
+# way it was before this pipeline was gated on this_batch_exposures alone.
+#
+# Every case here runs through the same AI-fails-forces-fallback harness as
+# the rest of this file (see _fail_all_ai_calls above), so extraction goes
+# through the deterministic keyword-fallback path and interpretation goes
+# through interpret_reparative_experience_heuristic /
+# interpret_experience_heuristic - exercising the real, wired pipeline
+# end-to-end, not a mocked shortcut.
+# ============================================================
+class TestPositiveAndReparativeExperiencesAreAnalyzed:
+    @pytest.mark.asyncio
+    async def test_case1_adversity_still_analyzes_as_a_regression_fixture(self, db):
+        """CASE 1 (section 14): the flagship betrayal scenario from the audit
+        must keep working exactly as before - this is the regression fixture
+        every other case in this class is a variant of."""
+        persona = _make_persona(db, baseline_background="A stable, ordinary childhood.")
+        result = await process_developmental_text(
+            db, persona,
+            "Her best friend since kindergarten told the whole class a secret in confidence, "
+            "and she felt utterly humiliated.",
+            source="experience", age=8, source_event_id="exp-betrayal",
+        )
+        db.commit()
+
+        assert result["interpretation"] is not None
+        assert result["interpretation"].adaptation_strategy is not None
+        interpretations = db.query(Interpretation).filter(Interpretation.persona_id == persona.id).all()
+        assert len(interpretations) == 1
+
+    @pytest.mark.asyncio
+    async def test_case2_trust_repair_is_analyzed_not_skipped(self, db):
+        """CASE 2: the exact defect from the audit - a batch with a
+        protective/reparative factor and NO adverse exposure must still
+        produce a real interpretation, not a null one."""
+        persona = _make_persona(db, baseline_background="A stable, ordinary childhood.")
+        result = await process_developmental_text(
+            db, persona,
+            "He took responsibility and repaired the relationship, and she found herself "
+            "able to trust him again.",
+            source="experience", age=9, source_event_id="exp-repair",
+        )
+        db.commit()
+
+        assert result["exposures"] == []  # confirms this is genuinely the no-exposure path
+        assert result["protective_factors"]
+        assert result["interpretation"] is not None
+        assert result["interpretation"].belief_statement is not None
+        assert result["interpretation"].reasoning is not None
+        # Deliberately no adaptation_strategy - see pattern_engine.
+        # interpret_reparative_experience_async's docstring for why.
+        assert result["interpretation"].adaptation_strategy is None
+        # The headline before/after from the audit: current_state actually moves.
+        assert result["state_changes"]
+
+    @pytest.mark.asyncio
+    async def test_case3_achievement_is_analyzed_without_forced_pathology_framing(self, db):
+        """CASE 3: a genuine achievement must be analyzed, and must not be
+        coerced into one of the 12 adverse coping-strategy labels."""
+        persona = _make_persona(db, baseline_background="A stable, ordinary childhood.")
+        result = await process_developmental_text(
+            db, persona, "She won a competition and it felt like a proud accomplishment.",
+            source="experience", age=11, source_event_id="exp-achievement",
+        )
+        db.commit()
+
+        assert result["interpretation"] is not None
+        assert result["interpretation"].adaptation_strategy is None
+        assert result["interpretation"].belief_statement is not None
+
+    @pytest.mark.asyncio
+    async def test_case4_sustained_support_is_eligible_for_analysis(self, db):
+        """CASE 4: sustained support during vulnerability is eligible for
+        developmental analysis, same as any other reparative factor."""
+        persona = _make_persona(db, baseline_background="A stable, ordinary childhood.")
+        result = await process_developmental_text(
+            db, persona, "Her aunt consistently offered support through the hardest years.",
+            source="experience", age=12, source_event_id="exp-support",
+        )
+        db.commit()
+
+        assert result["interpretation"] is not None
+        assert result["interpretation"].belief_statement is not None
+
+    @pytest.mark.asyncio
+    async def test_case5_developmentally_trivial_positive_event_is_not_forced_into_significance(self, db):
+        """CASE 5: a real but developmentally trivial positive event is a
+        VALID "nothing significant here" outcome - extraction itself finds
+        neither an exposure nor a protective factor, and the pipeline must
+        not manufacture an interpretation or move the model just because the
+        text is pleasant. This is the one case that stays uninterpreted -
+        not a taxonomy blind spot, extraction genuinely found nothing."""
+        persona = _make_persona(db, baseline_background="A stable, ordinary childhood.")
+        before_state = dict(persona.current_state or {})
+        before_personality = dict(persona.current_personality)
+
+        result = await process_developmental_text(
+            db, persona, "They had a pleasant lunch together and watched a movie afterward.",
+            source="experience", age=10, source_event_id="exp-trivial",
+        )
+        db.commit()
+
+        assert result["exposures"] == []
+        assert result["protective_factors"] == []
+        assert result["interpretation"] is None
+        assert result["state_changes"] == {}
+        assert result["trait_changes"] == {}
+        assert db.query(Interpretation).filter(Interpretation.persona_id == persona.id).count() == 0
+        assert persona.current_state == before_state
+        assert persona.current_personality == before_personality
+
+    @pytest.mark.asyncio
+    async def test_reparative_evidence_weakens_a_later_reinforcement_of_the_adverse_pattern_it_contradicts(self, db):
+        """Section 11's contradictory-evidence requirement, proven through
+        the real end-to-end pipeline rather than accumulate_patterns() in
+        isolation (already covered by tests/test_pattern_engine.py). A
+        protective factor whose domains overlap a LATER same-strategy
+        adverse reinforcement is marked "weakened", not "strengthened" -
+        this was already true of accumulate_patterns() before this
+        correction; what's new is that the reparative event that PRODUCES
+        the protective factor is now itself a real, analyzed event instead
+        of a silently-skipped one."""
+        persona = _make_persona(
+            db, baseline_background="A stable, ordinary childhood, though sensitive to criticism."
+        )
+        # First adverse event: opens the "self_reliance"-strategy pattern via
+        # caregiver_absence (keywords: "disappeared", "never around"),
+        # domains attachment_security + stability.
+        await process_developmental_text(
+            db, persona, "Her father disappeared for days and was never around.",
+            source="experience", age=7, source_event_id="exp-adverse-1",
+        )
+        db.commit()
+        pattern_before = db.query(AdaptationPattern).filter_by(persona_id=persona.id, adaptation_strategy="self_reliance").first()
+        assert pattern_before is not None
+        assert pattern_before.status == "emerging"
+
+        # Reparative event in between: a genuine repair, no exposure, no
+        # adaptation_strategy of its own - must still be analyzed (case 2's
+        # assertion again, incidentally). Its protective factor
+        # (corrective_emotional_experience, domains include
+        # attachment_security - the same domain the pattern above was opened
+        # on) becomes available to buffer a later reinforcement.
+        reparative_result = await process_developmental_text(
+            db, persona, "He took responsibility and repaired the relationship, and this "
+            "time he stayed instead of leaving.",
+            source="experience", age=9, source_event_id="exp-repair-2",
+        )
+        db.commit()
+        assert reparative_result["interpretation"] is not None
+
+        # Second adverse event, same strategy/domain as the first - normally
+        # "strengthened"; here it should register as "weakened" instead,
+        # because of the intervening protective factor.
+        await process_developmental_text(
+            db, persona, "He disappeared again for days, gone without a word.",
+            source="experience", age=11, source_event_id="exp-adverse-3",
+        )
+        db.commit()
+
+        pattern_after = db.query(AdaptationPattern).filter_by(persona_id=persona.id, adaptation_strategy="self_reliance").first()
+        assert pattern_after.reinforcement_history[-1]["effect"] == "weakened"

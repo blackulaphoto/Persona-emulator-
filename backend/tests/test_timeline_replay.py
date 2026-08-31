@@ -179,7 +179,7 @@ def test_timeline_orders_same_age_experiences_and_reuses_persona_projection():
     db = _db(); _setup(db)
     _event(db, "later", 16, sequence_index=2)
     _event(db, "earlier", 16, sequence_index=1)
-    response = get_persona_timeline("p", db)
+    response = get_persona_timeline("p", user_id="owner", db=db)
     assert [item["id"] for item in response["experiences"]] == ["earlier", "later"]
     assert [item["sequence_index"] for item in response["timeline_events"]] == [1, 2]
     assert response["persona"]["baseline_attachment_dimensions"] == dimensions_for_style("secure")
