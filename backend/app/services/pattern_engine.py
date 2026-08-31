@@ -194,6 +194,7 @@ INSTRUCTIONS:
 4. Give a short reasoning (1-2 sentences) explaining the interpretation in developmental terms.
 5. Phrase everything about {persona_name} by name. Never address "you" or "the user."
 6. Absence of narration signals is NOT a reason to hedge into "there isn't enough information." Form the strongest interpretation the exposure and developmental context actually support - just don't fabricate direct self-report evidence that isn't there.
+7. GROUNDING RULE (STRICT): your reasoning may reference ONLY the specific exposure(s), protective factor(s), and prior pattern(s) explicitly listed above. Do NOT reference, imply, or invent any other event, relationship, caregiver behavior, or life history not explicitly given to you in this prompt - even if it would be a plausible-sounding explanation. If a section above says "(none active)" or "(none yet established)", your reasoning must NOT describe that kind of circumstance as being present. When you want to express uncertainty, say so directly ("it's unclear whether...") rather than filling the gap with an invented fact.
 
 ALLOWED adaptation_strategy values (use ONLY these):
 {adaptation_list}
@@ -247,7 +248,10 @@ async def interpret_experience_ai(
                 "You form grounded, specific psychological interpretations of developmental "
                 "events. You are confident where evidence supports it, you take protective "
                 "factors seriously as changing meaning rather than just softening severity, "
-                "and you never address 'the user'. Respond ONLY with valid JSON."
+                "and you never address 'the user'. You never invent a concrete event, "
+                "relationship, or circumstance that was not given to you in the prompt - "
+                "confidence comes from reasoning harder about the evidence you do have, not "
+                "from filling gaps with plausible-sounding fiction. Respond ONLY with valid JSON."
             ),
             temperature=0.5,
             max_tokens=600
@@ -286,6 +290,182 @@ def interpret_experience_heuristic(age: Optional[int], exposures: List[Dict]) ->
     return {"belief_statement": None, "adaptation_strategy": None, "reasoning": None, "developmental_domains": []}
 
 
+# ============================================================
+# Reparative/protective interpretation path
+# ============================================================
+# Developmental significance is not the same thing as adversity. A batch of
+# text can fail to match anything in EXPOSURE_TAXONOMY and still matter -
+# trust repaired after a betrayal, a conflict actually resolved, sustained
+# support during vulnerability, a real achievement. developmental_exposure_
+# engine.py already extracts these as ProtectiveFactor findings; this is the
+# parallel interpretation path for THIS BATCH's protective factors, mirroring
+# interpret_experience_ai/interpret_experience_heuristic above in shape.
+#
+# Deliberately does NOT set adaptation_strategy. ADAPTATION_STRATEGIES is a
+# controlled vocabulary of coping/adaptive strategies a person forms in
+# response to something - a reparative event isn't producing a new one of
+# those, so grouping it into that vocabulary via accumulate_patterns() would
+# either misrepresent it as a new coping strategy or spuriously "reinforce"
+# an existing adverse one. Leaving adaptation_strategy unset means:
+#   - accumulate_patterns() correctly does not open a new pattern for it
+#   - state_trait_engine's attachment-dimension update (apply_attachment_
+#     update) is NOT skipped for a trust/relational_security increase the
+#     way it deliberately is for adaptation_strategy-driven state changes
+#     (see attachment_engine.py) - so real attachment-security movement
+#     from a genuine repair isn't confused with a coping strategy's side
+#     effect (e.g. people_pleasing also raises relational_security, but
+#     that isn't becoming more securely attached)
+# A pre-existing adverse pattern this event actually contradicts is instead
+# weakened automatically, later, the same way it already was before this
+# path existed: accumulate_patterns() checks every protective factor's
+# domains_buffered against each future same-strategy reinforcement and marks
+# it "weakened" instead of "strengthened" when they overlap. This event's
+# own ProtectiveFactor row (persisted unconditionally, independent of this
+# interpretation path) is enough to participate in that - no extra wiring
+# needed here.
+
+def _build_reparative_prompt(
+    persona_name: str,
+    age: Optional[int],
+    protective_factors_this_batch: List[Dict],
+    narration_signals: List[Dict],
+    prior_patterns: List[Dict],
+) -> str:
+    factor_desc = "\n".join(
+        f"- {p['factor_type']} (domains: {', '.join(p.get('domains_buffered', []))}): \"{p.get('raw_text', '')}\""
+        for p in protective_factors_this_batch
+    )
+    signal_desc = (
+        "\n".join(f"- {s['signal_type']}: {s.get('evidence_text', '')}" for s in narration_signals)
+        or "(none available - this case was built from objective history/case facts, not the persona's own words. This is normal, not a gap to apologize for.)"
+    )
+    prior_desc = "\n".join(f"- {p['pattern_name']} ({p['adaptation_strategy']})" for p in prior_patterns) or "(none yet established)"
+
+    return f"""You are inferring what a POSITIVE or REPARATIVE developmental event appears to have meant to {persona_name}. You are not diagnosing, and you are not manufacturing significance that isn't there - it is entirely valid to conclude an event is real but developmentally minor.
+
+PERSONA: {persona_name}, age {age if age is not None else 'unknown'} at this event
+
+PROTECTIVE/REPARATIVE FACTOR(S) FOR THIS EVENT (this is the ONLY evidence for this event - do not draw on anything else):
+{factor_desc}
+
+HOW {persona_name.upper()} TALKS ABOUT THIS (narration signals, if any):
+{signal_desc}
+
+{persona_name}'S EXISTING ADAPTIVE PATTERNS (for continuity only - does this event plausibly speak to one of these, e.g. by contradicting the belief behind it? It does NOT need to. Do not force a connection.):
+{prior_desc}
+
+INSTRUCTIONS:
+1. Infer ONE belief_statement: a short sentence capturing what this event plausibly means to {persona_name} - e.g. "Trust, once broken, can still be rebuilt.", "Support can arrive without her having to ask for it.", or, if the event is real but not developmentally significant on its own, something like "A genuinely positive moment, but not yet enough on its own to shift an established pattern." Both kinds of conclusion are valid outputs - do not inflate a minor event into a turning point it isn't.
+2. Give a short reasoning (1-2 sentences) explaining that conclusion in developmental terms, including WHY you judged it significant or not.
+3. If (and only if) this event plausibly contradicts the belief behind one of {persona_name}'s existing adaptive patterns listed above, name that pattern in contradicts_pattern (use its exact adaptation_strategy value). Otherwise leave contradicts_pattern null. Do not force a match - most reparative events don't contradict anything and that's fine.
+4. Phrase everything about {persona_name} by name. Never address "you" or "the user."
+5. GROUNDING RULE (STRICT): reference ONLY the protective/reparative factor(s) and prior pattern(s) explicitly listed above. Do NOT invent, imply, or reference any other event, relationship, or circumstance not given to you here - not a childhood detail, not a caregiver, not a diagnosis, nothing. If narration signals say "(none available)", do not describe {persona_name} as having said or expressed anything.
+
+OUTPUT FORMAT (valid JSON only):
+{{
+  "belief_statement": "...",
+  "reasoning": "...",
+  "contradicts_pattern": null
+}}
+
+Respond with ONLY the JSON object."""
+
+
+def _validate_reparative_interpretation(response: Dict, valid_prior_strategies: set) -> Optional[Dict]:
+    if not response:
+        return None
+    belief = _enforce_subject_attribution(response.get("belief_statement"))
+    reasoning = _enforce_subject_attribution(response.get("reasoning"))
+    if belief is None or reasoning is None:
+        return None
+    contradicts = response.get("contradicts_pattern")
+    if contradicts not in valid_prior_strategies:
+        contradicts = None
+    return {
+        "belief_statement": belief,
+        "adaptation_strategy": None,
+        "reasoning": reasoning,
+        "contradicts_pattern": contradicts,
+    }
+
+
+async def interpret_reparative_experience_ai(
+    persona_name: str,
+    age: Optional[int],
+    protective_factors_this_batch: List[Dict],
+    narration_signals: Optional[List[Dict]] = None,
+    prior_patterns: Optional[List[Dict]] = None,
+) -> Optional[Dict]:
+    """AI path for a batch with no adverse exposures but a real protective/
+    reparative factor. Mirrors interpret_experience_ai's shape and failure
+    handling (returns None on failure so the caller falls back)."""
+    if not protective_factors_this_batch:
+        return {"belief_statement": None, "adaptation_strategy": None, "reasoning": None}
+
+    prior_patterns = prior_patterns or []
+    valid_prior_strategies = {p["adaptation_strategy"] for p in prior_patterns if p.get("adaptation_strategy")}
+
+    try:
+        response = await openai_service.analyze(
+            prompt=_build_reparative_prompt(
+                persona_name, age, protective_factors_this_batch, narration_signals or [], prior_patterns,
+            ),
+            system_message=(
+                "You form grounded, specific psychological interpretations of positive and "
+                "reparative developmental events. You take real repair and support seriously "
+                "without inflating minor events into turning points, you never address 'the "
+                "user', and you never invent a concrete event, relationship, or circumstance "
+                "that was not given to you in the prompt. Respond ONLY with valid JSON."
+            ),
+            temperature=0.5,
+            max_tokens=400,
+        )
+        validated = _validate_reparative_interpretation(response, valid_prior_strategies)
+        if validated:
+            domains = sorted({d for p in protective_factors_this_batch for d in p.get("domains_buffered", [])})
+            validated["developmental_domains"] = salient_domains_for_age(age, domains)
+        return validated
+    except Exception as e:
+        logger.warning(f"AI reparative interpretation failed, will fall back to heuristic pass: {e}")
+        return None
+
+
+def interpret_reparative_experience_heuristic(protective_factors_this_batch: List[Dict]) -> Dict:
+    """
+    Modest rule-based fallback, same spirit as interpret_experience_heuristic:
+    genuinely lower fidelity by design, exists so the app degrades
+    gracefully rather than silently dropping the event back into "not
+    analyzed" when the AI path is unavailable.
+    """
+    if not protective_factors_this_batch:
+        return {"belief_statement": None, "adaptation_strategy": None, "reasoning": None, "developmental_domains": []}
+
+    factor = protective_factors_this_batch[0]
+    label = factor["factor_type"].replace("_", " ")
+    return {
+        "belief_statement": f"A {label} experience registers as developmentally relevant.",
+        "adaptation_strategy": None,
+        "reasoning": f"Heuristic fallback default for protective factor '{factor['factor_type']}'.",
+        "developmental_domains": factor.get("domains_buffered", []),
+    }
+
+
+async def interpret_reparative_experience_async(
+    persona_name: str,
+    age: Optional[int],
+    protective_factors_this_batch: List[Dict],
+    narration_signals: Optional[List[Dict]] = None,
+    prior_patterns: Optional[List[Dict]] = None,
+) -> Dict:
+    result = await interpret_reparative_experience_ai(
+        persona_name, age, protective_factors_this_batch, narration_signals, prior_patterns
+    )
+    if result is not None:
+        return result
+    logger.info("Using heuristic fallback for reparative interpretation")
+    return interpret_reparative_experience_heuristic(protective_factors_this_batch)
+
+
 async def interpret_experience_async(
     persona_name: str,
     age: Optional[int],
@@ -293,12 +473,31 @@ async def interpret_experience_async(
     narration_signals: Optional[List[Dict]] = None,
     protective_factors: Optional[List[Dict]] = None,
     prior_patterns: Optional[List[Dict]] = None,
+    protective_factors_this_batch: Optional[List[Dict]] = None,
 ) -> Dict:
-    result = await interpret_experience_ai(persona_name, age, exposures, narration_signals, protective_factors, prior_patterns)
-    if result is not None:
-        return result
-    logger.info("Using heuristic fallback for interpretation")
-    return interpret_experience_heuristic(age, exposures)
+    """
+    Single entry point for "does this batch warrant an Interpretation row",
+    dispatching on developmental significance rather than on adversity
+    specifically:
+      - exposures present -> adverse-interpretation path (unchanged)
+      - no exposures but this batch's OWN protective/reparative factor(s)
+        present -> reparative-interpretation path
+      - neither -> no interpretation (extraction genuinely found nothing
+        developmentally recognizable in this text; not a taxonomy gap)
+    """
+    if exposures:
+        result = await interpret_experience_ai(persona_name, age, exposures, narration_signals, protective_factors, prior_patterns)
+        if result is not None:
+            return result
+        logger.info("Using heuristic fallback for interpretation")
+        return interpret_experience_heuristic(age, exposures)
+
+    if protective_factors_this_batch:
+        return await interpret_reparative_experience_async(
+            persona_name, age, protective_factors_this_batch, narration_signals, prior_patterns
+        )
+
+    return {"belief_statement": None, "adaptation_strategy": None, "reasoning": None, "developmental_domains": []}
 
 
 def interpret_experience(
@@ -308,6 +507,7 @@ def interpret_experience(
     narration_signals: Optional[List[Dict]] = None,
     protective_factors: Optional[List[Dict]] = None,
     prior_patterns: Optional[List[Dict]] = None,
+    protective_factors_this_batch: Optional[List[Dict]] = None,
 ) -> Dict:
     """Sync wrapper, mirroring the pattern used by every prior engine in this rebuild."""
     import asyncio
@@ -316,17 +516,22 @@ def interpret_experience(
         running_loop = asyncio.get_running_loop()
         if running_loop.is_running():
             logger.warning("interpret_experience called in async context; using heuristic fallback.")
-            return interpret_experience_heuristic(age, exposures)
+            if exposures:
+                return interpret_experience_heuristic(age, exposures)
+            return interpret_reparative_experience_heuristic(protective_factors_this_batch or [])
     except RuntimeError:
         pass
 
     try:
         return asyncio.run(interpret_experience_async(
-            persona_name, age, exposures, narration_signals, protective_factors, prior_patterns
+            persona_name, age, exposures, narration_signals, protective_factors, prior_patterns,
+            protective_factors_this_batch,
         ))
     except Exception as e:
         logger.warning(f"Interpretation failed entirely, using heuristic fallback: {e}")
-        return interpret_experience_heuristic(age, exposures)
+        if exposures:
+            return interpret_experience_heuristic(age, exposures)
+        return interpret_reparative_experience_heuristic(protective_factors_this_batch or [])
 
 
 # ============================================================

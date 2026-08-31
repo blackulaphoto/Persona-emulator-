@@ -164,12 +164,23 @@ async def process_developmental_text(
     narration_dicts_all = [_narration_dict(n) for n in all_narration]
     functional_dicts_all = [_functional_dict(f) for f in all_functional]
 
-    # 4. Interpretation (step 5) - only for exposures extracted from THIS text,
-    # not the whole timeline; one interpretation per meaningful input, matching
-    # "every meaningfully analyzed event" from the product spec.
+    # 4. Interpretation (step 5) - only for exposures/protective factors
+    # extracted from THIS text, not the whole timeline; one interpretation
+    # per meaningful input, matching "every meaningfully analyzed event"
+    # from the product spec. Gated on developmental significance, NOT on
+    # adversity specifically: a batch with no adverse exposure but a real
+    # protective/reparative factor (trust repair, sustained support, a
+    # genuine achievement) is just as eligible for analysis as an adverse
+    # one - see pattern_engine.interpret_experience_async's dispatch and its
+    # docstring for why a reparative interpretation deliberately never gets
+    # its own adaptation_strategy. A batch where extraction found NEITHER an
+    # exposure NOR a protective factor genuinely has nothing recognized in
+    # it and stays uninterpreted - that's extraction concluding "nothing
+    # developmentally notable here" (case E), not a taxonomy blind spot.
     interpretation_row = None
     this_batch_exposures = [_exposure_dict(e) for e in exposure_rows]
-    if this_batch_exposures:
+    this_batch_protective = [_protective_dict(p) for p in protective_rows]
+    if this_batch_exposures or this_batch_protective:
         prior_patterns = [
             {"pattern_name": p.pattern_name, "adaptation_strategy": p.adaptation_strategy}
             for p in db.query(AdaptationPattern).filter(AdaptationPattern.persona_id == persona.id).all()
@@ -180,6 +191,7 @@ async def process_developmental_text(
             narration_signals=narration_signals_this,
             protective_factors=protective_dicts_all,
             prior_patterns=prior_patterns,
+            protective_factors_this_batch=this_batch_protective,
         )
         interpretation_row = build_interpretation_row(
             persona.id, interpretation_result,

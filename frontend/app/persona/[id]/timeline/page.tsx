@@ -251,9 +251,9 @@ function ExperienceDetail({ exp }: { exp: Experience }) {
           </div>
         </RubixDrawerSection>
       )}
-      {!exp.interpretation && exp.pattern_connections.length === 0 && exp.hypothesis_connections.length === 0 && (
+      {!exp.interpretation && exp.pattern_connections.length === 0 && exp.hypothesis_connections.length === 0 && exp.protective_factors.length === 0 && (
         <RubixDrawerSection label="STATUS">
-          <div style={{ fontSize: 13.5, color: 'rgba(214,235,255,0.65)' }}>Not yet analyzed.</div>
+          <div style={{ fontSize: 13.5, color: 'rgba(214,235,255,0.65)' }}>Analyzed — nothing developmentally significant identified in this moment.</div>
         </RubixDrawerSection>
       )}
     </>

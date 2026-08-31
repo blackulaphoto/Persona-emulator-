@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.core.database import Base, get_db
+from app.core.auth import get_current_user
 from app.main import app
 
 
@@ -27,6 +28,15 @@ def override_get_db():
 
 
 app.dependency_overrides[get_db] = override_get_db
+# Auth was retrofitted onto every persona-scoped route after these tests were
+# written (see app/core/auth.py). This file exercises HTTP-contract behavior
+# (status codes, required fields, 404s) that's orthogonal to *whose* token is
+# on the request, so every call here authenticates as one fixed principal via
+# the standard FastAPI dependency-override mechanism - deterministic
+# regardless of AUTH_DEV_BYPASS/dotenv/emulator state, unlike sending a fake
+# bearer token would be. Cross-user/ownership behavior is NOT this file's
+# concern - see tests/test_timeline_remix_security.py for that.
+app.dependency_overrides[get_current_user] = lambda: "test-user-1"
 
 
 @pytest.fixture(autouse=True)

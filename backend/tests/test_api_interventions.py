@@ -10,6 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from unittest.mock import patch, AsyncMock
 from app.core.database import Base, get_db
+from app.core.auth import get_current_user
 from app.main import app
 
 
@@ -28,6 +29,10 @@ def override_get_db():
 
 
 app.dependency_overrides[get_db] = override_get_db
+# See tests/test_api_personas.py for why this is a dependency override rather
+# than a fake bearer token. This file's concern is HTTP-contract behavior,
+# not ownership - see tests/test_timeline_remix_security.py for that.
+app.dependency_overrides[get_current_user] = lambda: "test-user-1"
 
 
 @pytest.fixture(autouse=True)
