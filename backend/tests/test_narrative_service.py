@@ -39,6 +39,7 @@ class TestGracefulDegradationWithNoPatternData:
         prompt = _build_narrative_prompt(_persona(), [], [])
         assert "None yet - no adaptation strategy has reached the established evidence bar." in prompt
         assert "None currently emerging." in prompt
+        assert "None weakened or resolved." in prompt
         assert "No clinical pattern hypothesis has accumulated enough evidence" in prompt
         assert "has not stated an explicit belief" in prompt
 
@@ -76,6 +77,30 @@ class TestAdaptationPatternsInPrompt:
         prompt = _build_narrative_prompt(_persona(), [], [], adaptation_patterns=patterns)
         assert "THE VERDICT" in prompt or "name it explicitly" in prompt
         assert "SECONDARY framing" in prompt
+
+    def test_resolved_pattern_is_historical_not_current_or_emerging(self):
+        patterns = [AdaptationPattern(
+            persona_id="p1", pattern_name="Self Reliance Response",
+            adaptation_strategy="self_reliance", status="resolved",
+            evidence_strength=0.0,
+            reinforcement_history=[
+                {"age": 5, "effect": "originated"},
+                {"age": 10, "effect": "strengthened"},
+                {"age": 18, "effect": "weakened"},
+            ],
+        )]
+        prompt = _build_narrative_prompt(_persona(), [], [], adaptation_patterns=patterns)
+
+        emerging_section = prompt.split("**EMERGING DEVELOPMENTAL PATTERNS")[1].split("**ENGINE'S OWN FORMULATION")[0]
+        established_section = prompt.split("ESTABLISHED DEVELOPMENTAL PATTERNS**")[1].split("**HISTORICALLY IMPORTANT")[0]
+        historical_section = prompt.split("**HISTORICALLY IMPORTANT PATTERNS")[1].split("**ENGINE'S OWN FORMULATION - CLINICAL")[0]
+
+        assert "Self Reliance Response" not in emerging_section
+        assert "Self Reliance Response" not in established_section
+        assert "Self Reliance Response" in historical_section
+        assert "age 5: originated" in historical_section
+        assert "age 18: weakened" in historical_section
+        assert "NEVER call a weakening or resolved historical pattern dominant" in prompt
 
 
 class TestClinicalPatternHypothesesInPrompt:
