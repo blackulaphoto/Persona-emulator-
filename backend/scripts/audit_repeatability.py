@@ -79,6 +79,39 @@ FIXTURES = {
             (16, 1, "He started therapy after a stressful transition and repaired conflicts openly."),
         ],
     },
+    "brandon_grounding": {
+        "persona": {
+            "name": "brandon", "baseline_age": 40,
+            "baseline_gender": "male",
+            "baseline_background": (
+                "Brandon was born in St. Louis in 1980 and placed for adoption as an infant. He was adopted into a large "
+                "foster/adoptive family in San Diego and was the youngest of eight adopted children. He spent parts of childhood "
+                "in San Diego, England, and Benson, Arizona, moving several times before returning to San Diego at 15. His childhood "
+                "included travel, books, science, music, art, church, large groups of friends, and later significant involvement with "
+                "drugs, nightlife, photography, treatment work, and AI development. His biological mother was a young woman in St. "
+                "Louis who placed him for adoption; he does not remember her. He was raised by Audrey, an older British woman who had "
+                "operated a foster home and later adopted eight children. He describes her as loving, generous, cultured, and largely "
+                "without discipline. Audrey died when Brandon was 15. He was then adopted by Karen, who tried to provide structure, "
+                "counseling, and treatment during his teenage years and is the woman he calls his mother today. As a child, Brandon "
+                "describes himself as angry, rebellious, and sometimes emotionally shut off. He also describes himself as outgoing, "
+                "extroverted, socially confident, fearless, creative, and able to make friends easily. He was drawn to literature, "
+                "science, music, art, leadership, and protecting people he felt could not protect themselves."
+            ),
+            "baseline_attachment_style": "secure",
+        },
+        "experiences": [
+            (4, 1, "Brandon is placed for adoption in St. Louis and adopted into Audrey’s foster family in San Diego."),
+            (6, 1, "Audrey takes Brandon to live in England, where he attends primary school, travels extensively with her, and spends time with her British relatives."),
+            (12, 1, "Brandon moves to Benson, Arizona, where he forms close friendships and begins getting into trouble."),
+            (14, 1, "He becomes deeply involved in a church in Benson. A pastor trains him as a youth minister, and the youth group becomes a major part of his life."),
+            (15, 1, "Audrey dies. Brandon gives up his involvement with the church and begins moving heavily into crime and drugs"),
+            (16, 1, "Brandon enters a serious relationship with Heather. She later becomes pregnant with his son while Brandon is becoming heavily involved with drugs"),
+            (19, 1, "While incarcerated, Brandon meets a man who teaches him event promotion. After release, Karen allows him to handle entertainment at her bar, leading to years of promoting bands, art shows, fashion shows, fundraisers, and nightclub events."),
+            (23, 1, "A model named Soma buys Brandon his first camera. He moves to Los Angeles and begins a freelance photography career that lasts roughly 20 years, including magazine publication and travel across the country"),
+            (37, 1, "Brandon meets Hillary, whom he describes as the most significant romantic relationship of his life. Their relationship lasts roughly two years before she relapses and dies from alcohol use."),
+            (40, 1, "After another prolonged period of drug use, Brandon enters rehab, earns his RADT, becomes a case manager in substance-use treatment, and begins developing AI applications."),
+        ],
+    },
 }
 
 
@@ -105,11 +138,20 @@ def _snapshot(db, persona_id: str) -> dict:
         "current_personality": persona.current_personality,
         "current_state": persona.current_state,
         "exposures": [
-            {"key": row.exposure_type, "domains": row.developmental_domains, "age": row.age_at_exposure}
+            {
+                "key": row.exposure_type, "domains": row.developmental_domains,
+                "age": row.age_at_exposure, "source": row.source,
+                "has_source_event": row.source_event_id is not None, "raw_text": row.raw_text,
+            }
             for row in exposures
         ],
         "protective_factors": [
-            {"key": row.factor_type, "domains": row.domains_buffered, "age": row.active_from_age}
+            {
+                "key": row.factor_type, "domains": row.domains_buffered,
+                "age": row.active_from_age,
+                "source": "backstory" if row.source_event_id is None else "experience",
+                "has_source_event": row.source_event_id is not None,
+            }
             for row in protections
         ],
         "patterns": [
