@@ -42,6 +42,13 @@ class Settings(BaseSettings):
     firebase_auth_emulator_host: Optional[str] = Field(default=None, env="FIREBASE_AUTH_EMULATOR_HOST")
     gcloud_project: Optional[str] = Field(default=None, env="GCLOUD_PROJECT")
     auth_dev_bypass: bool = Field(default=False, env="AUTH_DEV_BYPASS")
+
+    # Research-preview access. These are Firebase UIDs, not frontend labels
+    # or emails, and are compared only with the UID from a verified token.
+    preview_limit_exempt_user_ids_raw: Optional[str] = Field(
+        default=None,
+        validation_alias="PREVIEW_LIMIT_EXEMPT_USER_IDS",
+    )
     
     # Feature Flags - explicit env var names for clarity
     # Default to True in dev mode (can be overridden via .env)
@@ -67,6 +74,16 @@ class Settings(BaseSettings):
             for origin in self.additional_cors_origins_raw.split(",")
             if origin and origin.strip()
         ]
+
+    @property
+    def preview_limit_exempt_user_ids(self) -> set[str]:
+        if not self.preview_limit_exempt_user_ids_raw:
+            return set()
+        return {
+            user_id.strip()
+            for user_id in self.preview_limit_exempt_user_ids_raw.split(",")
+            if user_id and user_id.strip()
+        }
     
     class Config:
         env_file = ".env"

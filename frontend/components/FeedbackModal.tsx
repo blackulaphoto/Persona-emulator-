@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { X } from 'lucide-react'
+import { RubixModal } from '@/components/rubix/RubixModal'
 
 interface FeedbackModalProps {
   isOpen: boolean
@@ -71,95 +71,53 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-white max-w-2xl w-full rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
-        {/* Header */}
-        <div className="relative border-b border-border p-8">
-          <button
-            onClick={handleClose}
-            className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Close"
-          >
-            <X size={24} />
-          </button>
-          <h2 className="text-3xl font-display text-foreground">
-            Thank you for exploring this
-          </h2>
+    <RubixModal
+      open={isOpen}
+      onClose={handleClose}
+      eyebrow="RESEARCH PREVIEW"
+      eyebrowColor="#7fe3ff"
+      title="You’ve reached today’s preview limit"
+      width={650}
+    >
+      {!submitted ? (
+        <>
+          <div style={{ fontSize: 14.5, lineHeight: 1.65, color: 'rgba(226,240,255,0.82)' }}>
+            <p>Rubicks is still in active development, and preview access is limited while we learn how people use it.</p>
+            <p style={{ marginTop: 14 }}>If something surprised you, felt unclear, or made you think, we’d love to hear it.</p>
+          </div>
+
+          <form onSubmit={handleSubmit} style={{ marginTop: 24 }}>
+            <label className="rubix-field-label" htmlFor="preview-feedback">WHAT STOOD OUT?</label>
+            <textarea
+              id="preview-feedback"
+              value={message}
+              onChange={(event) => setMessage(event.target.value)}
+              placeholder="Share a thought, question, or reaction..."
+              className="rubix-textarea"
+              style={{ width: '100%', height: 150, marginTop: 9, resize: 'vertical' }}
+              disabled={loading}
+            />
+
+            {error && <div role="alert" style={{ marginTop: 10, fontSize: 12.5, color: 'rgba(255,190,180,0.95)' }}>{error}</div>}
+
+            <div style={{ marginTop: 12, fontSize: 12.5, color: 'rgba(205,228,255,0.58)' }}>No signup or payment required.</div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 24, flexWrap: 'wrap' }}>
+              <button type="button" onClick={handleClose} className="rubix-btn-ghost" disabled={loading}>Close</button>
+              <button type="submit" className="rubix-btn-primary" disabled={loading || !message.trim()}>
+                {loading ? 'Sending…' : 'Send feedback'}
+              </button>
+            </div>
+          </form>
+        </>
+      ) : (
+        <div>
+          <div style={{ fontSize: 14.5, lineHeight: 1.65, color: 'rgba(226,240,255,0.82)' }}>Thank you — your feedback was received.</div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
+            <button type="button" onClick={handleClose} className="rubix-btn-primary">Close</button>
+          </div>
         </div>
-
-        {/* Body */}
-        <div className="p-8">
-          {!submitted ? (
-            <>
-              <p className="text-lg text-foreground mb-6 leading-relaxed">
-                You've reached the current limit for this research preview.
-              </p>
-              <p className="text-base text-muted-foreground mb-8 leading-relaxed">
-                Your time and curiosity genuinely matter — this project is still forming, and early feedback helps shape what it becomes.
-              </p>
-              <p className="text-base text-muted-foreground mb-8 leading-relaxed">
-                If anything felt unclear, surprising, useful, or frustrating, I'd really like to know.
-              </p>
-
-              <form onSubmit={handleSubmit}>
-                <label className="block mb-3 text-sm font-medium text-foreground">
-                  What stood out to you?
-                </label>
-                <textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Share a thought, question, or reaction…"
-                  className="w-full h-40 px-4 py-3 rounded-lg border-2 border-border/30 focus:border-deep-purple focus:outline-none resize-none text-foreground placeholder-sage/50 font-['Outfit']"
-                  disabled={loading}
-                />
-
-                {error && (
-                  <p className="mt-3 text-sm text-red-500">
-                    {error}
-                  </p>
-                )}
-
-                <p className="mt-4 text-xs text-muted-foreground/70 italic">
-                  This isn't a signup or a paywall — just a pause while the project evolves.
-                </p>
-
-                <div className="flex gap-3 mt-6">
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    className="btn-secondary flex-1"
-                    disabled={loading}
-                  >
-                    Close
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn-primary flex-1"
-                    disabled={loading || !message.trim()}
-                  >
-                    {loading ? 'Sending...' : 'Send Feedback'}
-                  </button>
-                </div>
-              </form>
-            </>
-          ) : (
-            <>
-              <p className="text-lg text-foreground mb-8 leading-relaxed">
-                Thank you — your feedback was received.
-              </p>
-
-              <div className="flex justify-end">
-                <button
-                  onClick={handleClose}
-                  className="btn-primary px-8"
-                >
-                  Close
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
+      )}
+    </RubixModal>
   )
 }
