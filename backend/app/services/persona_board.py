@@ -20,6 +20,7 @@ down as well as up.
 from typing import Dict, List, Optional
 
 from app.models import AdaptationPattern, ClinicalPatternHypothesis
+from app.services.hypothesis_applicability import applicability_for, is_currently_applicable
 
 
 def _confidence(strength: Optional[float]) -> Optional[int]:
@@ -68,7 +69,15 @@ def adaptation_pattern_summaries(db, persona_id: str) -> List[Dict]:
     return sorted(summaries, key=lambda s: (s["evidence_strength"] or 0), reverse=True)
 
 
-def clinical_pattern_hypothesis_summaries(db, persona_id: str) -> List[Dict]:
+_UNSCOPED_APPLICABILITY = {
+    "currently_applicable": True,
+    "historical_developmental_only": False,
+    "historical_label": None,
+    "reason": None,
+}
+
+
+def clinical_pattern_hypothesis_summaries(db, persona_id: str, current_age: Optional[int] = None) -> List[Dict]:
     """
     Evolving clinical-pattern hypotheses, strongest first.
 
@@ -80,6 +89,15 @@ def clinical_pattern_hypothesis_summaries(db, persona_id: str) -> List[Dict]:
     excluded - "opened for investigation" is not the same as "we have
     something to say", and showing every prior would bury the real signal.
     Dismissed hypotheses are excluded outright.
+
+    current_age gates hypotheses whose clinical presentation is age-scoped
+    (see hypothesis_applicability.py - e.g. a personality-disorder pattern_key
+    on a child persona, or reactive_attachment_disorder on an adult persona)
+    out of the *current* list; their evidence is untouched. current_age=None
+    means "unknown" and applies no age gating at all, matching the same
+    caller-guard idiom evidence_accumulator.project_current_trauma_markers
+    already uses - an unscoped call must not silently suppress every
+    age-scoped hypothesis.
     """
     rows = db.query(ClinicalPatternHypothesis).filter(
         ClinicalPatternHypothesis.persona_id == persona_id
@@ -98,16 +116,18 @@ def clinical_pattern_hypothesis_summaries(db, persona_id: str) -> List[Dict]:
             "supporting_evidence": row.supporting_evidence or [],
             "contradicting_evidence": row.contradicting_evidence or [],
             "evidence_count": len(row.supporting_evidence or []) + len(row.contradicting_evidence or []),
+            "applicability": applicability_for(row.pattern_key, current_age) if current_age is not None else dict(_UNSCOPED_APPLICABILITY),
         }
         for row in rows
         if row.status != "dismissed" and (row.evidence_strength or 0) > 0
+        and (current_age is None or is_currently_applicable(row.pattern_key, current_age))
     ]
     return sorted(summaries, key=lambda s: (s["evidence_strength"] or 0), reverse=True)
 
 
-def board_sections_for_persona(db, persona_id: str) -> Dict[str, List[Dict]]:
+def board_sections_for_persona(db, persona_id: str, current_age: Optional[int] = None) -> Dict[str, List[Dict]]:
     """Both board sections in one call - what the persona routes actually need."""
     return {
         "adaptation_patterns": adaptation_pattern_summaries(db, persona_id),
-        "clinical_pattern_hypotheses": clinical_pattern_hypothesis_summaries(db, persona_id),
+        "clinical_pattern_hypotheses": clinical_pattern_hypothesis_summaries(db, persona_id, current_age),
     }

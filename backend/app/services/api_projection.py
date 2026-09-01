@@ -45,7 +45,7 @@ def persona_projection(db, persona) -> Dict:
         "current_state": persona.current_state,
         "foundational_environment_signals": persona.foundational_environment_signals or {},
         "narrative_mode": persona.narrative_mode,
-        **board_sections_for_persona(db, persona.id),
+        **board_sections_for_persona(db, persona.id, persona.current_age),
         "experiences_count": len(persona.experiences),
         "interventions_count": len(persona.interventions),
         "created_at": persona.created_at, "updated_at": persona.updated_at,

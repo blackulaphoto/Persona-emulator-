@@ -143,6 +143,64 @@ class TestClinicalPatternHypothesesInPrompt:
         assert "If none exist, say so briefly without adding pathology" in prompt
 
 
+class TestAgeInapplicableHypothesesAreHistoricalNotCurrent:
+    """
+    Canonical grounding fix: a hypothesis whose current-age applicability
+    has expired (reactive_attachment_disorder is childhood-only, capped at
+    17 - see hypothesis_applicability.py) must never appear in the prompt's
+    active/current hypotheses section for an adult persona, even with
+    strong accumulated evidence. Its evidence is real - it belongs in a
+    separate, explicitly historical section instead, so the model can't
+    accidentally narrate it as Michael's current condition.
+    """
+
+    def test_rad_with_strong_evidence_excluded_from_active_hypotheses_for_an_adult(self):
+        # _persona() is current_age=32 - well past RAD's max_current_age of 17.
+        hypotheses = [ClinicalPatternHypothesis(
+            persona_id="p1", pattern_key="reactive_attachment_disorder",
+            tier="clinical_pattern_resemblance", evidence_strength=0.8,
+        )]
+        prompt = _build_narrative_prompt(_persona(), [], [], clinical_pattern_hypotheses=hypotheses)
+        assert "No clinical pattern hypothesis has accumulated enough meaningful canonical evidence" in prompt
+
+    def test_rad_evidence_appears_in_a_separate_age_scoped_developmental_section(self):
+        hypotheses = [ClinicalPatternHypothesis(
+            persona_id="p1", pattern_key="reactive_attachment_disorder",
+            tier="clinical_pattern_resemblance", evidence_strength=0.8,
+        )]
+        prompt = _build_narrative_prompt(_persona(), [], [], clinical_pattern_hypotheses=hypotheses)
+        assert "AGE-SCOPED DEVELOPMENTAL CONTEXT" in prompt
+        assert "not applicable as a current age-32 hypothesis" in prompt
+
+    def test_rad_stays_active_for_a_child_persona(self):
+        child = _persona()
+        child.current_age = 8
+        hypotheses = [ClinicalPatternHypothesis(
+            persona_id="p1", pattern_key="reactive_attachment_disorder",
+            tier="clinical_pattern_resemblance", evidence_strength=0.8,
+        )]
+        prompt = _build_narrative_prompt(child, [], [], clinical_pattern_hypotheses=hypotheses)
+        assert "reactive_attachment_disorder" in prompt
+        assert "No clinical pattern hypothesis has accumulated enough meaningful canonical evidence" not in prompt
+
+    def test_applicable_hypothesis_unaffected_by_age_scoping(self):
+        # A pattern_key with no age rule (complex_ptsd) must not be swept
+        # into the historical section just because RAD is present too.
+        hypotheses = [
+            ClinicalPatternHypothesis(
+                persona_id="p1", pattern_key="reactive_attachment_disorder",
+                tier="clinical_pattern_resemblance", evidence_strength=0.8,
+            ),
+            ClinicalPatternHypothesis(
+                persona_id="p1", pattern_key="complex_ptsd",
+                tier="clinical_pattern_resemblance", evidence_strength=0.6,
+            ),
+        ]
+        prompt = _build_narrative_prompt(_persona(), [], [], clinical_pattern_hypotheses=hypotheses)
+        assert "complex_ptsd" in prompt
+        assert "No clinical pattern hypothesis has accumulated enough meaningful canonical evidence" not in prompt
+
+
 class TestThreeRealitiesModel:
     """The persona's stated belief vs. the engine's own formulation - the gap is real material."""
 
