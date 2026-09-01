@@ -190,7 +190,7 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
               <div>
                 <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.02em' }}>{persona.name}</div>
                 <div style={{ marginTop: 4, fontSize: 13, color: 'rgba(214,235,255,0.7)' }}>
-                  Age {persona.current_age} · {persona.experiences_count} experience{persona.experiences_count === 1 ? '' : 's'} · {persona.interventions_count} moment{persona.interventions_count === 1 ? '' : 's'} of support
+                  Age {persona.current_age} · {persona.experiences_count} experience{persona.experiences_count === 1 ? '' : 's'} · {persona.interventions_count} added support{persona.interventions_count === 1 ? '' : 's'}
                 </div>
                 <div style={{ marginTop: 6, display: 'flex', gap: 14 }}>
                   <button
@@ -441,7 +441,7 @@ function TemplateRemixModal({
                     <p className="text-muted-foreground text-sm mb-3">{template.description}</p>
                     <div className="flex gap-4 text-xs text-muted-foreground">
                       <span>{template.experience_count} experiences</span>
-                      <span>{template.intervention_count} moments of support</span>
+                      <span>{template.intervention_count} added support{template.intervention_count === 1 ? '' : 's'}</span>
                     </div>
                   </div>
                 ))}
@@ -1077,7 +1077,7 @@ function AdaptationPatternsPanel({ patterns, onSelect }: { patterns: any[]; onSe
     <RubixCard style={{ padding: 24 }}>
       <div style={{ fontSize: 15.5, fontWeight: 700 }}>How they&apos;ve learned to cope</div>
       <div style={{ marginTop: 3, fontSize: 12.5, color: 'rgba(214,235,255,0.65)', lineHeight: 1.5 }}>
-        Adaptations developed in response to what happened to them. These strengthen as related experiences reinforce them.
+        Current strength and status of adaptations developed across this life. Open one to see when it emerged, strengthened, weakened, or resolved.
       </div>
       <div style={{ marginTop: 18, display: 'flex', flexDirection: 'column', gap: 16 }}>
         {patterns.map((pattern, i) => (

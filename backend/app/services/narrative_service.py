@@ -211,13 +211,18 @@ def _build_narrative_prompt(
     # Step 11f: split into emerging vs. established so the narrative can
     # follow the actual arc (see ARC_GUIDANCE below) instead of treating
     # every AdaptationPattern row the same regardless of how earned it is.
-    emerging_patterns = [p for p in adaptation_patterns if p.status not in ("established",)]
+    emerging_patterns = [p for p in adaptation_patterns if p.status == "emerging"]
     established_patterns = [p for p in adaptation_patterns if p.status == "established"]
+    historical_patterns = [p for p in adaptation_patterns if p.status in ("weakening", "resolved")]
 
     def _format_pattern(p) -> str:
+        history = ", ".join(
+            f"age {entry.get('age', '?')}: {entry.get('effect', 'noted')}"
+            for entry in (p.reinforcement_history or [])
+        ) or "no recorded trajectory entries"
         return (
             f"- \"{p.pattern_name}\" (adaptive strategy: {p.adaptation_strategy}, status: {p.status}, "
-            f"evidence strength: {evidence_strength_label(p.evidence_strength)})"
+            f"CURRENT evidence strength: {evidence_strength_label(p.evidence_strength)}; trajectory: {history})"
             + (f" - {p.description}" if p.description else "")
         )
 
@@ -228,6 +233,10 @@ def _build_narrative_prompt(
     emerging_patterns_text = (
         "\n".join(_format_pattern(p) for p in emerging_patterns)
         if emerging_patterns else "None currently emerging."
+    )
+    historical_patterns_text = (
+        "\n".join(_format_pattern(p) for p in historical_patterns)
+        if historical_patterns else "None weakened or resolved."
     )
 
     if clinical_pattern_hypotheses:
@@ -283,8 +292,12 @@ Trauma Markers/Symptoms: {trauma_text}
 {emerging_patterns_text}
 
 **ENGINE'S OWN FORMULATION - ESTABLISHED DEVELOPMENTAL PATTERNS**
-(Built from the full timeline, not any single event - this is the engine's own accumulated conclusion, a real developmental formulation)
+(CURRENTLY active and durable. Built from the full timeline, not any single event.)
 {established_patterns_text}
+
+**HISTORICALLY IMPORTANT PATTERNS - NOW WEAKENING OR RESOLVED**
+(These may explain the lifespan trajectory, but they are NOT current dominant patterns. Describe how they developed, were reinforced, and later weakened or resolved.)
+{historical_patterns_text}
 
 **ENGINE'S OWN FORMULATION - CLINICAL PATTERN HYPOTHESES**
 (Tiered, evidence-tracked - never a diagnosis, regardless of tier)
@@ -321,12 +334,13 @@ Write a psychologically accurate developmental narrative that:
    - Realistic coping mechanisms developed in response to actual environment
 
 3. **States the engine's own formulation as a real conclusion, not a hedge**:
-   - If an established developmental pattern exists above, name it explicitly (e.g. "The dominant pattern here is...") - this is THE VERDICT, and it should be stated with the same directness a thoughtful clinician would use, not wrapped in "it's possible that" for every sentence
+   - If a CURRENTLY ESTABLISHED developmental pattern exists above, name it explicitly (e.g. "The dominant pattern here is...") - this is THE VERDICT, and it should be stated with the same directness a thoughtful clinician would use, not wrapped in "it's possible that" for every sentence
+   - NEVER call a weakening or resolved historical pattern dominant, active, or current. Discuss its historical importance and trajectory explicitly: developed, reinforced, weakened, resolved, or remains active.
    - Evidence strength (high/moderate/low/no evidence yet) is SECONDARY framing - mention it after the conclusion, to support it, never as a replacement for making one. "There isn't enough information" is not an acceptable substitute for engaging with what the timeline actually shows
    - If no pattern has accumulated enough reinforcement yet, say so plainly and reason from the objective experience timeline instead - that is a legitimate, honest state, not a gap to apologize for
 
 3a. **Narrates through the STATE -> PATTERN -> TRAIT arc explicitly, using the actual data above - do not collapse the stages together**:
-   - Describe what is still just a current STATE reaction (recent, could shift with different circumstances) separately from what has become an EMERGING pattern (repeating, but not yet durable) separately from what is genuinely ESTABLISHED (durable, evidence-backed)
+   - Describe what is still just a current STATE reaction (recent, could shift with different circumstances) separately from what has become an EMERGING pattern (repeating, but not yet durable) separately from what is genuinely ESTABLISHED (durable, evidence-backed), and separately from what is historically important but now WEAKENING or RESOLVED
    - Only attribute a TRAIT SHIFT to {persona.name}'s developmental history when an established pattern above plausibly explains its direction - otherwise, personality differences from a neutral baseline are just {persona.name}'s starting temperament, not something the timeline caused, and should be described that way
    - This is not optional narrative color: conflating a passing State reaction with a permanent personality change is exactly the kind of overclaiming a careful clinician avoids
 
@@ -338,7 +352,7 @@ Write a psychologically accurate developmental narrative that:
 5. **Organizes narrative into these sections** (use markdown headers):
 
 ## EXECUTIVE SUMMARY
-(2-3 paragraphs: Who is this person? Lead with THE VERDICT if an established pattern exists - name it directly, e.g. "The dominant pattern here is..." - then the reasoning. Core psychological profile rooted in their ACTUAL background, key developmental themes, current functioning level. If {persona.name} has stated a belief that diverges from the engine's formulation, name that gap here too.)
+(2-3 paragraphs: Who is this person? Lead with THE VERDICT only if a currently established pattern exists - name it directly, e.g. "The dominant pattern here is..." - then the reasoning. If only historical weakening/resolved patterns exist, describe their earlier importance and present trajectory instead of calling them currently dominant. Core psychological profile rooted in their ACTUAL background, key developmental themes, current functioning level. If {persona.name} has stated a belief that diverges from the engine's formulation, name that gap here too.)
 
 ## DEVELOPMENTAL TIMELINE
 (Chronological narrative organized by developmental periods. For each period, describe how the BACKGROUND and experiences shaped development, and connect specific periods to WHAT IT CONNECTS TO later - which later events reinforced or weakened the pattern identified above:

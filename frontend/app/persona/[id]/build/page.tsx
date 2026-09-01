@@ -8,6 +8,7 @@ import { RubixShell, RubixCard, RubixBadge, RubixDelta } from '@/components/rubi
 import { STATE_DIMENSIONS, STATE_NEUTRAL, STATE_NOTABLE_DELTA, titleCase } from '@/lib/rubix/stateDimensions'
 import { attachmentStyleLabel, attachmentStyleTone } from '@/lib/rubix/attachmentStyle'
 import { agesForDecade, draftStorageKey, LIFESPAN_DECADES, parseStoredDrafts, retainUnprocessedDrafts, sortLifeDrafts, type LifeDraft } from '@/lib/buildLifeDrafts'
+import { comparePatternTrajectories, PATTERN_TRAJECTORY_COPY } from '@/lib/patternTrajectory'
 
 type Draft = LifeDraft
 
@@ -600,14 +601,12 @@ function ImpactRevealView({
     .filter((r): r is DeltaRow => r !== null)
 
   const attachmentChanged = before.current_attachment_style !== after.current_attachment_style
-  const newPatterns = (after.adaptation_patterns || []).filter(
-    (p) => !(before.adaptation_patterns || []).some((bp) => bp.pattern_name === p.pattern_name)
-  )
+  const patternChanges = comparePatternTrajectories(before.adaptation_patterns, after.adaptation_patterns)
   const newHypotheses = (after.clinical_pattern_hypotheses || []).filter(
     (h) => !(before.clinical_pattern_hypotheses || []).some((bh) => bh.pattern_key === h.pattern_key)
   )
 
-  const hasAnyChange = personalityRows.length > 0 || stateRows.length > 0 || attachmentChanged || newPatterns.length > 0 || newHypotheses.length > 0
+  const hasAnyChange = personalityRows.length > 0 || stateRows.length > 0 || attachmentChanged || patternChanges.length > 0 || newHypotheses.length > 0
 
   return (
     <div style={{ maxWidth: 900, margin: '0 auto' }}>
@@ -664,15 +663,17 @@ function ImpactRevealView({
           </RevealStage>
         )}
 
-        {newPatterns.length > 0 && (
-          <RevealStage label="NEW PATTERN" headline={newPatterns.length === 1 ? 'A new way of coping emerged' : 'New ways of coping emerged'}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {newPatterns.map((p) => (
-                <RubixBadge key={p.pattern_name} tone="violet">{p.pattern_name}</RubixBadge>
-              ))}
-            </div>
-          </RevealStage>
-        )}
+        {patternChanges.map((change) => {
+          const copy = PATTERN_TRAJECTORY_COPY[change.kind]
+          const tone = change.kind === 'emerged' || change.kind === 'strengthened' ? 'violet' : 'muted'
+          return (
+            <RevealStage key={`${change.kind}-${change.pattern.pattern_name}`} label={copy.label} headline={copy.headline}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                <RubixBadge tone={tone}>{change.pattern.pattern_name}</RubixBadge>
+              </div>
+            </RevealStage>
+          )
+        })}
 
         {newHypotheses.length > 0 && (
           <RevealStage label="BEING CONSIDERED" headline="New patterns are being considered">
