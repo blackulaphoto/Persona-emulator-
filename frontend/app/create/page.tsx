@@ -9,6 +9,7 @@ import FeedbackModal from '@/components/FeedbackModal'
 
 const TOTAL_STEPS = 5
 const BACKGROUND_LIMIT = 1000
+const DEFAULT_BACKGROUND = 'No specific background provided.'
 
 const ATTACHMENT_CHOICES: { key: string; label: string }[] = [
   { key: 'secure', label: 'Secure' },
@@ -45,7 +46,7 @@ export default function CreateStartingPersonPage() {
         .join('\n\n'),
     [home, caregivers, temperament]
   )
-  const step5Valid = background.length > 0 && background.length <= BACKGROUND_LIMIT
+  const step5Valid = background.length <= BACKGROUND_LIMIT
 
   const isFinalStep = step === TOTAL_STEPS
   const currentStepValid = step === 1 ? step1Valid : step === TOTAL_STEPS ? step5Valid : true
@@ -72,7 +73,7 @@ export default function CreateStartingPersonPage() {
         name: name.trim(),
         baseline_age: ageNum,
         baseline_gender: gender.trim(),
-        baseline_background: background,
+        baseline_background: background || DEFAULT_BACKGROUND,
         ...(attachment ? { baseline_attachment_style: attachment } : {}),
       })
       // Continue directly into the life-building workflow.
@@ -212,6 +213,11 @@ export default function CreateStartingPersonPage() {
             <div>
               <StepTitle>Where does trust start?</StepTitle>
               <StepSubtitle>Optional. Leave this unset and Rubicks starts them secure, then lets their life shape it from here.</StepSubtitle>
+              {background.length > BACKGROUND_LIMIT && (
+                <div role="alert" style={{ marginTop: 14, color: '#ffb3a6', fontSize: 12.5 }}>
+                  Shorten the background answers to {BACKGROUND_LIMIT} characters before continuing.
+                </div>
+              )}
               <div style={{ marginTop: 18, display: 'flex', gap: 8, flexWrap: 'wrap' }} role="group" aria-label="Starting attachment style">
                 {ATTACHMENT_CHOICES.map((c) => (
                   <button

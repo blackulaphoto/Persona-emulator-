@@ -7,11 +7,13 @@ _build_narrative_prompt is a pure function (no DB, no network) so these
 tests exercise it directly with plain constructed ORM instances (unsaved,
 matching the pattern used elsewhere in this rebuild's tests).
 """
-from app.services.narrative_service import _build_narrative_prompt
+from app.services.narrative_service import _build_narrative_prompt, _parse_narrative_sections
 from app.models.persona import Persona
 from app.models.adaptation_pattern import AdaptationPattern
 from app.models.clinical_pattern_hypothesis import ClinicalPatternHypothesis
 from app.models.narration import PersonaBelief
+from app.models.interpretation import Interpretation
+from app.models.protective_factor import ProtectiveFactor
 
 
 def _persona():
@@ -39,7 +41,8 @@ class TestGracefulDegradationWithNoPatternData:
         prompt = _build_narrative_prompt(_persona(), [], [])
         assert "None yet - no adaptation strategy has reached the established evidence bar." in prompt
         assert "None currently emerging." in prompt
-        assert "No clinical pattern hypothesis has accumulated enough evidence" in prompt
+        assert "None weakened or resolved." in prompt
+        assert "No clinical pattern hypothesis has accumulated enough meaningful canonical evidence" in prompt
         assert "has not stated an explicit belief" in prompt
 
     def test_anti_hedging_instruction_present(self):
@@ -77,6 +80,30 @@ class TestAdaptationPatternsInPrompt:
         assert "THE VERDICT" in prompt or "name it explicitly" in prompt
         assert "SECONDARY framing" in prompt
 
+    def test_resolved_pattern_is_historical_not_current_or_emerging(self):
+        patterns = [AdaptationPattern(
+            persona_id="p1", pattern_name="Self Reliance Response",
+            adaptation_strategy="self_reliance", status="resolved",
+            evidence_strength=0.0,
+            reinforcement_history=[
+                {"age": 5, "effect": "originated"},
+                {"age": 10, "effect": "strengthened"},
+                {"age": 18, "effect": "weakened"},
+            ],
+        )]
+        prompt = _build_narrative_prompt(_persona(), [], [], adaptation_patterns=patterns)
+
+        emerging_section = prompt.split("**EMERGING DEVELOPMENTAL PATTERNS")[1].split("**ENGINE'S OWN FORMULATION")[0]
+        established_section = prompt.split("ESTABLISHED DEVELOPMENTAL PATTERNS**")[1].split("**HISTORICALLY IMPORTANT")[0]
+        historical_section = prompt.split("**HISTORICALLY IMPORTANT PATTERNS")[1].split("**ENGINE'S OWN FORMULATION - CLINICAL")[0]
+
+        assert "Self Reliance Response" not in emerging_section
+        assert "Self Reliance Response" not in established_section
+        assert "Self Reliance Response" in historical_section
+        assert "age 5: originated" in historical_section
+        assert "age 18: weakened" in historical_section
+        assert "NEVER call a weakening or resolved historical pattern dominant" in prompt
+
 
 class TestClinicalPatternHypothesesInPrompt:
     def test_pattern_key_and_tier_included(self):
@@ -91,6 +118,29 @@ class TestClinicalPatternHypothesesInPrompt:
         hypotheses = [ClinicalPatternHypothesis(persona_id="p1", pattern_key="ptsd", tier="developmental_pattern", evidence_strength=0.3)]
         prompt = _build_narrative_prompt(_persona(), [], [], clinical_pattern_hypotheses=hypotheses)
         assert "never a diagnosis" in prompt
+
+    def test_active_hypothesis_includes_supporting_and_contradicting_evidence(self):
+        hypotheses = [ClinicalPatternHypothesis(
+            persona_id="p1", pattern_key="trauma_related_stress",
+            tier="clinical_pattern_resemblance", status="revised",
+            evidence_strength=0.7, previous_evidence_strength=0.5,
+            developmental_precursors=["frightening conflict", "caregiver instability"],
+            current_manifestations=["threat monitoring", "guarded trust"],
+            supporting_evidence=[{"description": "Monitors adult moods", "age": 8}],
+            contradicting_evidence=[{"description": "Maintains durable friendships", "age": 18}],
+        )]
+        prompt = _build_narrative_prompt(_persona(), [], [], clinical_pattern_hypotheses=hypotheses)
+
+        assert "Trauma Related Stress" in prompt
+        assert "WHAT SUPPORTS THIS: Monitors adult moods (age 8)" in prompt
+        assert "WHAT COMPLICATES OR CONTRADICTS THIS: Maintains durable friendships (age 18)" in prompt
+        assert "direction: strengthening" in prompt
+
+    def test_low_signal_persona_does_not_invite_pathology(self):
+        prompt = _build_narrative_prompt(_persona(), [], [], clinical_pattern_hypotheses=[])
+        assert "No clinical pattern hypothesis has accumulated enough meaningful canonical evidence" in prompt
+        assert "do not introduce syndrome or disorder speculation" in prompt
+        assert "If none exist, say so briefly without adding pathology" in prompt
 
 
 class TestThreeRealitiesModel:
@@ -126,6 +176,26 @@ class TestBackwardCompatibility:
         assert "Michael" in prompt
         assert "## EXECUTIVE SUMMARY" in prompt
         assert "## PROGNOSIS & RECOMMENDATIONS" in prompt
+
+    def test_new_formulation_headers_map_to_existing_storage_sections(self):
+        narrative = """## EXECUTIVE SUMMARY
+### THE WHOLE PICTURE
+Summary.
+## DEVELOPMENTAL FORMULATION
+### HOW THEY GOT HERE
+History.
+## CURRENT FORMULATION
+### WHAT THEY ARE STRUGGLING WITH NOW
+Current struggles.
+## TREATMENT RESPONSE
+No interventions.
+## PROGNOSIS & RECOMMENDATIONS
+Outlook.
+"""
+        sections = _parse_narrative_sections(narrative)
+        assert "THE WHOLE PICTURE" in sections["executive_summary"]
+        assert "HOW THEY GOT HERE" in sections["developmental_timeline"]
+        assert "WHAT THEY ARE STRUGGLING WITH NOW" in sections["current_presentation"]
 
 
 class TestStatePatternTraitArc:
@@ -168,3 +238,58 @@ class TestStatePatternTraitArc:
         assert "do not collapse the stages together" in prompt
         assert "just {persona.name}'s starting temperament" not in prompt  # template must be interpolated, not left literal
         assert "Michael's starting temperament" in prompt
+
+
+class TestDevelopmentalFormulationContext:
+    def test_interpretation_chain_reaches_prompt(self):
+        interpretations = [Interpretation(
+            persona_id="p1", age_at_event=8,
+            belief_statement="Safety can disappear without warning.",
+            adaptation_strategy="hypervigilance",
+            reasoning="Monitoring adult moods helped anticipate conflict.",
+            developmental_domains=["emotional_safety"],
+            reinforcement_effect="strengthened",
+            state_implications={"threat_sensitivity": {"direction": "increase", "magnitude": "moderate"}},
+        )]
+        prompt = _build_narrative_prompt(
+            _persona(), [], [], interpretations=interpretations,
+        )
+        assert "EVENT → INTERPRETATION/BELIEF → ADAPTATION → PATTERN LINKS" in prompt
+        assert "Safety can disappear without warning." in prompt
+        assert "Monitoring adult moods helped anticipate conflict." in prompt
+        assert "WHAT HAPPENED → WHAT IT TAUGHT THEM → HOW THEY ADAPTED → HOW THAT FUNCTIONS NOW" in prompt
+
+    def test_protective_factor_is_tied_to_recorded_domains(self):
+        factors = [ProtectiveFactor(
+            persona_id="p1", factor_type="stable_friendship",
+            description="A friend stayed connected through conflict and distance.",
+            active_from_age=14, domains_buffered=["attachment_security", "social_belonging"],
+        )]
+        prompt = _build_narrative_prompt(
+            _persona(), [], [], protective_factors=factors,
+        )
+        assert "Stable Friendship" in prompt
+        assert "attachment_security, social_belonging" in prompt
+        assert "A friend stayed connected through conflict and distance." in prompt
+        assert "No generic \"resilience\" paragraph" in prompt
+
+    def test_current_struggles_and_uncertainty_sections_are_required(self):
+        persona = _persona()
+        persona.current_state = {"threat_sensitivity": 0.8, "trust": 0.25, "regulation": 0.3}
+        prompt = _build_narrative_prompt(persona, [], [])
+        assert "### WHAT THEY ARE STRUGGLING WITH NOW" in prompt
+        assert "synthesize current lived functioning" in prompt
+        assert "### WHAT WE STILL DON'T KNOW" in prompt
+        assert "only recorded gaps implied by canonical evidence" in prompt
+
+    def test_personality_and_attachment_trajectories_are_structured(self):
+        persona = _persona()
+        persona.baseline_personality = dict(persona.current_personality)
+        persona.current_personality = {**persona.current_personality, "neuroticism": 0.75}
+        persona.baseline_attachment_style = "secure"
+        persona.baseline_attachment_dimensions = {"relational_security": 0.7}
+        persona.current_attachment_dimensions = {"relational_security": 0.4}
+        prompt = _build_narrative_prompt(persona, [], [])
+        assert "Neuroticism: 0.70 → 0.75 (delta +0.05)" in prompt
+        assert "Categorical: secure → insecure-anxious" in prompt
+        assert "Relational Security: 0.70 → 0.40 (delta -0.30)" in prompt

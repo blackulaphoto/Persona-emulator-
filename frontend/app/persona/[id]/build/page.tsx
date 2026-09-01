@@ -3,21 +3,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { api, type Timeline, type Experience, type Persona, type PersonalityTraits } from '@/lib/api'
-import { RubixShell, RubixCard, RubixBadge, RubixDelta } from '@/components/rubix'
-import { STATE_DIMENSIONS, STATE_NEUTRAL, STATE_NOTABLE_DELTA, titleCase } from '@/lib/rubix/stateDimensions'
-import { attachmentStyleLabel, attachmentStyleTone } from '@/lib/rubix/attachmentStyle'
+import { api, type Timeline, type Experience } from '@/lib/api'
+import { RubixShell, RubixCard, RubixBadge } from '@/components/rubix'
 import { agesForDecade, draftStorageKey, LIFESPAN_DECADES, parseStoredDrafts, retainUnprocessedDrafts, sortLifeDrafts, type LifeDraft } from '@/lib/buildLifeDrafts'
+import { savePostAnalysisSummary } from '@/lib/postAnalysis'
+import { titleCase } from '@/lib/rubix/stateDimensions'
 
 type Draft = LifeDraft
-
-const BIG_FIVE_LABELS: Record<keyof PersonalityTraits, string> = {
-  openness: 'Openness',
-  conscientiousness: 'Conscientiousness',
-  extraversion: 'Extraversion',
-  agreeableness: 'Agreeableness',
-  neuroticism: 'Neuroticism',
-}
 
 export default function BuildTheirLifePage({ params }: { params: { id: string } }) {
   const { user, loading: authLoading } = useAuth()
@@ -42,9 +34,7 @@ export default function BuildTheirLifePage({ params }: { params: { id: string } 
   const [busyId, setBusyId] = useState<string | null>(null)
   const [rowError, setRowError] = useState<string | null>(null)
 
-  const [view, setView] = useState<'building' | 'analyzing' | 'reveal'>('building')
-  const [beforePersona, setBeforePersona] = useState<Persona | null>(null)
-  const [afterPersona, setAfterPersona] = useState<Persona | null>(null)
+  const [view, setView] = useState<'building' | 'analyzing'>('building')
   const [batchFailures, setBatchFailures] = useState<{ description: string; error: string }[]>([])
   const [analyzeError, setAnalyzeError] = useState<string | null>(null)
 
@@ -221,7 +211,7 @@ export default function BuildTheirLifePage({ params }: { params: { id: string } 
     if (!persona || drafts.length === 0) return
     setView('analyzing')
     setAnalyzeError(null)
-    setBeforePersona(persona)
+    const before = persona
     try {
       const result = await api.addExperiencesBatch(
         params.id,
@@ -234,9 +224,17 @@ export default function BuildTheirLifePage({ params }: { params: { id: string } 
 
       const refreshed = await api.getTimeline(params.id)
       setTimeline(refreshed)
-      setAfterPersona(refreshed.persona)
-      setDrafts((current) => retainUnprocessedDrafts(current, result.results))
-      setView('reveal')
+      const remainingDrafts = retainUnprocessedDrafts(drafts, result.results)
+      setDrafts(remainingDrafts)
+      window.localStorage.setItem(draftStorageKey(params.id), JSON.stringify(remainingDrafts))
+      savePostAnalysisSummary({
+        personaId: persona.id,
+        analyzedCount: result.results.filter((item) => item.status !== 'failed').length,
+        before,
+        after: refreshed.persona,
+        failures,
+      })
+      router.push(`/persona/${persona.id}`)
     } catch (err) {
       setAnalyzeError(err instanceof Error ? err.message : 'Analysis failed. Your drafts are still queued below.')
       setView('building')
@@ -268,17 +266,6 @@ export default function BuildTheirLifePage({ params }: { params: { id: string } 
   return (
     <RubixShell persona={{ id: persona.id, name: persona.name }}>
       {view === 'analyzing' && <AnalyzingView count={drafts.length || batchFailures.length} />}
-
-      {view === 'reveal' && beforePersona && afterPersona && (
-        <ImpactRevealView
-          personaName={persona.name}
-          before={beforePersona}
-          after={afterPersona}
-          failures={batchFailures}
-          onDone={() => router.push(`/persona/${persona.id}`)}
-          onKeepBuilding={() => setView('building')}
-        />
-      )}
 
       {view === 'building' && (
         <div style={{ maxWidth: 1420 }}>
@@ -543,176 +530,5 @@ function AnalyzingView({ count }: { count: number }) {
         This can take a little while — each experience is analyzed in order, since later ones depend on what came before.
       </div>
     </div>
-  )
-}
-
-interface DeltaRow {
-  key: string
-  label: string
-  text: string
-  tone: 'positive' | 'negative' | 'neutral'
-}
-
-function ImpactRevealView({
-  personaName, before, after, failures, onDone, onKeepBuilding,
-}: {
-  personaName: string
-  before: Persona
-  after: Persona
-  failures: { description: string; error: string }[]
-  onDone: () => void
-  onKeepBuilding: () => void
-}) {
-  const personalityRows: DeltaRow[] = (Object.keys(before.current_personality) as (keyof PersonalityTraits)[])
-    .map((key) => {
-      const delta = after.current_personality[key] - before.current_personality[key]
-      return { key, delta }
-    })
-    .filter((d) => Math.abs(d.delta) >= 0.02)
-    .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
-    .map((d) => ({
-      key: d.key,
-      label: BIG_FIVE_LABELS[d.key],
-      text: `${d.delta > 0 ? '+' : ''}${Math.round(d.delta * 100)} pts`,
-      tone: d.key === 'neuroticism' ? (d.delta < 0 ? 'positive' : 'negative') : 'neutral',
-    }))
-
-  const beforeState = before.current_state || {}
-  const afterState = after.current_state || {}
-  const stateKeys = Array.from(new Set([...Object.keys(beforeState), ...Object.keys(afterState)])).filter((k) => STATE_DIMENSIONS[k])
-  const stateRows: DeltaRow[] = stateKeys
-    .map((key) => {
-      const meta = STATE_DIMENSIONS[key]
-      const b = beforeState[key]
-      const a = afterState[key]
-      if (a === undefined) return null
-      const bVal = b ?? STATE_NEUTRAL
-      const delta = a - bVal
-      if (Math.abs(delta) < STATE_NOTABLE_DELTA && b !== undefined) return null
-      const isAdverse = meta.adverseWhen === 'high' ? delta > 0 : delta < 0
-      return {
-        key,
-        label: meta.label,
-        text: b === undefined ? `newly ${delta > 0 ? meta.highLabel.toLowerCase() : meta.lowLabel.toLowerCase()}` : delta > 0 ? meta.highLabel : meta.lowLabel,
-        tone: isAdverse ? 'negative' : 'positive',
-      } as DeltaRow
-    })
-    .filter((r): r is DeltaRow => r !== null)
-
-  const attachmentChanged = before.current_attachment_style !== after.current_attachment_style
-  const newPatterns = (after.adaptation_patterns || []).filter(
-    (p) => !(before.adaptation_patterns || []).some((bp) => bp.pattern_name === p.pattern_name)
-  )
-  const newHypotheses = (after.clinical_pattern_hypotheses || []).filter(
-    (h) => !(before.clinical_pattern_hypotheses || []).some((bh) => bh.pattern_key === h.pattern_key)
-  )
-
-  const hasAnyChange = personalityRows.length > 0 || stateRows.length > 0 || attachmentChanged || newPatterns.length > 0 || newHypotheses.length > 0
-
-  return (
-    <div style={{ maxWidth: 900, margin: '0 auto' }}>
-      <div style={{ textAlign: 'center', padding: '10px 0 6px' }}>
-        <div style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: '0.14em', color: 'rgba(200,226,255,0.6)' }}>IMPACT REVEAL</div>
-        <div style={{ marginTop: 12, fontSize: 30, fontWeight: 700, letterSpacing: '-0.03em' }}>What these experiences did to {personaName}</div>
-      </div>
-
-      {failures.length > 0 && (
-        <RubixCard style={{ marginTop: 24, padding: 20, borderColor: 'rgba(255,150,135,0.3)' }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,210,200,0.95)' }}>
-            {failures.length} experience{failures.length === 1 ? '' : 's'} couldn&apos;t be processed
-          </div>
-          <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {failures.map((f, i) => (
-              <div key={i} style={{ fontSize: 12.5, color: 'rgba(224,239,255,0.8)' }}>
-                &ldquo;{f.description.slice(0, 80)}{f.description.length > 80 ? '…' : ''}&rdquo; — {f.error}
-              </div>
-            ))}
-          </div>
-        </RubixCard>
-      )}
-
-      <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
-        {personalityRows.length > 0 && (
-          <RevealStage label="PERSONALITY" headline="How they think and feel shifted">
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {personalityRows.map((r) => (
-                <RubixDelta key={r.key} label={`${r.label} ${r.text}`} tone={r.tone} />
-              ))}
-            </div>
-          </RevealStage>
-        )}
-
-        {stateRows.length > 0 && (
-          <RevealStage label="RIGHT NOW" headline="What they're navigating changed">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {stateRows.map((r) => (
-                <div key={r.key} style={{ fontSize: 14, color: 'rgba(224,239,255,0.85)' }}>
-                  <strong>{r.label}:</strong> {r.text}
-                </div>
-              ))}
-            </div>
-          </RevealStage>
-        )}
-
-        {attachmentChanged && (
-          <RevealStage label="ATTACHMENT" headline="Their attachment style moved">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14 }}>
-              <RubixBadge tone={attachmentStyleTone(before.current_attachment_style)}>{attachmentStyleLabel(before.current_attachment_style)}</RubixBadge>
-              <span style={{ color: 'rgba(214,235,255,0.6)' }}>→</span>
-              <RubixBadge tone={attachmentStyleTone(after.current_attachment_style)}>{attachmentStyleLabel(after.current_attachment_style)}</RubixBadge>
-            </div>
-          </RevealStage>
-        )}
-
-        {newPatterns.length > 0 && (
-          <RevealStage label="NEW PATTERN" headline={newPatterns.length === 1 ? 'A new way of coping emerged' : 'New ways of coping emerged'}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {newPatterns.map((p) => (
-                <RubixBadge key={p.pattern_name} tone="violet">{p.pattern_name}</RubixBadge>
-              ))}
-            </div>
-          </RevealStage>
-        )}
-
-        {newHypotheses.length > 0 && (
-          <RevealStage label="BEING CONSIDERED" headline="New patterns are being considered">
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {newHypotheses.map((h) => (
-                <RubixBadge key={h.pattern_key} tone="muted">{titleCase(h.pattern_key)}</RubixBadge>
-              ))}
-            </div>
-          </RevealStage>
-        )}
-
-        {!hasAnyChange && (
-          <RubixCard style={{ padding: 24, textAlign: 'center' }}>
-            <div style={{ fontSize: 14.5, color: 'rgba(224,239,255,0.8)' }}>
-              These experiences were recorded, but nothing crossed the threshold to show as a meaningful shift yet.
-            </div>
-          </RubixCard>
-        )}
-      </div>
-
-      <div style={{ textAlign: 'center', marginTop: 30, display: 'flex', gap: 12, justifyContent: 'center' }}>
-        <button type="button" className="rubix-btn-ghost" onClick={onKeepBuilding}>Keep building</button>
-        <button type="button" className="rubix-btn-primary" style={{ padding: '15px 34px', fontSize: 15.5 }} onClick={onDone}>
-          Enter their life
-        </button>
-      </div>
-    </div>
-  )
-}
-
-function RevealStage({ label, headline, children }: { label: string; headline: string; children: React.ReactNode }) {
-  return (
-    <RubixCard style={{ padding: '22px 24px' }}>
-      <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-        <div style={{ flex: '0 0 150px', fontSize: 11.5, fontWeight: 700, letterSpacing: '0.11em', color: 'rgba(150,210,255,0.85)' }}>{label}</div>
-        <div style={{ flex: 1, minWidth: 220 }}>
-          <div style={{ fontSize: 17, fontWeight: 600, lineHeight: 1.4 }}>{headline}</div>
-          <div style={{ marginTop: 10 }}>{children}</div>
-        </div>
-      </div>
-    </RubixCard>
   )
 }
