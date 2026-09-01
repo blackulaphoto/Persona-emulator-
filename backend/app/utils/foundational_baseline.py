@@ -304,23 +304,12 @@ async def derive_foundational_baseline_async(
     """
     Derive baseline personality from early environment signals.
 
-    Uses AI analysis first, falls back to keyword-based if AI fails.
+    Uses the deterministic foundational-signal map. The language model may be
+    used elsewhere to explain a profile, but it does not set canonical scores.
     """
-    try:
-        ai_baseline = await analyze_baseline_personality_ai(
-            early_environment,
-            baseline_age,
-            gender
-        )
-        if ai_baseline:
-            signals = infer_foundational_signals(early_environment)
-            return ai_baseline, signals
-    except Exception as e:
-        logger.warning(f"AI baseline analysis failed, using keyword fallback: {e}")
-
     signals = infer_foundational_signals(early_environment)
     deltas = _calculate_trait_deltas(signals)
-    logger.info("Baseline fallback signals=%s deltas=%s", signals, deltas)
+    logger.info("Deterministic baseline signals=%s deltas=%s", signals, deltas)
 
     baseline_scores = {}
     for trait, delta in deltas.items():

@@ -446,6 +446,18 @@ def accumulate_evidence(
         contradicting_evidence = _protective_contradiction(pattern_key, supporting_exposures, protective_factors)
         contradicting_evidence.extend(_functional_contradiction(pattern_key, supporting_exposures, functional_observations))
 
+        # Evidence order is presentation/provenance order, not weight. Sort by
+        # semantic fields so fresh database UUIDs and same-age insertion timing
+        # cannot make otherwise identical canonical results compare differently.
+        evidence_order = lambda item: (
+            item.get("age") is None,
+            item.get("age") if item.get("age") is not None else 0,
+            item.get("type") or "",
+            item.get("description") or "",
+        )
+        supporting_evidence.sort(key=evidence_order)
+        contradicting_evidence.sort(key=evidence_order)
+
         strength = _compute_strength(supporting_evidence, contradicting_evidence)
         tier = "clinical_pattern_resemblance" if (strength or 0) >= RESEMBLANCE_THRESHOLD else "developmental_pattern"
 

@@ -10,11 +10,11 @@ exposures, protective factors, and narration signals accumulated across the
 whole timeline (see docs/MIGRATION_MAP.md).
 
 Two extraction paths:
-  - AI path (primary): an LLM reads the text with instructions to respect
-    negation, hedging, and denial, and to extract only what the text
-    affirmatively describes - not what it merely mentions or explicitly
-    rules out.
-  - Keyword fallback: used only if the AI call fails. Includes a simple
+  - Deterministic canonical path (primary): checked-in taxonomy phrases map
+    directly to bounded exposure/protective keys and domains.
+  - AI semantic path (audit/prose support only): retained for callers that
+    need language interpretation, but never used to create canonical rows.
+  - The canonical matcher includes a simple
     negation-window check (looks for a negation cue shortly before a matched
     keyword) - a real mitigation over the old backstory_symptom_mapper.py,
     but still an approximation, not real language understanding. It exists
@@ -56,9 +56,8 @@ DEVELOPMENTAL_DOMAINS = (
     "intimacy",
 )
 
-# exposure_type -> {domains, keywords}. "keywords" is used ONLY by the
-# keyword fallback path - the AI path reasons over the text directly and
-# picks exposure_type values from this dict's keys.
+# exposure_type -> {domains, keywords}. The deterministic canonical matcher
+# uses these phrases; the AI helper may only select from the same keys.
 EXPOSURE_TAXONOMY: Dict[str, Dict] = {
     "caregiver_substance_use": {
         "domains": ["attachment_security", "emotional_safety", "stability"],
@@ -335,7 +334,7 @@ async def extract_exposures_ai(text: str) -> Optional[Dict[str, List[Dict]]]:
 
 
 # ============================================================
-# Keyword fallback path (AI unavailable only)
+# Deterministic canonical extraction
 # ============================================================
 
 NEGATION_CUES = (
@@ -360,7 +359,7 @@ def _is_negated(text_lower: str, match_start: int) -> bool:
 
 def extract_exposures_keyword(text: str) -> Dict[str, List[Dict]]:
     """
-    Keyword-matching fallback, used only if the AI path fails. Includes a
+    Canonical taxonomy matcher. Includes a
     negation-window check so "I was not abused" does not fire the same false
     positive the old backstory_symptom_mapper.py had - but this is still an
     approximation, not real language understanding.
@@ -406,12 +405,11 @@ def extract_exposures_keyword(text: str) -> Dict[str, List[Dict]]:
 # ============================================================
 
 async def extract_developmental_exposures_async(text: str) -> Dict[str, List[Dict]]:
-    """Primary entry point. Tries the AI path; falls back to keyword-only on failure."""
-    result = await extract_exposures_ai(text)
-    if result is not None:
-        return result
+    """Return stable canonical features derived from the checked-in taxonomy.
 
-    logger.info("Using keyword fallback for exposure extraction")
+    The model-facing extractor remains available for prose-oriented callers and
+    audits, but it no longer decides which canonical evidence records exist.
+    """
     return extract_exposures_keyword(text)
 
 
