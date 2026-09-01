@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Plus, TrendingDown, TrendingUp, AlertCircle, Camera, Wand2, Trash2, Pencil } from 'lucide-react'
@@ -12,6 +12,8 @@ import { SITE_HELP } from '@/lib/help/SiteWideHelpContent'
 import { RubixShell, RubixCard, RubixBadge, RubixMetric, RubixModal, RubixDrawer, RubixDrawerSection, RubixDelta } from '@/components/rubix'
 import { attachmentStyleLabel, attachmentStyleTone } from '@/lib/rubix/attachmentStyle'
 import type { AdaptationPattern, ClinicalPatternHypothesis } from '@/lib/api'
+import { PostAnalysisImpact } from '@/components/PostAnalysisImpact'
+import { consumePostAnalysisSummary, postAnalysisChangeLabels, type PostAnalysisSummary } from '@/lib/postAnalysis'
 
 type DetailDrawerState =
   | { type: 'attachment' }
@@ -38,6 +40,10 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
   const [deleting, setDeleting] = useState(false)
   const [showEditPersona, setShowEditPersona] = useState(false)
   const [detailDrawer, setDetailDrawer] = useState<DetailDrawerState>(null)
+  const [postAnalysis, setPostAnalysis] = useState<PostAnalysisSummary | null>(null)
+  const [showPostAnalysis, setShowPostAnalysis] = useState(false)
+  const [hasNarrative, setHasNarrative] = useState(false)
+  const postAnalysisLoadedFor = useRef<string | null>(null)
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -49,8 +55,15 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
     if (user) {
       loadTimeline()
       loadTemplates()
+      loadNarrativeStatus()
     }
   }, [params.id, user])
+
+  useEffect(() => {
+    if (postAnalysisLoadedFor.current === params.id) return
+    postAnalysisLoadedFor.current = params.id
+    setPostAnalysis(consumePostAnalysisSummary(params.id))
+  }, [params.id])
 
   async function handleDeletePersona() {
     if (!confirm(`Are you sure you want to delete "${persona.name}"? This action cannot be undone.`)) {
@@ -91,6 +104,16 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
       setTemplates([])
     } finally {
       setLoadingTemplates(false)
+    }
+  }
+
+  async function loadNarrativeStatus() {
+    try {
+      const narratives = await api.listNarratives(params.id, 1)
+      setHasNarrative(narratives.length > 0)
+    } catch (error) {
+      console.log('Narrative status not available:', error)
+      setHasNarrative(false)
     }
   }
 
@@ -240,6 +263,20 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
           </div>
         </RubixCard>
 
+        {postAnalysis && (
+          <RubixCard style={{ padding: '18px 22px', borderColor: 'rgba(130,205,255,0.34)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 18, flexWrap: 'wrap' }}>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 700 }}>{postAnalysis.analyzedCount} experience{postAnalysis.analyzedCount === 1 ? '' : 's'} analyzed</div>
+                <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {postAnalysisChangeLabels(postAnalysis.before, postAnalysis.after).map((label) => <RubixBadge key={label} tone="muted">{label}</RubixBadge>)}
+                </div>
+              </div>
+              <button type="button" className="rubix-btn-ghost" onClick={() => setShowPostAnalysis(true)}>See what changed</button>
+            </div>
+          </RubixCard>
+        )}
+
         {/* Personality Overview */}
         <PersonalityOverview persona={persona} />
 
@@ -252,6 +289,16 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
             <PatternHypothesesPanel hypotheses={persona.clinical_pattern_hypotheses || []} onSelect={(h) => setDetailDrawer({ type: 'hypothesis', data: h })} />
           </div>
         )}
+
+        <section aria-labelledby="continue-exploring-heading" style={{ marginTop: 8 }}>
+          <div id="continue-exploring-heading" style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em' }}>Continue exploring</div>
+          <div style={{ marginTop: 7, fontSize: 13.5, color: 'rgba(214,235,255,0.7)' }}>See how their life fits together, then meet the person it shaped.</div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5" style={{ marginTop: 16 }}>
+            <ExplorationCard eyebrow="UNDERSTAND THEIR STORY" title="How did they become who they are?" description="Read the developmental story of what they learned, how they adapted, and what they are navigating now." href={`/persona/${params.id}/narrative`} action={hasNarrative ? 'Read their narrative' : 'Generate their narrative'} />
+            <ExplorationCard eyebrow={`TALK TO ${persona.name.toUpperCase()}`} title={`Meet ${persona.name}`} description="Talk with the person produced by this developmental history and their current psychological state." href={`/persona/${params.id}/talk`} action={`Talk to ${persona.name}`} />
+            <ExplorationCard eyebrow="EXPLORE THEIR LIFE" title="Follow every life moment" description="Review the complete chronology and see how experiences accumulated across their life." href={`/persona/${params.id}/timeline`} action="View full life" />
+          </div>
+        </section>
       </div>
 
       {/* Modals */}
@@ -321,6 +368,12 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
         />
       )}
 
+      {postAnalysis && (
+        <RubixModal open={showPostAnalysis} onClose={() => setShowPostAnalysis(false)} eyebrow="WHAT CHANGED" title={`What these experiences did to ${persona.name}`} subtitle={`${postAnalysis.analyzedCount} experience${postAnalysis.analyzedCount === 1 ? '' : 's'} analyzed`} width={900}>
+          <PostAnalysisImpact before={postAnalysis.before} after={postAnalysis.after} failures={postAnalysis.failures} />
+        </RubixModal>
+      )}
+
       <RubixDrawer
         open={detailDrawer !== null}
         onClose={() => setDetailDrawer(null)}
@@ -334,6 +387,17 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
         {detailDrawer?.type === 'hypothesis' && <HypothesisDetail hypothesis={detailDrawer.data} />}
       </RubixDrawer>
     </RubixShell>
+  )
+}
+
+function ExplorationCard({ eyebrow, title, description, href, action }: { eyebrow: string; title: string; description: string; href: string; action: string }) {
+  return (
+    <RubixCard style={{ padding: 22, display: 'flex', flexDirection: 'column', minHeight: 230 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.11em', color: 'rgba(150,210,255,0.82)' }}>{eyebrow}</div>
+      <div style={{ marginTop: 13, fontSize: 18, fontWeight: 700 }}>{title}</div>
+      <div style={{ marginTop: 9, fontSize: 13.5, lineHeight: 1.6, color: 'rgba(214,235,255,0.7)', flex: 1 }}>{description}</div>
+      <Link href={href} className="rubix-btn-primary" style={{ marginTop: 20, alignSelf: 'flex-start' }}>{action} →</Link>
+    </RubixCard>
   )
 }
 
