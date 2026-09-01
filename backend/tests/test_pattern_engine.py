@@ -125,7 +125,8 @@ class TestAccumulatePatternsOpeningInvariant:
         assert pattern["status"] == "emerging"
         assert pattern["evidence_strength"] is None
         assert pattern["reinforcement_history"] == [{
-            "interpretation_id": "i1", "experience_id": "exp-i1", "age": 6, "effect": "originated",
+            "interpretation_id": "i1", "experience_id": "exp-i1", "age": 6,
+            "source": "experience", "effect": "originated",
         }]
 
     def test_no_interpretations_produces_no_patterns(self):

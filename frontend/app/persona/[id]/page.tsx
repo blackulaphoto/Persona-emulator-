@@ -836,7 +836,7 @@ function CurrentStatePanel({ persona }: { persona: any }) {
       <div style={{ marginTop: 3, fontSize: 12.5, color: 'rgba(214,235,255,0.65)' }}>Fast-moving state — reacts to a single event far more readily than personality does.</div>
 
       {!hasSomethingToShow ? (
-        <div style={{ textAlign: 'center', padding: '28px 0 8px', fontSize: 13.5, color: 'rgba(214,235,255,0.6)' }}>All is well right now</div>
+        <div style={{ textAlign: 'center', padding: '28px 0 8px', fontSize: 13.5, color: 'rgba(214,235,255,0.6)' }}>No strong current-state shift detected</div>
       ) : (
         <div style={{ marginTop: 18, display: 'flex', flexDirection: 'column', gap: 16 }}>
           {dimensions.map((d) => (

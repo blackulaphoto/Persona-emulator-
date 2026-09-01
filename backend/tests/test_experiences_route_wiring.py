@@ -111,7 +111,7 @@ class TestPipelineActuallyRunsOnExperienceAdd:
         persona = _make_persona(db)
         response = await add_experience(
             persona_id=persona.id,
-            experience_data=ExperienceCreate(user_description="He was gone again for days, drinking the whole time.", age_at_event=10),
+            experience_data=ExperienceCreate(user_description="His father was gone again for days, drinking the whole time.", age_at_event=10),
             user_id="user-1", db=db,
         )
 
@@ -187,7 +187,7 @@ class TestPipelineActuallyRunsOnExperienceAdd:
         persona = _make_persona(db)
         await add_experience(
             persona_id=persona.id,
-            experience_data=ExperienceCreate(user_description="He was gone again for days, drinking the whole time.", age_at_event=10),
+            experience_data=ExperienceCreate(user_description="His father was gone again for days, drinking the whole time.", age_at_event=10),
             user_id="user-1", db=db,
         )
         db.refresh(persona)
@@ -198,12 +198,12 @@ class TestPipelineActuallyRunsOnExperienceAdd:
         persona = _make_persona(db)
         await add_experience(
             persona_id=persona.id,
-            experience_data=ExperienceCreate(user_description="He was gone for days, drinking.", age_at_event=8),
+            experience_data=ExperienceCreate(user_description="His father was gone for days, drinking.", age_at_event=8),
             user_id="user-1", db=db,
         )
         await add_experience(
             persona_id=persona.id,
-            experience_data=ExperienceCreate(user_description="Gone again for days, drinking the whole time.", age_at_event=12),
+            experience_data=ExperienceCreate(user_description="His father was gone again for days, drinking the whole time.", age_at_event=12),
             user_id="user-1", db=db,
         )
 

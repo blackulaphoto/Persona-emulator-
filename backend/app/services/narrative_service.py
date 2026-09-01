@@ -23,6 +23,7 @@ from app.models.narration import PersonaBelief
 from app.models.interpretation import Interpretation
 from app.models.protective_factor import ProtectiveFactor
 from app.services.evidence_accumulator import evidence_strength_label
+from app.services.hypothesis_applicability import applicability_for, is_currently_applicable
 
 
 logger = logging.getLogger(__name__)
@@ -255,7 +256,7 @@ def _build_narrative_prompt(
         state_text = "No State-tier movement recorded yet."
 
     interpretations_text = "\n".join(
-        f"- Age {item.age_at_event if item.age_at_event is not None else '?'}: "
+        f"- {'Age ' + str(item.age_at_event) if item.age_at_event is not None else 'Developmental background (age not specified)'}: "
         f"belief={item.belief_statement or 'none recorded'}; "
         f"adaptation={item.adaptation_strategy or 'none recorded'}; "
         f"developmental reasoning={item.reasoning or 'none recorded'}; "
@@ -268,7 +269,7 @@ def _build_narrative_prompt(
 
     protective_factors_text = "\n".join(
         f"- id={factor.id}; {factor.factor_type.replace('_', ' ').title()}"
-        f" (active from age {factor.active_from_age if factor.active_from_age is not None else 'unknown'}"
+        f" ({'active from age ' + str(factor.active_from_age) if factor.active_from_age is not None else 'developmental background; age not specified'}"
         f"{f' to {factor.active_to_age}' if factor.active_to_age is not None else ', ongoing or end not recorded'}; "
         f"buffers: {', '.join(factor.domains_buffered or []) or 'no domains recorded'}): "
         f"{factor.description or 'No description recorded.'}"
@@ -287,7 +288,13 @@ def _build_narrative_prompt(
 
     def _format_pattern(p) -> str:
         history = ", ".join(
-            f"age {entry.get('age', '?')}: {entry.get('effect', 'noted')}"
+            (
+                f"developmental background (age not specified): {entry.get('effect', 'noted')}"
+                if entry.get("source") == "background" or (
+                    entry.get("experience_id") is None and entry.get("age") is None
+                )
+                else f"age {entry.get('age')}: {entry.get('effect', 'noted')}"
+            )
             for entry in (p.reinforcement_history or [])
         ) or "no recorded trajectory entries"
         return (
@@ -312,6 +319,12 @@ def _build_narrative_prompt(
     active_hypotheses = [
         h for h in clinical_pattern_hypotheses
         if h.status not in ("dismissed", "resolved") and (h.evidence_strength or 0) > 0
+        and is_currently_applicable(h.pattern_key, persona.current_age)
+    ]
+    historical_age_scoped_hypotheses = [
+        h for h in clinical_pattern_hypotheses
+        if h.status not in ("dismissed", "resolved") and (h.evidence_strength or 0) > 0
+        and not is_currently_applicable(h.pattern_key, persona.current_age)
     ]
 
     def _format_evidence(entries) -> str:
@@ -340,6 +353,12 @@ def _build_narrative_prompt(
             "No clinical pattern hypothesis has accumulated enough meaningful canonical evidence. "
             "There is no active hypothesis to formulate; do not introduce syndrome or disorder speculation."
         )
+
+    historical_hypotheses_text = "\n".join(
+        f"- {applicability_for(h.pattern_key, persona.current_age).get('historical_label') or h.pattern_key.replace('_', ' ')}: "
+        f"developmental evidence may inform history, but {h.pattern_key.replace('_', ' ')} is not applicable as a current age-{persona.current_age} hypothesis."
+        for h in historical_age_scoped_hypotheses
+    ) or "No age-scoped historical hypothesis context."
 
     # Step 8: the "three realities" - event reality (experiences_text above),
     # the persona's own belief about their history, and what the engine's
@@ -412,6 +431,9 @@ Trauma Markers/Symptoms: {trauma_text}
 **ENGINE'S OWN FORMULATION - CLINICAL PATTERN HYPOTHESES**
 (Only active, meaningfully evidenced canonical hypotheses. Tiered and evidence-tracked; never a diagnosis.)
 {hypotheses_text}
+
+**AGE-SCOPED DEVELOPMENTAL CONTEXT - NOT CURRENT DIAGNOSES**
+{historical_hypotheses_text}
 
 **{persona.name.upper()}'S OWN STATED BELIEFS ABOUT THEIR HISTORY**
 (This is {persona.name}'s self-report, not necessarily what the timeline supports - see instruction 4 below)

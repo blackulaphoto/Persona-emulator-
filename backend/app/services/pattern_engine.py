@@ -596,7 +596,11 @@ def accumulate_patterns(
 
     result: Dict[str, Dict] = {}
     for strategy, group in groups.items():
-        group_sorted = sorted(group, key=lambda i: (i.get("age_at_event") is None, i.get("age_at_event")))
+        group_sorted = sorted(group, key=lambda i: (
+            i.get("source_event_id") is not None,
+            i.get("age_at_event") is None,
+            i.get("age_at_event") if i.get("age_at_event") is not None else -1,
+        ))
         # A protective factor extracted from one of THIS pattern's own
         # supporting events cannot count as buffering it - e.g. a
         # "friendship" protective factor pulled from the very event where
@@ -638,6 +642,7 @@ def accumulate_patterns(
                 "interpretation_id": interp.get("id"),
                 "experience_id": interp.get("source_event_id"),
                 "age": age,
+                "source": "background" if interp.get("source_event_id") is None else "experience",
                 "effect": effect,
             })
 

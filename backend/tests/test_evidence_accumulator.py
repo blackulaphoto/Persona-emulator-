@@ -311,6 +311,32 @@ class TestProjection:
         accumulated = {"depression": {"evidence_strength": DISPLAY_THRESHOLD}}
         assert project_current_trauma_markers(accumulated) == ["depression"]
 
+    def test_age_inapplicable_hypothesis_excluded_for_an_adult_even_with_strong_evidence(self):
+        # Canonical grounding fix: current_trauma_markers is the third read
+        # path (alongside persona_board.py and narrative_service.py) that
+        # must never show reactive_attachment_disorder as a live marker for
+        # an adult persona - this one feeds Talk's chat context and the
+        # narrative's separate trauma_text field, both of which would
+        # otherwise still see it even with the other two fixed.
+        accumulated = {"reactive_attachment_disorder": {"evidence_strength": 1.0}}
+        assert project_current_trauma_markers(accumulated, current_age=40) == []
+
+    def test_age_inapplicable_hypothesis_still_included_for_a_child(self):
+        accumulated = {"reactive_attachment_disorder": {"evidence_strength": 1.0}}
+        assert project_current_trauma_markers(accumulated, current_age=8) == ["reactive_attachment_disorder"]
+
+    def test_no_current_age_argument_preserves_prior_unfiltered_behavior(self):
+        # A caller that hasn't been updated to pass current_age (there
+        # should be none left after this fix, but the default itself must
+        # not silently change behavior for anything that slips through).
+        accumulated = {"reactive_attachment_disorder": {"evidence_strength": 1.0}}
+        assert project_current_trauma_markers(accumulated) == ["reactive_attachment_disorder"]
+
+    def test_min_age_scoped_hypothesis_excluded_for_a_child(self):
+        accumulated = {"avoidant_personality": {"evidence_strength": 1.0}}
+        assert project_current_trauma_markers(accumulated, current_age=10) == []
+        assert project_current_trauma_markers(accumulated, current_age=25) == ["avoidant_personality"]
+
 
 class TestEvidenceStrengthLabel:
     def test_none_is_no_evidence_yet(self):

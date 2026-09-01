@@ -62,18 +62,22 @@ EXPOSURE_TAXONOMY: Dict[str, Dict] = {
     "caregiver_substance_use": {
         "domains": ["attachment_security", "emotional_safety", "stability"],
         "keywords": ["drank", "drinking", "alcoholic", "addicted", "meth", "heroin", "overdose", "rehab"],
+        "requires_caregiver_context": True,
     },
     "caregiver_absence": {
         "domains": ["attachment_security", "stability"],
         "keywords": ["disappeared", "absent", "gone for days", "never around", "abandoned"],
+        "requires_caregiver_context": True,
     },
     "caregiver_emotional_unavailability": {
         "domains": ["attachment_security", "emotional_regulation", "identity"],
         "keywords": ["emotionally unavailable", "emotionally distant", "cold and dismissive", "never affectionate"],
+        "requires_caregiver_context": True,
     },
     "caregiver_mental_illness": {
         "domains": ["attachment_security", "stability", "emotional_safety"],
         "keywords": ["bipolar", "mentally ill", "psychiatric hospital", "unstable moods", "manic"],
+        "requires_caregiver_context": True,
     },
     "household_unpredictability": {
         "domains": ["stability", "emotional_safety"],
@@ -103,6 +107,7 @@ EXPOSURE_TAXONOMY: Dict[str, Dict] = {
     "caregiver_incarceration": {
         "domains": ["attachment_security", "stability"],
         "keywords": ["prison", "incarcerated", "locked up"],
+        "requires_caregiver_context": True,
     },
     "separation_or_divorce": {
         "domains": ["stability", "attachment_security"],
@@ -343,6 +348,10 @@ NEGATION_CUES = (
     "nobody", "noone",
 )
 NEGATION_WINDOW = 4  # words to look back from a matched keyword
+CAREGIVER_CONTEXT = (
+    "caregiver", "parent", "mother", "father", "mom", "mum", "dad",
+    "guardian", "stepmother", "stepfather", "adoptive mother", "adoptive father",
+)
 
 
 def _is_negated(text_lower: str, match_start: int) -> bool:
@@ -355,6 +364,36 @@ def _is_negated(text_lower: str, match_start: int) -> bool:
     preceding = re.sub(r"[^a-z' ]", " ", text_lower[:match_start])
     preceding_words = [w.replace("'", "") for w in preceding.split()][-NEGATION_WINDOW:]
     return any(cue in preceding_words for cue in NEGATION_CUES)
+
+
+_SENTENCE_BOUNDARY = re.compile(r"[.!?\n]")
+
+
+def _sentence_containing(text_lower: str, match_start: int, match_end: int) -> str:
+    """
+    The single sentence containing a match, so a caregiver mention elsewhere
+    in a longer text (a different paragraph, a different life stage) can't
+    attribute a keyword match to the wrong subject. Confirmed real-world
+    failure this guards against: "Brandon enters rehab..." elsewhere in the
+    same backstory as an unrelated "My mother struggled with..." sentence
+    was misclassified as caregiver_substance_use before this existed - the
+    whole-text check saw "mother" anywhere in the document and matched
+    Brandon's own rehab entry to it.
+    """
+    start = 0
+    for m in _SENTENCE_BOUNDARY.finditer(text_lower, 0, match_start):
+        start = m.end()
+    end_match = _SENTENCE_BOUNDARY.search(text_lower, match_end)
+    end = end_match.start() if end_match else len(text_lower)
+    return text_lower[start:end]
+
+
+def _has_caregiver_context(text_lower: str, match_start: int, match_end: int) -> bool:
+    """Caregiver-context words must appear in the SAME SENTENCE as the
+    matched keyword, not merely anywhere in the text - see
+    _sentence_containing's docstring for the exact bug this fixes."""
+    sentence = _sentence_containing(text_lower, match_start, match_end)
+    return any(term in sentence for term in CAREGIVER_CONTEXT)
 
 
 def extract_exposures_keyword(text: str) -> Dict[str, List[Dict]]:
@@ -371,9 +410,12 @@ def extract_exposures_keyword(text: str) -> Dict[str, List[Dict]]:
 
     exposures = []
     for exposure_type, meta in EXPOSURE_TAXONOMY.items():
+        requires_caregiver = meta.get("requires_caregiver_context")
         for keyword in meta["keywords"]:
             idx = text_lower.find(keyword)
             if idx == -1 or _is_negated(text_lower, idx):
+                continue
+            if requires_caregiver and not _has_caregiver_context(text_lower, idx, idx + len(keyword)):
                 continue
             exposures.append({
                 "exposure_type": exposure_type,
@@ -473,7 +515,7 @@ def build_exposure_and_protective_rows(
             source_event_id=source_event_id,
             source=source,
             speaker_role=speaker_role,
-            age_at_exposure=finding.get("age_hint") or age_at_exposure,
+            age_at_exposure=(finding.get("age_hint") if finding.get("age_hint") is not None else age_at_exposure),
             exposure_type=finding["exposure_type"],
             developmental_domains=finding["developmental_domains"],
             raw_text=finding.get("raw_text"),
@@ -488,7 +530,7 @@ def build_exposure_and_protective_rows(
             speaker_role=speaker_role,
             factor_type=finding["factor_type"],
             description=finding.get("raw_text"),
-            active_from_age=finding.get("age_hint") or age_at_exposure,
+            active_from_age=(finding.get("age_hint") if finding.get("age_hint") is not None else age_at_exposure),
             domains_buffered=finding["domains_buffered"],
         )
         for finding in extraction.get("protective_factors", [])

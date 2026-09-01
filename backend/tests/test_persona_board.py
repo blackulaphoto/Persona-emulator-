@@ -154,6 +154,45 @@ class TestClinicalPatternHypothesisSummaries:
         result = clinical_pattern_hypothesis_summaries(db, persona.id)
         assert [h["pattern_key"] for h in result] == ["complex_ptsd", "avoidant_personality"]
 
+    def test_current_age_none_applies_no_age_gating(self, db):
+        # The caller-guard default: an unscoped call (current_age not
+        # supplied) must not silently suppress every age-scoped hypothesis -
+        # this is the exact wiring gap that let a personality-disorder
+        # hypothesis vanish from the board at the old current_age=0 default.
+        persona = _persona(db)
+        _hypothesis(db, persona.id, "avoidant_personality", 0.3)
+        result = clinical_pattern_hypothesis_summaries(db, persona.id)
+        assert len(result) == 1
+        assert result[0]["applicability"] == {
+            "currently_applicable": True, "historical_developmental_only": False,
+            "historical_label": None, "reason": None,
+        }
+
+    def test_age_scoped_hypothesis_hidden_from_current_list_for_a_child(self, db):
+        persona = _persona(db)
+        _hypothesis(db, persona.id, "avoidant_personality", 0.3)
+        assert clinical_pattern_hypothesis_summaries(db, persona.id, current_age=10) == []
+
+    def test_age_scoped_hypothesis_shown_for_an_adult_with_historical_framing(self, db):
+        persona = _persona(db)
+        _hypothesis(db, persona.id, "avoidant_personality", 0.3)
+        result = clinical_pattern_hypothesis_summaries(db, persona.id, current_age=25)
+        assert len(result) == 1
+        assert result[0]["applicability"]["currently_applicable"] is True
+
+    def test_reactive_attachment_disorder_hidden_for_an_adult_current_age(self, db):
+        persona = _persona(db)
+        _hypothesis(db, persona.id, "reactive_attachment_disorder", 0.3)
+        result = clinical_pattern_hypothesis_summaries(db, persona.id, current_age=40)
+        assert result == []
+
+    def test_reactive_attachment_disorder_shown_for_a_child_current_age(self, db):
+        persona = _persona(db)
+        _hypothesis(db, persona.id, "reactive_attachment_disorder", 0.3)
+        result = clinical_pattern_hypothesis_summaries(db, persona.id, current_age=8)
+        assert len(result) == 1
+        assert result[0]["applicability"]["currently_applicable"] is True
+
 
 class TestBoardSections:
     def test_returns_both_sections_keyed_for_persona_response(self, db):
