@@ -19,6 +19,8 @@ from app.models.persona_narrative import PersonaNarrative
 from app.models.adaptation_pattern import AdaptationPattern
 from app.models.clinical_pattern_hypothesis import ClinicalPatternHypothesis
 from app.models.narration import PersonaBelief
+from app.models.interpretation import Interpretation
+from app.models.protective_factor import ProtectiveFactor
 from app.services.evidence_accumulator import evidence_strength_label
 
 
@@ -52,7 +54,7 @@ async def generate_persona_narrative(
     # Fetch experiences (ordered chronologically)
     experiences = db.query(Experience).filter(
         Experience.persona_id == persona_id
-    ).order_by(Experience.age_at_event).all()
+    ).order_by(Experience.age_at_event, Experience.sequence_index, Experience.sequence_number).all()
     
     # Fetch interventions (ordered chronologically)
     interventions = db.query(Intervention).filter(
@@ -78,6 +80,14 @@ async def generate_persona_narrative(
         PersonaBelief.subject_id == persona_id
     ).all()
 
+    interpretations = db.query(Interpretation).filter(
+        Interpretation.persona_id == persona_id
+    ).order_by(Interpretation.age_at_event, Interpretation.created_at).all()
+
+    protective_factors = db.query(ProtectiveFactor).filter(
+        ProtectiveFactor.persona_id == persona_id
+    ).order_by(ProtectiveFactor.active_from_age, ProtectiveFactor.created_at).all()
+
     # Count existing narratives for generation number
     existing_count = db.query(PersonaNarrative).filter(
         PersonaNarrative.persona_id == persona_id
@@ -88,6 +98,7 @@ async def generate_persona_narrative(
     prompt = _build_narrative_prompt(
         persona, experiences, interventions,
         adaptation_patterns, clinical_pattern_hypotheses, persona_beliefs,
+        interpretations, protective_factors,
     )
     
     # Call GPT-4
@@ -166,6 +177,8 @@ def _build_narrative_prompt(
     adaptation_patterns: List[AdaptationPattern] = None,
     clinical_pattern_hypotheses: List[ClinicalPatternHypothesis] = None,
     persona_beliefs: List[PersonaBelief] = None,
+    interpretations: List[Interpretation] = None,
+    protective_factors: List[ProtectiveFactor] = None,
 ) -> str:
     """
     Build comprehensive prompt for GPT-4 narrative generation.
@@ -173,6 +186,8 @@ def _build_narrative_prompt(
     adaptation_patterns = adaptation_patterns or []
     clinical_pattern_hypotheses = clinical_pattern_hypotheses or []
     persona_beliefs = persona_beliefs or []
+    interpretations = interpretations or []
+    protective_factors = protective_factors or []
 
     # Format experiences timeline
     experiences_text = "\n".join([
@@ -192,6 +207,25 @@ def _build_narrative_prompt(
         for trait, value in persona.current_personality.items()
     ])
 
+    if persona.baseline_personality:
+        personality_delta_text = "\n".join(
+            f"- {trait.capitalize()}: {persona.baseline_personality.get(trait, current):.2f} → {current:.2f} "
+            f"(delta {current - persona.baseline_personality.get(trait, current):+.2f})"
+            for trait, current in persona.current_personality.items()
+        )
+    else:
+        personality_delta_text = "No trustworthy creation-time personality baseline is available for this legacy life."
+
+    baseline_attachment = persona.baseline_attachment_dimensions or {}
+    current_attachment = persona.current_attachment_dimensions or {}
+    attachment_keys = sorted(set(baseline_attachment) | set(current_attachment))
+    attachment_dimensions_text = "\n".join(
+        f"- {key.replace('_', ' ').title()}: {baseline_attachment.get(key, current_attachment.get(key, 0)):.2f} → "
+        f"{current_attachment.get(key, baseline_attachment.get(key, 0)):.2f} "
+        f"(delta {current_attachment.get(key, 0) - baseline_attachment.get(key, current_attachment.get(key, 0)):+.2f})"
+        for key in attachment_keys
+    ) or "No dimensional attachment trajectory recorded."
+
     # Format current trauma markers (symptoms)
     trauma_text = ", ".join(persona.current_trauma_markers) if persona.current_trauma_markers else "None identified"
 
@@ -204,6 +238,27 @@ def _build_narrative_prompt(
         state_text = "\n".join(f"- {variable.replace('_', ' ').title()}: {value:.2f}" for variable, value in persona.current_state.items())
     else:
         state_text = "No State-tier movement recorded yet."
+
+    interpretations_text = "\n".join(
+        f"- Age {item.age_at_event if item.age_at_event is not None else '?'}: "
+        f"belief={item.belief_statement or 'none recorded'}; "
+        f"adaptation={item.adaptation_strategy or 'none recorded'}; "
+        f"developmental reasoning={item.reasoning or 'none recorded'}; "
+        f"domains={', '.join(item.developmental_domains or []) or 'none'}; "
+        f"pattern effect={item.reinforcement_effect or 'none'}; "
+        f"protective factor ids={', '.join(item.protective_factor_ids or []) or 'none'}; "
+        f"state implications={item.state_implications or {}}; trait implications={item.trait_implications or {}}"
+        for item in interpretations
+    ) or "No event-level developmental interpretations recorded."
+
+    protective_factors_text = "\n".join(
+        f"- id={factor.id}; {factor.factor_type.replace('_', ' ').title()}"
+        f" (active from age {factor.active_from_age if factor.active_from_age is not None else 'unknown'}"
+        f"{f' to {factor.active_to_age}' if factor.active_to_age is not None else ', ongoing or end not recorded'}; "
+        f"buffers: {', '.join(factor.domains_buffered or []) or 'no domains recorded'}): "
+        f"{factor.description or 'No description recorded.'}"
+        for factor in protective_factors
+    ) or "No canonical protective factors recorded. Do not invent a generic resilience story."
 
     # Step 8: the engine's own accumulated formulation - a real conclusion
     # (THE PATTERN), with evidence strength as secondary framing, not the
@@ -239,13 +294,37 @@ def _build_narrative_prompt(
         if historical_patterns else "None weakened or resolved."
     )
 
-    if clinical_pattern_hypotheses:
+    active_hypotheses = [
+        h for h in clinical_pattern_hypotheses
+        if h.status not in ("dismissed", "resolved") and (h.evidence_strength or 0) > 0
+    ]
+
+    def _format_evidence(entries) -> str:
+        if not entries:
+            return "none recorded"
+        return "; ".join(
+            f"{entry.get('description') or entry.get('type') or 'evidence'}"
+            + (f" (age {entry.get('age')})" if entry.get('age') is not None else "")
+            for entry in entries
+        )
+
+    if active_hypotheses:
         hypotheses_text = "\n".join(
-            f"- {h.pattern_key} (tier: {h.tier}, evidence strength: {evidence_strength_label(h.evidence_strength)})"
-            for h in clinical_pattern_hypotheses
+            f"- {h.pattern_key.replace('_', ' ').title()} "
+            f"(canonical key: {h.pattern_key}; tier: {h.tier}; status: {h.status}; "
+            f"evidence strength: {evidence_strength_label(h.evidence_strength)}; "
+            f"direction: {'strengthening' if h.previous_evidence_strength is not None and h.evidence_strength > h.previous_evidence_strength else 'weakening' if h.previous_evidence_strength is not None and h.evidence_strength < h.previous_evidence_strength else 'not established'}). "
+            f"Developmental precursors: {', '.join(h.developmental_precursors or []) or 'none recorded'}. "
+            f"Current manifestations: {', '.join(h.current_manifestations or []) or 'none recorded'}. "
+            f"WHAT SUPPORTS THIS: {_format_evidence(h.supporting_evidence)}. "
+            f"WHAT COMPLICATES OR CONTRADICTS THIS: {_format_evidence(h.contradicting_evidence)}."
+            for h in active_hypotheses
         )
     else:
-        hypotheses_text = "No clinical pattern hypothesis has accumulated enough evidence yet."
+        hypotheses_text = (
+            "No clinical pattern hypothesis has accumulated enough meaningful canonical evidence. "
+            "There is no active hypothesis to formulate; do not introduce syndrome or disorder speculation."
+        )
 
     # Step 8: the "three realities" - event reality (experiences_text above),
     # the persona's own belief about their history, and what the engine's
@@ -272,9 +351,17 @@ Age: {persona.current_age}
 Gender: {persona.baseline_gender or 'Not specified'}
 Baseline Age: {persona.baseline_age}
 Attachment Style: {persona.current_attachment_style}
+Narrative Mode: {persona.narrative_mode}
 
 **PERSONALITY TRAITS (Big Five, 0.0-1.0 scale)**
 {personality_text}
+
+**PERSONALITY TRAJECTORY (baseline → current; do not call a baseline temperament a life-caused shift)**
+{personality_delta_text}
+
+**ATTACHMENT TRAJECTORY**
+Categorical: {persona.baseline_attachment_style or persona.current_attachment_style} → {persona.current_attachment_style}
+{attachment_dimensions_text}
 
 **DOCUMENTED EXPERIENCES (Chronological)**
 {experiences_text}
@@ -288,6 +375,14 @@ Trauma Markers/Symptoms: {trauma_text}
 **STATE TIER (fast-moving, reactive - see the arc below)**
 {state_text}
 
+**EVENT → INTERPRETATION/BELIEF → ADAPTATION → PATTERN LINKS**
+(Canonical event-level engine interpretations. Use these to explain developmental mechanism; do not manufacture a causal bridge where none is recorded.)
+{interpretations_text}
+
+**PROTECTIVE FACTORS AND WHAT THEY BUFFER**
+(Explain what each factor counteracts using its recorded description/domains and the pattern trajectory. Do not collapse these into generic resilience.)
+{protective_factors_text}
+
 **EMERGING DEVELOPMENTAL PATTERNS (reinforced more than once, not yet established)**
 {emerging_patterns_text}
 
@@ -300,7 +395,7 @@ Trauma Markers/Symptoms: {trauma_text}
 {historical_patterns_text}
 
 **ENGINE'S OWN FORMULATION - CLINICAL PATTERN HYPOTHESES**
-(Tiered, evidence-tracked - never a diagnosis, regardless of tier)
+(Only active, meaningfully evidenced canonical hypotheses. Tiered and evidence-tracked; never a diagnosis.)
 {hypotheses_text}
 
 **{persona.name.upper()}'S OWN STATED BELIEFS ABOUT THEIR HISTORY**
@@ -349,23 +444,44 @@ Write a psychologically accurate developmental narrative that:
    - This divergence, when it exists, is some of the most clinically interesting material available - do not silently pick one account over the other or smooth the discrepancy over
    - If {persona.name} has not stated a belief, do not invent one
 
+4a. **Builds explicit developmental mechanisms from canonical links**:
+   - Answer the chain WHAT HAPPENED → WHAT IT TAUGHT THEM → HOW THEY ADAPTED → HOW THAT FUNCTIONS NOW.
+   - Use the recorded event interpretations, beliefs, adaptation strategies, reasoning, pattern effects, and chronology above. Do not reduce this to "event happened, therefore symptom."
+
+4b. **Synthesizes current struggles instead of listing metrics**:
+   - Translate current State, attachment, active coping patterns, and earned personality shifts into lived functioning: relationships, vulnerability, threat response, trust, mood, regulation, avoidance, and security.
+   - Name tensions in the data, such as guardedness alongside durable attachment, rather than flattening the person into one pathology.
+
+4c. **Handles clinical-pattern hypotheses with diagnostic humility but analytical clarity**:
+   - Surface ONLY the active canonical hypotheses listed above. For each, explain the plain-language resemblance, current strength, why Rubicks is considering it, WHAT SUPPORTS THIS, WHAT COMPLICATES OR CONTRADICTS THIS, and WHAT IS STILL UNKNOWN.
+   - Use "consistent with," "resembles," "raises the possibility of," "warrants consideration," or "current evidence supports/does not establish." Distinguish adaptation pattern, syndrome-like resemblance, hypothesis, and confirmed diagnosis.
+   - Never create a diagnosis or hypothesis from event keywords, current State values, or general psychological knowledge alone. If the canonical hypothesis section is empty, say no larger syndrome-like pattern is currently supported and do not speculate.
+   - Missing evidence must come from explicit gaps or contradictions in the canonical hypothesis data. Do not invent absent symptoms or emit a canned checklist.
+
+4d. **Explains protective mechanisms specifically**:
+   - For each canonical protective factor, explain what belief, State domain, attachment expectation, or coping pattern it counteracted when that connection is supported by the factor's recorded domains and the interpretation/pattern trajectory.
+   - No generic "resilience" paragraph. If no protective factor is recorded, do not invent one.
+
 5. **Organizes narrative into these sections** (use markdown headers):
 
 ## EXECUTIVE SUMMARY
-(2-3 paragraphs: Who is this person? Lead with THE VERDICT only if a currently established pattern exists - name it directly, e.g. "The dominant pattern here is..." - then the reasoning. If only historical weakening/resolved patterns exist, describe their earlier importance and present trajectory instead of calling them currently dominant. Core psychological profile rooted in their ACTUAL background, key developmental themes, current functioning level. If {persona.name} has stated a belief that diverges from the engine's formulation, name that gap here too.)
+(Use the subheading ### THE WHOLE PICTURE. In 2-3 paragraphs, formulate who this person became, what they are dealing with now, and the central developmental mechanism. Lead with THE VERDICT only if a currently established pattern exists. If only weakening/resolved patterns exist, describe their historical importance and present trajectory.)
 
-## DEVELOPMENTAL TIMELINE
-(Chronological narrative organized by developmental periods. For each period, describe how the BACKGROUND and experiences shaped development, and connect specific periods to WHAT IT CONNECTS TO later - which later events reinforced or weakened the pattern identified above:
-- **Early Childhood (0-6)**: How did the caregiving environment affect attachment? What were the actual conditions?
-- **Middle Childhood (7-11)**: How did early experiences manifest in school/peer relationships?
-- **Adolescence (12-18)**: How did accumulated adversity affect identity formation?
-- **Adulthood (19+)**: Current patterns stemming from developmental history)
+## DEVELOPMENTAL FORMULATION
+(Use these subheadings:
+### HOW THEY GOT HERE — a concise chronological account by developmentally relevant periods, emphasizing turning points rather than retelling every event.
+### WHAT THEY LEARNED ABOUT THEMSELVES AND OTHERS — beliefs/interpretations earned from the canonical links.
+### HOW THEY LEARNED TO COPE — active and historical adaptation trajectories, including emerged, reinforced, weakened, and resolved.)
 
-## CURRENT PRESENTATION
-(How they navigate the world NOW: Daily behaviors, relationship patterns, coping mechanisms, emotional regulation - all connected to their actual background and experiences. State evidence strength for the named pattern here, as secondary framing after the substantive description, not before it.)
+## CURRENT FORMULATION
+(Use these subheadings:
+### WHAT THEY ARE STRUGGLING WITH NOW — synthesize current lived functioning from State, attachment, active patterns, and earned trait shifts; do not merely repeat values.
+### WHAT MAY BE TAKING SHAPE — for EACH active canonical clinical-pattern hypothesis, explain strength, supporting evidence, contradicting/complicating evidence, and what is genuinely still unknown. If none exist, say so briefly without adding pathology.
+### WHAT PROTECTS THEM — connect canonical protective factors to the beliefs, domains, attachment expectations, or patterns they counteract.
+### WHAT WE STILL DON'T KNOW — concise and case-specific; only recorded gaps implied by canonical evidence, never a generic diagnostic checklist.)
 
 ## TREATMENT RESPONSE
-(If interventions exist: How did therapy help? What changed? What symptoms improved? What remains challenging? Be realistic about limitations.)
+(If interventions exist: how support affected mechanisms, current struggles, hypotheses, or protective processes. If none exist, say no added intervention response can be evaluated.)
 
 ## PROGNOSIS & RECOMMENDATIONS
 (Future outlook based on actual history: What's realistic? What additional support needed? Acknowledge both challenges and strengths)
@@ -377,6 +493,8 @@ Write a psychologically accurate developmental narrative that:
 - If environment was chaotic → Describe hypervigilance, not "adapted well"
 - Be empathetic but clinically accurate about the REAL impact of adversity
 - Acknowledge protective factors where they exist, but don't minimize trauma
+- Preserve complexity and contradictions; do not flatten a person into one dominant pathology
+- This is a developmental formulation for a hypothetical simulator, not a diagnostic report
 - Use professional yet accessible language suitable for educational/clinical contexts
 - Total length: 1200-1800 words
 - Connect every assertion to actual background/experiences provided
