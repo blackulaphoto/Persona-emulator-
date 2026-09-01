@@ -457,12 +457,8 @@ async def interpret_reparative_experience_async(
     narration_signals: Optional[List[Dict]] = None,
     prior_patterns: Optional[List[Dict]] = None,
 ) -> Dict:
-    result = await interpret_reparative_experience_ai(
-        persona_name, age, protective_factors_this_batch, narration_signals, prior_patterns
-    )
-    if result is not None:
-        return result
-    logger.info("Using heuristic fallback for reparative interpretation")
+    # Canonical reparative evidence must not vary with model sampling. Freeform
+    # narrative generation can still explain this persisted result downstream.
     return interpret_reparative_experience_heuristic(protective_factors_this_batch)
 
 
@@ -486,10 +482,8 @@ async def interpret_experience_async(
         developmentally recognizable in this text; not a taxonomy gap)
     """
     if exposures:
-        result = await interpret_experience_ai(persona_name, age, exposures, narration_signals, protective_factors, prior_patterns)
-        if result is not None:
-            return result
-        logger.info("Using heuristic fallback for interpretation")
+        # adaptation_strategy is a canonical identity key used by patterns,
+        # evidence and replay, so select it only from the deterministic map.
         return interpret_experience_heuristic(age, exposures)
 
     if protective_factors_this_batch:

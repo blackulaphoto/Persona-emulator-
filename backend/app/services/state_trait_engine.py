@@ -352,10 +352,7 @@ async def propose_state_trait_implications_async(
     interpretation: Dict,
     pattern_status: Optional[str] = None,
 ) -> Dict:
-    result = await propose_state_trait_implications_ai(persona_name, age, interpretation, pattern_status)
-    if result is not None:
-        return result
-    logger.info("Using heuristic fallback for state/trait proposal")
+    """Map canonical adaptation identity to stable bounded implications."""
     return propose_state_trait_implications_heuristic(interpretation, pattern_status)
 
 
