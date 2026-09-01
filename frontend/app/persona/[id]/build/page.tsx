@@ -7,12 +7,9 @@ import { api, type Timeline, type Experience, type Persona, type PersonalityTrai
 import { RubixShell, RubixCard, RubixBadge, RubixDelta } from '@/components/rubix'
 import { STATE_DIMENSIONS, STATE_NEUTRAL, STATE_NOTABLE_DELTA, titleCase } from '@/lib/rubix/stateDimensions'
 import { attachmentStyleLabel, attachmentStyleTone } from '@/lib/rubix/attachmentStyle'
+import { agesForDecade, draftStorageKey, LIFESPAN_DECADES, parseStoredDrafts, retainUnprocessedDrafts, sortLifeDrafts, type LifeDraft } from '@/lib/buildLifeDrafts'
 
-interface Draft {
-  localId: string
-  age: number
-  description: string
-}
+type Draft = LifeDraft
 
 const BIG_FIVE_LABELS: Record<keyof PersonalityTraits, string> = {
   openness: 'Openness',
@@ -34,6 +31,10 @@ export default function BuildTheirLifePage({ params }: { params: { id: string } 
   const [selectedAge, setSelectedAge] = useState<number | null>(null)
   const [drafts, setDrafts] = useState<Draft[]>([])
   const [draftText, setDraftText] = useState('')
+  const [draftsHydratedFor, setDraftsHydratedFor] = useState<string | null>(null)
+  const [draftEditingId, setDraftEditingId] = useState<string | null>(null)
+  const [draftEditText, setDraftEditText] = useState('')
+  const [draftEditAge, setDraftEditAge] = useState('')
 
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editText, setEditText] = useState('')
@@ -55,6 +56,16 @@ export default function BuildTheirLifePage({ params }: { params: { id: string } 
     if (user) loadTimeline()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id, user])
+
+  useEffect(() => {
+    setDrafts(parseStoredDrafts(window.localStorage.getItem(draftStorageKey(params.id))))
+    setDraftsHydratedFor(params.id)
+  }, [params.id])
+
+  useEffect(() => {
+    if (draftsHydratedFor !== params.id) return
+    window.localStorage.setItem(draftStorageKey(params.id), JSON.stringify(drafts))
+  }, [drafts, draftsHydratedFor, params.id])
 
   async function loadTimeline() {
     setLoading(true)
@@ -78,18 +89,7 @@ export default function BuildTheirLifePage({ params }: { params: { id: string } 
   const persona = timeline?.persona
   const experiences = timeline?.experiences ?? []
 
-  const maxAge = useMemo(() => {
-    if (!persona) return 0
-    const ages = experiences.map((e) => e.age_at_event)
-    return Math.max(persona.current_age, persona.baseline_age, ...ages, 0)
-  }, [persona, experiences])
-
-  const decades = useMemo(() => {
-    const top = Math.min(120, Math.ceil((maxAge + 1) / 10) * 10)
-    const list: number[] = []
-    for (let d = 0; d < top; d += 10) list.push(d)
-    return list.length ? list : [0]
-  }, [maxAge])
+  const decades = LIFESPAN_DECADES
 
   const density = useMemo(() => {
     const counts = new Map<number, number>()
@@ -104,7 +104,7 @@ export default function BuildTheirLifePage({ params }: { params: { id: string } 
   const agesWithMarks = useMemo(() => {
     if (decadeStart == null) return []
     const list: { age: number; hasEvents: boolean; count: number }[] = []
-    for (let a = decadeStart; a < decadeStart + 10 && a <= 120; a++) {
+    for (const a of agesForDecade(decadeStart)) {
       const count = experiences.filter((e) => e.age_at_event === a).length + drafts.filter((d) => d.age === a).length
       list.push({ age: a, hasEvents: count > 0, count })
     }
@@ -116,6 +116,7 @@ export default function BuildTheirLifePage({ params }: { params: { id: string } 
     [experiences, selectedAge]
   )
   const draftsAtAge = useMemo(() => (selectedAge == null ? [] : drafts.filter((d) => d.age === selectedAge)), [drafts, selectedAge])
+  const sortedDrafts = useMemo(() => sortLifeDrafts(drafts), [drafts])
 
   function selectAge(age: number) {
     setSelectedAge(age)
@@ -132,6 +133,20 @@ export default function BuildTheirLifePage({ params }: { params: { id: string } 
 
   function removeDraft(localId: string) {
     setDrafts((d) => d.filter((x) => x.localId !== localId))
+  }
+
+  function startDraftEdit(draft: Draft) {
+    setDraftEditingId(draft.localId)
+    setDraftEditText(draft.description)
+    setDraftEditAge(String(draft.age))
+  }
+
+  function saveDraftEdit(localId: string) {
+    const age = Number.parseInt(draftEditAge, 10)
+    const description = draftEditText.trim()
+    if (!description || !Number.isInteger(age) || age < 0 || age > 120) return
+    setDrafts((current) => current.map((draft) => draft.localId === localId ? { ...draft, age, description } : draft))
+    setDraftEditingId(null)
   }
 
   function startEdit(exp: Experience) {
@@ -220,7 +235,7 @@ export default function BuildTheirLifePage({ params }: { params: { id: string } 
       const refreshed = await api.getTimeline(params.id)
       setTimeline(refreshed)
       setAfterPersona(refreshed.persona)
-      setDrafts([])
+      setDrafts((current) => retainUnprocessedDrafts(current, result.results))
       setView('reveal')
     } catch (err) {
       setAnalyzeError(err instanceof Error ? err.message : 'Analysis failed. Your drafts are still queued below.')
@@ -273,11 +288,9 @@ export default function BuildTheirLifePage({ params }: { params: { id: string } 
               <div style={{ marginTop: 7, fontSize: 14, color: 'rgba(214,235,255,0.7)' }}>Chronological. Pick an age, then say what happened.</div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              {drafts.length > 0 && (
-                <div style={{ padding: '8px 14px', borderRadius: 999, fontSize: 12.5, color: 'rgba(226,240,255,0.85)', background: 'rgba(255,255,255,0.09)', border: '1px solid rgba(170,210,255,0.22)' }}>
-                  Draft saved · {drafts.length} experience{drafts.length === 1 ? '' : 's'} not yet analyzed
-                </div>
-              )}
+              <div style={{ padding: '8px 14px', borderRadius: 999, fontSize: 12.5, color: 'rgba(226,240,255,0.85)', background: 'rgba(255,255,255,0.09)', border: '1px solid rgba(170,210,255,0.22)' }}>
+                {drafts.length} experience{drafts.length === 1 ? '' : 's'} ready to analyze
+              </div>
               <button type="button" className="rubix-btn-primary" disabled={drafts.length === 0} aria-disabled={drafts.length === 0} onClick={analyzeLife}>
                 Analyze life →
               </button>
@@ -307,7 +320,7 @@ export default function BuildTheirLifePage({ params }: { params: { id: string } 
                       color: active ? '#03204d' : 'rgba(226,240,255,0.85)', fontWeight: 600, fontSize: 14,
                     }}
                   >
-                    {d}s
+                    {d === 120 ? '120' : `${d}s`}
                   </button>
                 )
               })}
@@ -347,7 +360,7 @@ export default function BuildTheirLifePage({ params }: { params: { id: string } 
               <div style={{ marginTop: 8, display: 'flex', alignItems: 'baseline', gap: 12 }}>
                 <div style={{ fontSize: 36, fontWeight: 700, letterSpacing: '-0.03em' }}>Age {selectedAge}</div>
                 <div style={{ fontSize: 14, color: 'rgba(214,235,255,0.68)' }}>
-                  {experiencesAtAge.length + draftsAtAge.length === 0 ? 'no experiences yet' : `${experiencesAtAge.length + draftsAtAge.length} experience${experiencesAtAge.length + draftsAtAge.length === 1 ? '' : 's'}`}
+                  {experiencesAtAge.length} analyzed · {draftsAtAge.length} queued
                 </div>
               </div>
 
@@ -424,7 +437,8 @@ export default function BuildTheirLifePage({ params }: { params: { id: string } 
 
               {/* composer */}
               <div style={{ marginTop: 18, padding: 18, borderRadius: 20, background: 'linear-gradient(165deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03))', border: '1px solid rgba(175,212,255,0.24)' }}>
-                <div style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: '0.1em', color: 'rgba(200,226,255,0.62)' }}>ADD AN EXPERIENCE AT AGE {selectedAge}</div>
+                <div style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: '0.1em', color: 'rgba(200,226,255,0.62)' }}>STAGE AN EXPERIENCE AT AGE {selectedAge}</div>
+                <div style={{ marginTop: 6, fontSize: 12.5, color: 'rgba(210,232,255,0.62)' }}>This joins the life queue and will not be analyzed until you choose Analyze life.</div>
                 <div style={{ marginTop: 13, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                   <input
                     className="rubix-input"
@@ -435,7 +449,7 @@ export default function BuildTheirLifePage({ params }: { params: { id: string } 
                     placeholder="e.g. Her partner betrays her trust"
                   />
                   <button type="button" className="rubix-btn-primary" onClick={addDraft} disabled={!draftText.trim()}>
-                    Add experience
+                    Add to life
                   </button>
                 </div>
               </div>
@@ -444,12 +458,57 @@ export default function BuildTheirLifePage({ params }: { params: { id: string } 
             {/* right rail */}
             <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
               <RubixCard style={{ padding: 22 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
+                  <div style={{ fontSize: 15.5, fontWeight: 600 }}>Life queue</div>
+                  <RubixBadge tone={drafts.length ? 'violet' : 'muted'}>{drafts.length} queued</RubixBadge>
+                </div>
+                <div style={{ marginTop: 6, fontSize: 12.5, lineHeight: 1.5, color: 'rgba(210,232,255,0.65)' }}>
+                  Unprocessed experiences from across their lifespan. Analyze life processes this whole ledger chronologically.
+                </div>
+                {sortedDrafts.length === 0 ? (
+                  <div style={{ marginTop: 16, padding: '16px 12px', textAlign: 'center', borderRadius: 14, border: '1px dashed rgba(175,212,255,0.26)', color: 'rgba(210,232,255,0.55)', fontSize: 12.5 }}>
+                    No experiences waiting to be analyzed.
+                  </div>
+                ) : (
+                  <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {sortedDrafts.map((draft) => (
+                      <div key={draft.localId} style={{ padding: 12, borderRadius: 14, background: 'rgba(255,255,255,0.045)', border: '1px dashed rgba(175,212,255,0.3)' }}>
+                        {draftEditingId === draft.localId ? (
+                          <div>
+                            <textarea className="rubix-textarea" style={{ width: '100%', minHeight: 72, fontSize: 12.5 }} value={draftEditText} onChange={(event) => setDraftEditText(event.target.value)} />
+                            <div style={{ marginTop: 8, display: 'flex', alignItems: 'flex-end', gap: 8 }}>
+                              <label className="rubix-field-label" htmlFor={`draft-age-${draft.localId}`}>
+                                AGE
+                                <input id={`draft-age-${draft.localId}`} type="number" min={0} max={120} className="rubix-input" style={{ display: 'block', width: 70, marginTop: 5 }} value={draftEditAge} onChange={(event) => setDraftEditAge(event.target.value)} />
+                              </label>
+                              <button type="button" className="rubix-btn-ghost" style={{ marginLeft: 'auto', padding: '7px 10px', fontSize: 11.5 }} onClick={() => setDraftEditingId(null)}>Cancel</button>
+                              <button type="button" className="rubix-btn-primary" style={{ padding: '7px 10px', fontSize: 11.5 }} onClick={() => saveDraftEdit(draft.localId)}>Save</button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                              <div style={{ flex: '0 0 42px', fontSize: 11.5, fontWeight: 700, color: 'rgba(205,232,255,0.75)' }}>AGE {draft.age}</div>
+                              <div style={{ minWidth: 0, fontSize: 12.5, lineHeight: 1.5, color: 'rgba(232,243,255,0.9)' }}>{draft.description}</div>
+                            </div>
+                            <div style={{ marginTop: 8, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                              <button type="button" className="rubix-btn-ghost" style={{ padding: '5px 9px', fontSize: 11 }} onClick={() => startDraftEdit(draft)}>Edit</button>
+                              <button type="button" className="rubix-btn-ghost" style={{ padding: '5px 9px', fontSize: 11 }} onClick={() => removeDraft(draft.localId)}>Remove</button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </RubixCard>
+              <RubixCard style={{ padding: 22 }}>
                 <div style={{ fontSize: 15.5, fontWeight: 600 }}>Life density</div>
                 <div style={{ marginTop: 6, fontSize: 12.5, color: 'rgba(210,232,255,0.65)' }}>Where this life is thick and where it&apos;s thin.</div>
                 <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 11 }}>
                   {density.map((d) => (
                     <div key={d.decade} style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
-                      <div style={{ flex: '0 0 44px', fontSize: 12.5, color: 'rgba(226,240,255,0.85)' }}>{d.decade}s</div>
+                      <div style={{ flex: '0 0 44px', fontSize: 12.5, color: 'rgba(226,240,255,0.85)' }}>{d.decade === 120 ? '120' : `${d.decade}s`}</div>
                       <div className="rubix-meter-track" style={{ flex: 1 }}>
                         <div className="rubix-meter-fill" style={{ width: `${d.percent}%`, background: 'linear-gradient(90deg, rgba(125,225,255,0.85), rgba(95,155,255,0.95))', boxShadow: '0 0 10px rgba(110,190,255,0.5)' }} />
                       </div>

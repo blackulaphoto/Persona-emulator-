@@ -25,7 +25,6 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [timeline, setTimeline] = useState<Timeline | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showAddExperience, setShowAddExperience] = useState(false)
   const [showAddSupport, setShowAddSupport] = useState(false)
   const [showCreateSnapshot, setShowCreateSnapshot] = useState(false)
   const [showTemplateRemix, setShowTemplateRemix] = useState(false)
@@ -224,8 +223,8 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
           </div>
 
           <div style={{ marginTop: 22, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            <button type="button" className="rubix-btn-primary" onClick={() => setShowAddExperience(true)}>
-              + Add experience
+            <button type="button" className="rubix-btn-primary" onClick={() => router.push(`/persona/${params.id}/build`)}>
+              Build their life
             </button>
             <button type="button" className="rubix-btn-ghost" onClick={() => setShowAddSupport(true)}>
               + Add therapy
@@ -256,17 +255,6 @@ export default function PersonaPage({ params }: { params: { id: string } }) {
       </div>
 
       {/* Modals */}
-      {showAddExperience && (
-        <AddExperienceModal
-          personaId={params.id}
-          currentAge={persona.current_age}
-          onClose={() => setShowAddExperience(false)}
-          onSuccess={() => {
-            setShowAddExperience(false)
-            loadTimeline()
-          }}
-        />
-      )}
       {showAddSupport && (
         <AddInterventionModal
           personaId={params.id}
@@ -1166,88 +1154,6 @@ function PatternHypothesesPanel({ hypotheses, onSelect }: { hypotheses: any[]; o
         ))}
       </div>
     </RubixCard>
-  )
-}
-
-// Add modals for Experience and Support (simplified versions for now)
-function AddExperienceModal({ personaId, currentAge, onClose, onSuccess }: any) {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [formData, setFormData] = useState({
-    user_description: '',
-    age_at_event: currentAge,
-  })
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
-    try {
-      await api.addExperience(personaId, formData)
-      onSuccess()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add experience')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <RubixModal
-      open
-      onClose={onClose}
-      eyebrow="ADD A MOMENT"
-      title="Add a moment that matters"
-      subtitle="Life experiences are how they become who they are. Add one at a time - each gets its own analysis and shifts their trajectory."
-      width={560}
-    >
-      <form onSubmit={handleSubmit}>
-        <label className="rubix-field-label" htmlFor="exp-age">AGE AT EVENT</label>
-        <input
-          id="exp-age"
-          type="number"
-          required
-          min={0}
-          max={120}
-          className="rubix-input"
-          style={{ marginTop: 9, width: '100%' }}
-          value={formData.age_at_event}
-          onChange={(e) => setFormData({ ...formData, age_at_event: parseInt(e.target.value, 10) })}
-        />
-        <p style={{ marginTop: 7, fontSize: 12, color: 'rgba(200,226,255,0.55)' }}>
-          Any age from 0-120 - build the complete life history in any order.
-        </p>
-
-        <div style={{ marginTop: 16 }}>
-          <label className="rubix-field-label" htmlFor="exp-description">WHAT HAPPENED?</label>
-          <textarea
-            id="exp-description"
-            required
-            className="rubix-textarea"
-            style={{ marginTop: 9, width: '100%', minHeight: 140 }}
-            value={formData.user_description}
-            onChange={(e) => setFormData({ ...formData, user_description: e.target.value })}
-            placeholder="Describe the experience in detail..."
-          />
-          <p style={{ marginTop: 7, fontSize: 12, color: 'rgba(200,226,255,0.55)' }}>
-            The engine analyzes psychological impact based on trauma research and developmental psychology.
-          </p>
-        </div>
-
-        {error && (
-          <div style={{ marginTop: 14, padding: '11px 14px', borderRadius: 12, fontSize: 13, color: 'rgba(255,210,200,0.95)', background: 'rgba(255,120,100,0.12)', border: '1px solid rgba(255,150,135,0.28)' }} role="alert">
-            {error}
-          </div>
-        )}
-
-        <div style={{ marginTop: 22, display: 'flex', alignItems: 'center', gap: 11, justifyContent: 'flex-end' }}>
-          <button type="button" className="rubix-btn-ghost" onClick={onClose} disabled={loading}>Cancel</button>
-          <button type="submit" className="rubix-btn-primary" disabled={loading}>
-            {loading ? 'Considering how this helps…' : 'Add experience'}
-          </button>
-        </div>
-      </form>
-    </RubixModal>
   )
 }
 
