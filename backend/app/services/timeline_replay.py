@@ -9,6 +9,9 @@ from app.services.developmental_pipeline import _exposure_dict, _protective_dict
 from app.services.evidence_accumulator import accumulate_evidence, project_current_trauma_markers
 from app.services.pattern_engine import accumulate_patterns, name_pattern_heuristic
 from app.services.state_trait_engine import apply_state_update, apply_trait_update, trait_gate_open, intervention_trait_gate_open
+from app.services.canonical_provenance import (
+    exposure_has_provenance, interpretation_has_provenance, protective_factor_has_provenance,
+)
 
 
 def _interpretation_dict(row):
@@ -81,6 +84,17 @@ def rebuild_persona_from_timeline(db, persona_id: str):
     experiences = db.query(Experience).filter_by(persona_id=persona.id).all()
     interventions = db.query(Intervention).filter_by(persona_id=persona.id).all()
     experience_by_id = {str(row.id): row for row in experiences}
+    # Union of Experience and Intervention IDs: canonical_provenance's source
+    # in ("experience", "intervention") check only constrains WHICH kind of
+    # event a row claims to come from - membership here just confirms the
+    # claimed ID actually exists for this persona, regardless of which of
+    # the two tables it's really in (no evidence-producing pipeline attaches
+    # exposures/interpretations to an Intervention yet, but this stays
+    # correct if/when one does, without a schema change).
+    valid_event_ids = set(experience_by_id) | {str(row.id) for row in interventions}
+    exposures = [row for row in exposures if exposure_has_provenance(row, valid_event_ids)]
+    protective = [row for row in protective if protective_factor_has_provenance(row, valid_event_ids)]
+    interpretations = [row for row in interpretations if interpretation_has_provenance(row, valid_event_ids)]
 
     all_protective = [_protective_dict(row) for row in protective]
     all_functional = [_functional_dict(row) for row in functional]
@@ -92,7 +106,7 @@ def rebuild_persona_from_timeline(db, persona_id: str):
     items = []
     for row in interpretations:
         source = experience_by_id.get(str(row.source_event_id)) if row.source_event_id else None
-        items.append((row.age_at_event if row.age_at_event is not None else persona.baseline_age,
+        items.append((row.age_at_event if row.age_at_event is not None else -1,
                       source.sequence_index if source else 0,
                       source.created_at if source else row.created_at, 0, "interpretation", row))
     for row in interventions:
@@ -100,12 +114,12 @@ def rebuild_persona_from_timeline(db, persona_id: str):
                       row.created_at, 1, "intervention", row))
     for row in protective:
         source = experience_by_id.get(str(row.source_event_id)) if row.source_event_id else None
-        items.append((row.active_from_age if row.active_from_age is not None else persona.baseline_age,
+        items.append((row.active_from_age if row.active_from_age is not None else -1,
                       source.sequence_index if source else 0,
                       source.created_at if source else row.created_at, 1, "protective", row))
     for row in exposures:
         source = experience_by_id.get(str(row.source_event_id)) if row.source_event_id else None
-        items.append((row.age_at_exposure if row.age_at_exposure is not None else persona.baseline_age,
+        items.append((row.age_at_exposure if row.age_at_exposure is not None else -1,
                       source.sequence_index if source else 0,
                       source.created_at if source else row.created_at, -1, "exposure", row))
     items.sort(key=lambda item: (item[0], item[1], item[2], item[3], str(item[5].id)))
@@ -163,8 +177,12 @@ def rebuild_persona_from_timeline(db, persona_id: str):
                                    [_narration_dict(n) for n in narration], all_functional,
                                    adaptation_patterns=adaptation_dicts)
     _reconcile_hypotheses(db, persona, evidence)
-    persona.current_trauma_markers = project_current_trauma_markers(evidence)
+    # current_age recomputed BEFORE the trauma-marker projection below, which
+    # needs the persona's real (post-replay) current age to correctly gate
+    # an age-inapplicable hypothesis out of the display list - using a stale
+    # current_age here would silently under- or over-apply that gate.
     persona.current_age = max([persona.baseline_age] + [e.age_at_event for e in experiences] + [i.age_at_intervention for i in interventions])
+    persona.current_trauma_markers = project_current_trauma_markers(evidence, current_age=persona.current_age)
 
     db.query(PersonalitySnapshot).filter_by(persona_id=persona.id).delete(synchronize_session=False)
     for kind, source_id, age, personality, state, style, dimensions in snapshots:

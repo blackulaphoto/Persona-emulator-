@@ -6,6 +6,17 @@ every AI call mocked to fail fast, exercising the fallback/heuristic paths
 end to end - which also happens to be the honest current production state
 (no OpenAI credits configured), so this test validates exactly the behavior
 a real deployment would see today.
+
+Every "experience" call in this file first creates a real Experience row
+with that exact id via _make_experience(), matching what
+experiences.py::add_experience actually does in production (creates and
+flushes the Experience row, THEN calls process_developmental_text() with
+its real id as source_event_id) - required since canonical_provenance.py's
+exposure_has_provenance/interpretation_has_provenance now validate that a
+source_event_id genuinely belongs to this persona's real timeline before
+letting it contribute to accumulated evidence. Every "backstory" call uses
+age=None, matching personas.py::create_persona's canonical grounding fix -
+undated developmental background must never carry a fabricated current-age.
 """
 import pytest
 from unittest.mock import AsyncMock, patch
@@ -14,7 +25,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app.core.database import Base
 from app.models import (
-    Persona, DevelopmentalExposure, ProtectiveFactor, NarrationRecord,
+    Persona, Experience, DevelopmentalExposure, ProtectiveFactor, NarrationRecord,
     ClinicalPatternHypothesis, AdaptationPattern, Interpretation,
 )
 from app.services.developmental_pipeline import process_developmental_text
@@ -72,12 +83,25 @@ def _make_persona(db, **overrides):
     return persona
 
 
+def _make_experience(db, persona, event_id: str, age: int, description: str) -> Experience:
+    """Real Experience row, flushed so its id is valid provenance for a
+    process_developmental_text(source="experience", source_event_id=event_id)
+    call - see this module's docstring."""
+    experience = Experience(
+        id=event_id, persona_id=persona.id, user_id=persona.user_id,
+        sequence_number=age, sequence_index=1, age_at_event=age, user_description=description,
+    )
+    db.add(experience)
+    db.flush()
+    return experience
+
+
 class TestSingleCallEndToEnd:
     @pytest.mark.asyncio
     async def test_backstory_produces_exposures(self, db):
         persona = _make_persona(db)
         result = await process_developmental_text(
-            db, persona, persona.baseline_background, source="backstory", age=persona.baseline_age,
+            db, persona, persona.baseline_background, source="backstory", age=None,
         )
         db.commit()
 
@@ -92,7 +116,7 @@ class TestSingleCallEndToEnd:
         # case_author speaker_role - narration analysis must be gated (see step-10/
         # self_narration_engine tests), but a record with provenance is still stored.
         persona = _make_persona(db)
-        await process_developmental_text(db, persona, persona.baseline_background, source="backstory", age=6)
+        await process_developmental_text(db, persona, persona.baseline_background, source="backstory", age=None)
         db.commit()
 
         records = db.query(NarrationRecord).filter(NarrationRecord.subject_id == persona.id).all()
@@ -104,7 +128,7 @@ class TestSingleCallEndToEnd:
     async def test_single_exposure_opens_hypothesis_without_seeding_belief(self, db):
         # The core invariant from step 4, now proven through the actual wired pipeline.
         persona = _make_persona(db)
-        result = await process_developmental_text(db, persona, persona.baseline_background, source="backstory", age=6)
+        result = await process_developmental_text(db, persona, persona.baseline_background, source="backstory", age=None)
         db.commit()
 
         hypotheses = db.query(ClinicalPatternHypothesis).filter(ClinicalPatternHypothesis.persona_id == persona.id).all()
@@ -115,12 +139,13 @@ class TestSingleCallEndToEnd:
     @pytest.mark.asyncio
     async def test_interpretation_and_pattern_created(self, db):
         persona = _make_persona(db)
-        result = await process_developmental_text(db, persona, persona.baseline_background, source="backstory", age=6)
+        result = await process_developmental_text(db, persona, persona.baseline_background, source="backstory", age=None)
         db.commit()
 
         interpretations = db.query(Interpretation).filter(Interpretation.persona_id == persona.id).all()
         assert len(interpretations) == 1
         assert interpretations[0].adaptation_strategy is not None
+        assert interpretations[0].age_at_event is None  # undated background stays undated
 
         patterns = db.query(AdaptationPattern).filter(AdaptationPattern.persona_id == persona.id).all()
         assert len(patterns) == 1
@@ -130,7 +155,7 @@ class TestSingleCallEndToEnd:
     @pytest.mark.asyncio
     async def test_no_exposures_in_text_produces_no_new_rows(self, db):
         persona = _make_persona(db, baseline_background="They lived in a house and went to school.")
-        result = await process_developmental_text(db, persona, persona.baseline_background, source="backstory", age=6)
+        result = await process_developmental_text(db, persona, persona.baseline_background, source="backstory", age=None)
         db.commit()
 
         assert db.query(DevelopmentalExposure).filter(DevelopmentalExposure.persona_id == persona.id).count() == 0
@@ -138,17 +163,65 @@ class TestSingleCallEndToEnd:
         assert result["trauma_markers"] == []
 
 
+class TestUndatedBackgroundStaysUndated:
+    """
+    Canonical grounding fix: process_developmental_text's age parameter for
+    a "backstory" call must be None, never persona.baseline_age or any
+    other real number - a stray age on undated background is exactly what
+    let a fabricated current-age event (the age-40 caregiver_substance_use
+    regression) enter the timeline in the first place.
+    """
+
+    @pytest.mark.asyncio
+    async def test_backstory_exposure_persists_with_no_age(self, db):
+        persona = _make_persona(db)
+        await process_developmental_text(db, persona, persona.baseline_background, source="backstory", age=None)
+        db.commit()
+
+        exposures = db.query(DevelopmentalExposure).filter(DevelopmentalExposure.persona_id == persona.id).all()
+        assert exposures
+        assert all(e.age_at_exposure is None for e in exposures)
+        assert all(e.source_event_id is None for e in exposures)
+
+    @pytest.mark.asyncio
+    async def test_backstory_interpretation_persists_with_no_age(self, db):
+        persona = _make_persona(db)
+        await process_developmental_text(db, persona, persona.baseline_background, source="backstory", age=None)
+        db.commit()
+
+        interpretation = db.query(Interpretation).filter(Interpretation.persona_id == persona.id).one()
+        assert interpretation.age_at_event is None
+        assert interpretation.source_event_id is None
+
+    @pytest.mark.asyncio
+    async def test_a_dated_backstory_call_is_a_misuse_that_gets_filtered_out(self, db):
+        # Defensive proof, not an endorsement: if something ever calls this
+        # function with source="backstory" and a real age again (the exact
+        # bug this whole correction removes from personas.py), the
+        # provenance filter still refuses to let the resulting interpretation
+        # contribute a pattern - it fails safe rather than silently
+        # persisting a fabricated current-age developmental event.
+        persona = _make_persona(db)
+        result = await process_developmental_text(db, persona, persona.baseline_background, source="backstory", age=40)
+        db.commit()
+
+        assert result["interpretation"] is not None  # this call's own interpretation is still built...
+        patterns = db.query(AdaptationPattern).filter(AdaptationPattern.persona_id == persona.id).all()
+        assert patterns == []  # ...but provenance-filtered out of pattern accumulation
+
+
 class TestSecondCallAcrossTimelineRecomputes:
     @pytest.mark.asyncio
     async def test_recurring_exposure_earns_real_evidence_on_second_call(self, db):
         persona = _make_persona(db)
         # First call - backstory.
-        await process_developmental_text(db, persona, persona.baseline_background, source="backstory", age=6)
+        await process_developmental_text(db, persona, persona.baseline_background, source="backstory", age=None)
         db.commit()
 
         # Second call - a later "experience" describing the same kind of exposure.
+        _make_experience(db, persona, "exp-1", 10, "His father was gone again for days, drinking the whole time.")
         await process_developmental_text(
-            db, persona, "He was gone again for days, drinking the whole time.",
+            db, persona, "His father was gone again for days, drinking the whole time.",
             source="experience", age=10, source_event_id="exp-1",
         )
         db.commit()
@@ -171,13 +244,15 @@ class TestSecondCallAcrossTimelineRecomputes:
         # capped at MAX_PERSISTENCE_ENTRIES - 3 entries -> 2 bumps (0.30,
         # still under); 4 entries -> 3 bumps (0.45, crosses). See
         # evidence_accumulator.MAX_PERSISTENCE_ENTRIES.
+        _make_experience(db, persona, "exp-2", 14, "By age 14 his father was still drinking constantly and disappearing for days at a time.")
         await process_developmental_text(
-            db, persona, "By age 14 he was still drinking constantly and disappearing for days at a time.",
+            db, persona, "By age 14 his father was still drinking constantly and disappearing for days at a time.",
             source="experience", age=14, source_event_id="exp-2",
         )
         db.commit()
+        _make_experience(db, persona, "exp-3", 17, "At 17 his father drank for days again, gone without a word.")
         result4 = await process_developmental_text(
-            db, persona, "At 17 it happened again - drinking for days, gone without a word.",
+            db, persona, "At 17 his father drank for days again, gone without a word.",
             source="experience", age=17, source_event_id="exp-3",
         )
         db.commit()
@@ -186,10 +261,11 @@ class TestSecondCallAcrossTimelineRecomputes:
     @pytest.mark.asyncio
     async def test_adaptation_pattern_reinforced_not_duplicated(self, db):
         persona = _make_persona(db)
-        await process_developmental_text(db, persona, persona.baseline_background, source="backstory", age=6)
+        await process_developmental_text(db, persona, persona.baseline_background, source="backstory", age=None)
         db.commit()
+        _make_experience(db, persona, "exp-1", 10, "His father was gone again for days, drinking the whole time.")
         await process_developmental_text(
-            db, persona, "He was gone again for days, drinking the whole time.",
+            db, persona, "His father was gone again for days, drinking the whole time.",
             source="experience", age=10, source_event_id="exp-1",
         )
         db.commit()
@@ -203,16 +279,31 @@ class TestCurrentTraumaMarkersProjection:
     @pytest.mark.asyncio
     async def test_projection_only_includes_evidenced_patterns(self, db):
         persona = _make_persona(db)
-        result1 = await process_developmental_text(db, persona, persona.baseline_background, source="backstory", age=6)
+        result1 = await process_developmental_text(db, persona, persona.baseline_background, source="backstory", age=None)
         db.commit()
         assert result1["trauma_markers"] == []
 
+        _make_experience(db, persona, "exp-1", 10, "His father was gone again for days, drinking the whole time.")
         result2 = await process_developmental_text(
-            db, persona, "He was gone again for days, drinking the whole time.",
+            db, persona, "His father was gone again for days, drinking the whole time.",
             source="experience", age=10, source_event_id="exp-1",
         )
         db.commit()
         assert isinstance(result2["trauma_markers"], list)
+
+    @pytest.mark.asyncio
+    async def test_age_inapplicable_hypothesis_excluded_from_result_for_an_adult_persona(self, db):
+        # End-to-end version of test_evidence_accumulator.py's direct unit
+        # test: reactive_attachment_disorder must not surface in this
+        # pipeline's own returned trauma_markers for an adult persona, even
+        # if evidence for it were somehow strong - exercised here by
+        # confirming the current_age argument actually reaches the
+        # projection call (a wiring check, not a re-test of the threshold
+        # math already covered in test_evidence_accumulator.py).
+        persona = _make_persona(db, current_age=40, baseline_age=40)
+        result = await process_developmental_text(db, persona, persona.baseline_background, source="backstory", age=None)
+        db.commit()
+        assert "reactive_attachment_disorder" not in result["trauma_markers"]
 
 
 # ============================================================
@@ -237,11 +328,13 @@ class TestPositiveAndReparativeExperiencesAreAnalyzed:
         must keep working exactly as before - this is the regression fixture
         every other case in this class is a variant of."""
         persona = _make_persona(db, baseline_background="A stable, ordinary childhood.")
-        result = await process_developmental_text(
-            db, persona,
+        description = (
             "Her best friend since kindergarten told the whole class a secret in confidence, "
-            "and she felt utterly humiliated.",
-            source="experience", age=8, source_event_id="exp-betrayal",
+            "and she felt utterly humiliated."
+        )
+        _make_experience(db, persona, "exp-betrayal", 8, description)
+        result = await process_developmental_text(
+            db, persona, description, source="experience", age=8, source_event_id="exp-betrayal",
         )
         db.commit()
 
@@ -256,11 +349,13 @@ class TestPositiveAndReparativeExperiencesAreAnalyzed:
         protective/reparative factor and NO adverse exposure must still
         produce a real interpretation, not a null one."""
         persona = _make_persona(db, baseline_background="A stable, ordinary childhood.")
-        result = await process_developmental_text(
-            db, persona,
+        description = (
             "He took responsibility and repaired the relationship, and she found herself "
-            "able to trust him again.",
-            source="experience", age=9, source_event_id="exp-repair",
+            "able to trust him again."
+        )
+        _make_experience(db, persona, "exp-repair", 9, description)
+        result = await process_developmental_text(
+            db, persona, description, source="experience", age=9, source_event_id="exp-repair",
         )
         db.commit()
 
@@ -280,9 +375,10 @@ class TestPositiveAndReparativeExperiencesAreAnalyzed:
         """CASE 3: a genuine achievement must be analyzed, and must not be
         coerced into one of the 12 adverse coping-strategy labels."""
         persona = _make_persona(db, baseline_background="A stable, ordinary childhood.")
+        description = "She won a competition and it felt like a proud accomplishment."
+        _make_experience(db, persona, "exp-achievement", 11, description)
         result = await process_developmental_text(
-            db, persona, "She won a competition and it felt like a proud accomplishment.",
-            source="experience", age=11, source_event_id="exp-achievement",
+            db, persona, description, source="experience", age=11, source_event_id="exp-achievement",
         )
         db.commit()
 
@@ -295,9 +391,10 @@ class TestPositiveAndReparativeExperiencesAreAnalyzed:
         """CASE 4: sustained support during vulnerability is eligible for
         developmental analysis, same as any other reparative factor."""
         persona = _make_persona(db, baseline_background="A stable, ordinary childhood.")
+        description = "Her aunt consistently offered support through the hardest years."
+        _make_experience(db, persona, "exp-support", 12, description)
         result = await process_developmental_text(
-            db, persona, "Her aunt consistently offered support through the hardest years.",
-            source="experience", age=12, source_event_id="exp-support",
+            db, persona, description, source="experience", age=12, source_event_id="exp-support",
         )
         db.commit()
 
@@ -316,9 +413,10 @@ class TestPositiveAndReparativeExperiencesAreAnalyzed:
         before_state = dict(persona.current_state or {})
         before_personality = dict(persona.current_personality)
 
+        description = "They had a pleasant lunch together and watched a movie afterward."
+        _make_experience(db, persona, "exp-trivial", 10, description)
         result = await process_developmental_text(
-            db, persona, "They had a pleasant lunch together and watched a movie afterward.",
-            source="experience", age=10, source_event_id="exp-trivial",
+            db, persona, description, source="experience", age=10, source_event_id="exp-trivial",
         )
         db.commit()
 
@@ -348,9 +446,10 @@ class TestPositiveAndReparativeExperiencesAreAnalyzed:
         # First adverse event: opens the "self_reliance"-strategy pattern via
         # caregiver_absence (keywords: "disappeared", "never around"),
         # domains attachment_security + stability.
+        description1 = "Her father disappeared for days and was never around."
+        _make_experience(db, persona, "exp-adverse-1", 7, description1)
         await process_developmental_text(
-            db, persona, "Her father disappeared for days and was never around.",
-            source="experience", age=7, source_event_id="exp-adverse-1",
+            db, persona, description1, source="experience", age=7, source_event_id="exp-adverse-1",
         )
         db.commit()
         pattern_before = db.query(AdaptationPattern).filter_by(persona_id=persona.id, adaptation_strategy="self_reliance").first()
@@ -363,10 +462,13 @@ class TestPositiveAndReparativeExperiencesAreAnalyzed:
         # (corrective_emotional_experience, domains include
         # attachment_security - the same domain the pattern above was opened
         # on) becomes available to buffer a later reinforcement.
+        description2 = (
+            "He took responsibility and repaired the relationship, and this "
+            "time he stayed instead of leaving."
+        )
+        _make_experience(db, persona, "exp-repair-2", 9, description2)
         reparative_result = await process_developmental_text(
-            db, persona, "He took responsibility and repaired the relationship, and this "
-            "time he stayed instead of leaving.",
-            source="experience", age=9, source_event_id="exp-repair-2",
+            db, persona, description2, source="experience", age=9, source_event_id="exp-repair-2",
         )
         db.commit()
         assert reparative_result["interpretation"] is not None
@@ -374,11 +476,75 @@ class TestPositiveAndReparativeExperiencesAreAnalyzed:
         # Second adverse event, same strategy/domain as the first - normally
         # "strengthened"; here it should register as "weakened" instead,
         # because of the intervening protective factor.
+        description3 = "Her father disappeared again for days, gone without a word."
+        _make_experience(db, persona, "exp-adverse-3", 11, description3)
         await process_developmental_text(
-            db, persona, "He disappeared again for days, gone without a word.",
-            source="experience", age=11, source_event_id="exp-adverse-3",
+            db, persona, description3, source="experience", age=11, source_event_id="exp-adverse-3",
         )
         db.commit()
 
         pattern_after = db.query(AdaptationPattern).filter_by(persona_id=persona.id, adaptation_strategy="self_reliance").first()
         assert pattern_after.reinforcement_history[-1]["effect"] == "weakened"
+
+
+class TestPatternEmergenceCannotCiteANonexistentEvent:
+    """
+    Provenance filtering, exercised through the live pipeline rather than
+    canonical_provenance.py in isolation: an Interpretation/DevelopmentalExposure
+    row whose source_event_id does not correspond to any real Experience this
+    persona actually has (a stale row left behind by a deleted experience, a
+    copy/paste error, a future migration bug) must not contribute to pattern
+    accumulation or hypothesis evidence, even though the row itself is
+    real and persisted.
+    """
+
+    @pytest.mark.asyncio
+    async def test_orphaned_exposure_with_no_matching_experience_is_excluded_from_pattern_accumulation(self, db):
+        persona = _make_persona(db, baseline_background="A stable, ordinary childhood.")
+
+        # A real, valid experience - opens a real pattern.
+        description = "Her father disappeared for days and was never around."
+        _make_experience(db, persona, "exp-real", 7, description)
+        await process_developmental_text(
+            db, persona, description, source="experience", age=7, source_event_id="exp-real",
+        )
+        db.commit()
+        real_pattern = db.query(AdaptationPattern).filter_by(persona_id=persona.id, adaptation_strategy="self_reliance").first()
+        assert real_pattern is not None
+        assert real_pattern.status == "emerging"
+
+        # Directly insert an orphaned exposure/interpretation pair claiming
+        # a source_event_id that was never a real Experience for this
+        # persona - simulating a stale/corrupted row, not something any
+        # current code path would create.
+        orphan_exposure = DevelopmentalExposure(
+            persona_id=persona.id, source_event_id="exp-does-not-exist", source="experience",
+            age_at_exposure=9, exposure_type="caregiver_absence",
+            developmental_domains=["attachment_security", "stability"], raw_text="fabricated",
+        )
+        db.add(orphan_exposure)
+        db.flush()
+        orphan_interpretation = Interpretation(
+            persona_id=persona.id, source_event_id="exp-does-not-exist", age_at_event=9,
+            exposure_ids=[orphan_exposure.id], developmental_domains=["attachment_security", "stability"],
+            belief_statement="Fabricated belief.", adaptation_strategy="self_reliance",
+            reasoning="Fabricated reasoning citing an event that never happened.",
+        )
+        db.add(orphan_interpretation)
+        db.commit()
+
+        # Re-running the pipeline (any new call recomputes patterns from the
+        # persona's FULL timeline) must not let the orphaned interpretation
+        # add a second reinforcement to the pattern it fraudulently claims
+        # to belong to.
+        description2 = "She won a competition and it felt like a proud accomplishment."
+        _make_experience(db, persona, "exp-unrelated", 12, description2)
+        await process_developmental_text(
+            db, persona, description2, source="experience", age=12, source_event_id="exp-unrelated",
+        )
+        db.commit()
+
+        pattern = db.query(AdaptationPattern).filter_by(persona_id=persona.id, adaptation_strategy="self_reliance").first()
+        cited_events = {entry.get("experience_id") for entry in (pattern.reinforcement_history or [])}
+        assert "exp-does-not-exist" not in cited_events
+        assert pattern.status == "emerging"  # still just the one real reinforcement, not two

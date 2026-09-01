@@ -157,6 +157,127 @@ class TestValidateAndFilter:
 
     def test_empty_response_produces_empty_lists(self):
         assert _validate_and_filter({}) == {"exposures": [], "protective_factors": []}
+
+
+class TestCaregiverContextRequiredForCaregiverExposures:
+    """
+    Canonical grounding fix: production regression on a real persona
+    ("Brandon"). "Brandon enters rehab..." (the subject's own recovery,
+    described decades into adulthood) was classified as
+    caregiver_substance_use purely because "rehab" is one of that exposure
+    type's keywords - the extractor never checked whether a caregiver was
+    actually the one who entered rehab. That produced a fabricated
+    "Hypervigilance" pattern and adaptation history dated to an event that
+    never happened, which then propagated into the narrative as fact.
+
+    Every exposure_type literally named caregiver_* requires a caregiver
+    word (mother/father/parent/guardian/etc.) in the SAME SENTENCE as the
+    matched keyword - not merely anywhere in a (possibly long, multi-topic)
+    text, which is exactly the failure mode of a whole-text check: a
+    caregiver mentioned in one sentence must not attribute an unrelated
+    keyword match in a completely different sentence to that caregiver.
+    """
+
+    def test_subjects_own_rehab_does_not_produce_caregiver_substance_use(self):
+        # The exact production sentence from the Brandon regression.
+        result = extract_exposures_keyword(
+            "After another prolonged period of drug use, Brandon enters rehab, earns his RADT, "
+            "becomes a case manager in substance-use treatment, and begins developing AI applications."
+        )
+        types = {e["exposure_type"] for e in result["exposures"]}
+        assert "caregiver_substance_use" not in types
+
+    def test_caregivers_rehab_still_produces_caregiver_substance_use(self):
+        result = extract_exposures_keyword(
+            "My father struggled with alcohol and eventually went to rehab when I was twelve."
+        )
+        types = {e["exposure_type"] for e in result["exposures"]}
+        assert "caregiver_substance_use" in types
+
+    def test_caregiver_mentioned_in_an_unrelated_sentence_does_not_attribute_a_later_match(self):
+        # The precise cross-sentence contamination a whole-text check would
+        # have missed even after requiring *some* caregiver word to be
+        # present in the document: a caregiver mentioned in one sentence,
+        # the subject's own rehab entry in a completely different one.
+        result = extract_exposures_keyword(
+            "My mother struggled her whole life with her own issues. Years later, after another "
+            "prolonged period of drug use, I entered rehab myself and turned things around."
+        )
+        types = {e["exposure_type"] for e in result["exposures"]}
+        assert "caregiver_substance_use" not in types
+
+    def test_caregiver_absence_requires_caregiver_context(self):
+        result = extract_exposures_keyword("Brandon disappeared for a few days during a rough patch.")
+        types = {e["exposure_type"] for e in result["exposures"]}
+        assert "caregiver_absence" not in types
+        result = extract_exposures_keyword("My father disappeared for days at a time.")
+        types = {e["exposure_type"] for e in result["exposures"]}
+        assert "caregiver_absence" in types
+
+    def test_caregiver_incarceration_requires_caregiver_context(self):
+        # Second real instance of the same bug class, found empirically via
+        # the Brandon fixture: "While incarcerated, Brandon meets a man..."
+        # describes Brandon's OWN incarceration and was misclassified as
+        # caregiver_incarceration before this fix.
+        result = extract_exposures_keyword(
+            "While incarcerated, Brandon meets a man who teaches him event promotion."
+        )
+        types = {e["exposure_type"] for e in result["exposures"]}
+        assert "caregiver_incarceration" not in types
+        result = extract_exposures_keyword("My father was incarcerated for most of my childhood.")
+        types = {e["exposure_type"] for e in result["exposures"]}
+        assert "caregiver_incarceration" in types
+
+    def test_caregiver_emotional_unavailability_requires_caregiver_context(self):
+        result = extract_exposures_keyword("He became emotionally distant after the divorce.")
+        types = {e["exposure_type"] for e in result["exposures"]}
+        assert "caregiver_emotional_unavailability" not in types
+        result = extract_exposures_keyword("My mother was emotionally unavailable throughout my childhood.")
+        types = {e["exposure_type"] for e in result["exposures"]}
+        assert "caregiver_emotional_unavailability" in types
+
+    def test_caregiver_mental_illness_requires_caregiver_context(self):
+        result = extract_exposures_keyword("She was diagnosed as bipolar in her twenties.")
+        types = {e["exposure_type"] for e in result["exposures"]}
+        assert "caregiver_mental_illness" not in types
+        result = extract_exposures_keyword("My father was bipolar and often had unstable moods.")
+        types = {e["exposure_type"] for e in result["exposures"]}
+        assert "caregiver_mental_illness" in types
+
+    def test_negation_still_applies_within_the_caregiver_sentence(self):
+        # The caregiver-context gate and negation must compose, not bypass
+        # each other.
+        result = extract_exposures_keyword("My father never drank, not once in his life.")
+        types = {e["exposure_type"] for e in result["exposures"]}
+        assert "caregiver_substance_use" not in types
+
+    def test_single_sentence_multiple_caregiver_exposures_still_both_detected(self):
+        # Regression guard for TestKeywordFallbackDetectsExposures's own
+        # test_single_sentence_supports_multiple_exposures - the caregiver-
+        # context gate must not break same-sentence, same-caregiver
+        # multi-exposure detection.
+        result = extract_exposures_keyword("My father drank constantly and disappeared for days.")
+        types = {e["exposure_type"] for e in result["exposures"]}
+        assert "caregiver_substance_use" in types
+        assert "caregiver_absence" in types
+
+
+class TestTaxonomyCaregiverContextCoverage:
+    def test_every_caregiver_named_exposure_type_requires_caregiver_context(self):
+        # Every exposure_type whose NAME claims a caregiver did something
+        # (as opposed to types like death_of_caregiver_or_family or
+        # chronic_illness_family_member, whose keywords are already
+        # inherently self-scoping, e.g. "lost my mother") must actually
+        # enforce that attribution - this is the exact class of bug the
+        # Brandon regression exposed, generalized into a taxonomy-wide
+        # integrity check so a future caregiver_* addition can't reintroduce
+        # it silently.
+        self_scoping_keyword_types = {"death_of_caregiver_or_family", "chronic_illness_family_member"}
+        for exposure_type, meta in EXPOSURE_TAXONOMY.items():
+            if exposure_type.startswith("caregiver_") and exposure_type not in self_scoping_keyword_types:
+                assert meta.get("requires_caregiver_context") is True, (
+                    f"{exposure_type} is caregiver-attributed but does not require caregiver context"
+                )
         assert _validate_and_filter(None) == {"exposures": [], "protective_factors": []}
 
 

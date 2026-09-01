@@ -110,7 +110,7 @@ async def create_persona(
         try:
             pipeline_result = await process_developmental_text(
                 db, persona, persona.baseline_background,
-                source="backstory", age=persona.baseline_age,
+                source="backstory", age=None,
                 canonical_extraction=background_extraction,
                 update_attachment=False,
             )

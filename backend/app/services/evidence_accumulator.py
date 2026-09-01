@@ -25,6 +25,8 @@ persisting the result (see build_clinical_pattern_hypothesis_rows).
 import logging
 from typing import Dict, List, Optional
 
+from app.services.hypothesis_applicability import is_currently_applicable
+
 logger = logging.getLogger(__name__)
 
 
@@ -500,17 +502,32 @@ def accumulate_evidence(
 DISPLAY_THRESHOLD = 0.4  # matches evidence_strength_label's "moderate" floor
 
 
-def project_current_trauma_markers(accumulated: Dict[str, Dict]) -> List[str]:
+def project_current_trauma_markers(accumulated: Dict[str, Dict], current_age: Optional[int] = None) -> List[str]:
     """
     Read-only projection: pattern_keys whose evidence has actually
     accumulated past a display floor. A freshly opened hypothesis
     (evidence_strength is None) never appears here - "worth investigating"
     is not the same as "worth showing."
+
+    current_age additionally gates a pattern_key through hypothesis_
+    applicability.is_currently_applicable - e.g. reactive_attachment_disorder
+    has current-age applicability capped at 17, so it must not appear as a
+    live "current symptom" for an adult persona even once evidence is
+    strong. This is presentation-only: the underlying ClinicalPatternHypothesis
+    row and its evidence are untouched (persona_board.py and narrative_
+    service.py both already do the same filtering for their own current-
+    hypothesis surfaces; current_trauma_markers is the third and, prior to
+    this, last unfiltered read path - it feeds Talk's chat context and the
+    narrative's own separate trauma_text field, both of which would
+    otherwise still see an age-inapplicable marker even after those two
+    fixes). current_age=None (a caller that hasn't been updated) preserves
+    the exact previous behavior - no new gate silently applied.
     """
     return sorted(
         pattern_key
         for pattern_key, state in accumulated.items()
         if (state.get("evidence_strength") or 0) >= DISPLAY_THRESHOLD
+        and (current_age is None or is_currently_applicable(pattern_key, current_age))
     )
 
 

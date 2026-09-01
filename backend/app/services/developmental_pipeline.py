@@ -43,7 +43,10 @@ from sqlalchemy.orm import Session
 
 from app.models import (
     DevelopmentalExposure, ProtectiveFactor, NarrationRecord,
-    FunctionalObservation, ClinicalPatternHypothesis, AdaptationPattern, Interpretation,
+    FunctionalObservation, ClinicalPatternHypothesis, AdaptationPattern, Interpretation, Experience, Intervention,
+)
+from app.services.canonical_provenance import (
+    exposure_has_provenance, interpretation_has_provenance, protective_factor_has_provenance,
 )
 from app.services.developmental_exposure_engine import (
     extract_developmental_exposures_async, build_exposure_and_protective_rows,
@@ -65,6 +68,7 @@ def _exposure_dict(e: DevelopmentalExposure) -> Dict:
     return {
         "id": e.id, "exposure_type": e.exposure_type, "developmental_domains": e.developmental_domains,
         "age_at_exposure": e.age_at_exposure, "source": e.source, "source_event_id": e.source_event_id,
+        "raw_text": e.raw_text,
     }
 
 
@@ -76,6 +80,7 @@ def _protective_dict(p: ProtectiveFactor) -> Dict:
     return {
         "id": p.id, "factor_type": p.factor_type, "domains_buffered": p.domains_buffered,
         "active_from_age": p.active_from_age, "source_event_id": p.source_event_id,
+        "source": "backstory" if p.source_event_id is None else "experience",
     }
 
 
@@ -99,7 +104,7 @@ async def process_developmental_text(
     persona,
     text: str,
     source: str,
-    age: int,
+    age: Optional[int],
     source_event_id: Optional[str] = None,
     speaker_role: str = "case_author",
     canonical_extraction: Optional[Dict] = None,
@@ -111,7 +116,7 @@ async def process_developmental_text(
         persona: the Persona ORM row (already added/flushed, has an id)
         text: backstory text or a single experience description
         source: "backstory" | "experience"
-        age: age this text describes (baseline_age for backstory, age_at_event for an experience)
+        age: occurrence age for an experience; None for undated developmental background
         source_event_id: Experience.id if source == "experience", else None
         speaker_role: who wrote this text - "case_author" for the current UI (both the
             backstory field and experience descriptions are case-authored, not the
@@ -169,6 +174,17 @@ async def process_developmental_text(
         FunctionalObservation.persona_id == persona.id
     ).order_by(FunctionalObservation.age_observed, FunctionalObservation.created_at, FunctionalObservation.id).all()
 
+    # Union of Experience and Intervention IDs - see timeline_replay.py's
+    # identical valid_event_ids comment for why interventions are included
+    # even though nothing currently attaches evidence to one.
+    valid_event_ids = {
+        str(value) for (value,) in db.query(Experience.id).filter(Experience.persona_id == persona.id).all()
+    } | {
+        str(value) for (value,) in db.query(Intervention.id).filter(Intervention.persona_id == persona.id).all()
+    }
+    all_exposures = [row for row in all_exposures if exposure_has_provenance(row, valid_event_ids)]
+    all_protective = [row for row in all_protective if protective_factor_has_provenance(row, valid_event_ids)]
+
     exposure_dicts_all = [_exposure_dict(e) for e in all_exposures]
     protective_dicts_all = [_protective_dict(p) for p in all_protective]
     narration_dicts_all = [_narration_dict(n) for n in all_narration]
@@ -220,6 +236,9 @@ async def process_developmental_text(
     all_interpretations = db.query(Interpretation).filter(
         Interpretation.persona_id == persona.id
     ).order_by(Interpretation.age_at_event, Interpretation.created_at, Interpretation.id).all()
+    all_interpretations = [
+        row for row in all_interpretations if interpretation_has_provenance(row, valid_event_ids)
+    ]
     interpretation_dicts = [
         {
             "id": i.id, "source_event_id": i.source_event_id, "age_at_event": i.age_at_event,
@@ -307,7 +326,11 @@ async def process_developmental_text(
         persona.current_attachment_style = derive_attachment_style(persona.current_attachment_dimensions)
 
     # 7. Project the display list - the single writer to current_trauma_markers.
-    trauma_markers = project_current_trauma_markers(accumulated_evidence)
+    # current_age passed so an age-inapplicable hypothesis (e.g. reactive_
+    # attachment_disorder past current-age 17) never appears as a live
+    # marker for this persona - see evidence_accumulator.project_current_
+    # trauma_markers's docstring.
+    trauma_markers = project_current_trauma_markers(accumulated_evidence, current_age=persona.current_age)
 
     return {
         "exposures": this_batch_exposures,
