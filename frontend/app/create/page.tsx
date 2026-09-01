@@ -8,7 +8,7 @@ import { RubixShell, RubixPageHeader, RubixCard } from '@/components/rubix'
 import FeedbackModal from '@/components/FeedbackModal'
 
 const TOTAL_STEPS = 5
-const BACKGROUND_LIMIT = 1000
+const BACKGROUND_LIMIT = 2000
 const DEFAULT_BACKGROUND = 'No specific background provided.'
 
 const ATTACHMENT_CHOICES: { key: string; label: string }[] = [
