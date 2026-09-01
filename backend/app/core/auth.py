@@ -100,6 +100,11 @@ if _DEV_NO_FIREBASE_CONFIGURED:
           "Do not set AUTH_DEV_BYPASS in a deployed environment.")
 
 
+def is_dev_auth_bypass_active() -> bool:
+    """Expose the already-hardened local bypass decision to server policy."""
+    return _DEV_NO_FIREBASE_CONFIGURED
+
+
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Security(security)
 ) -> str:
