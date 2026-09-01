@@ -17,6 +17,7 @@ from app.services.developmental_pipeline import process_developmental_text
 from app.services.api_projection import persona_projection
 from app.services.attachment_engine import dimensions_for_style
 from app.schemas import PersonaCreate, PersonaUpdate, PersonaResponse
+from app.services.preview_access import enforce_preview_persona_limit
 
 logger = logging.getLogger(__name__)
 
@@ -35,13 +36,7 @@ async def create_persona(
 
     Enforces 3-persona limit for research preview.
     """
-    # Check persona count for user (research preview limit: 3)
-    persona_count = db.query(Persona).filter(Persona.user_id == user_id).count()
-    if persona_count >= 3:
-        raise HTTPException(
-            status_code=403,
-            detail="Persona limit reached. Maximum 3 personas allowed in research preview."
-        )
+    enforce_preview_persona_limit(db, user_id)
 
     # Set baseline personality (default to foundational baseline if not provided)
     early_environment = persona_data.baseline_background
