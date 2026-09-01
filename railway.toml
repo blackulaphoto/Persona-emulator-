@@ -1,9 +1,9 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "cd backend && pip install --upgrade pip && pip install -r requirements.txt"
+buildCommand = "cd backend && python -m venv --clear .venv && .venv/bin/python -m pip install --upgrade pip && .venv/bin/python -m pip install --no-cache-dir -r requirements.txt"
 
 [deploy]
-startCommand = "cd backend && alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT --log-level debug"
+startCommand = "cd backend && .venv/bin/alembic upgrade head && .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port $PORT --log-level debug"
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"

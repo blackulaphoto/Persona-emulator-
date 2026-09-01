@@ -154,10 +154,18 @@ async def process_developmental_text(
     # 3. Load the persona's COMPLETE timeline - evidence accumulation and
     # pattern accumulation both recompute from all of it every call, per
     # their own recompute-from-scratch philosophy.
-    all_exposures = db.query(DevelopmentalExposure).filter(DevelopmentalExposure.persona_id == persona.id).all()
-    all_protective = db.query(ProtectiveFactor).filter(ProtectiveFactor.persona_id == persona.id).all()
-    all_narration = db.query(NarrationRecord).filter(NarrationRecord.subject_id == persona.id).all()
-    all_functional = db.query(FunctionalObservation).filter(FunctionalObservation.persona_id == persona.id).all()
+    all_exposures = db.query(DevelopmentalExposure).filter(
+        DevelopmentalExposure.persona_id == persona.id
+    ).order_by(DevelopmentalExposure.age_at_exposure, DevelopmentalExposure.created_at, DevelopmentalExposure.id).all()
+    all_protective = db.query(ProtectiveFactor).filter(
+        ProtectiveFactor.persona_id == persona.id
+    ).order_by(ProtectiveFactor.active_from_age, ProtectiveFactor.created_at, ProtectiveFactor.id).all()
+    all_narration = db.query(NarrationRecord).filter(
+        NarrationRecord.subject_id == persona.id
+    ).order_by(NarrationRecord.created_at, NarrationRecord.id).all()
+    all_functional = db.query(FunctionalObservation).filter(
+        FunctionalObservation.persona_id == persona.id
+    ).order_by(FunctionalObservation.age_observed, FunctionalObservation.created_at, FunctionalObservation.id).all()
 
     exposure_dicts_all = [_exposure_dict(e) for e in all_exposures]
     protective_dicts_all = [_protective_dict(p) for p in all_protective]
@@ -183,7 +191,9 @@ async def process_developmental_text(
     if this_batch_exposures or this_batch_protective:
         prior_patterns = [
             {"pattern_name": p.pattern_name, "adaptation_strategy": p.adaptation_strategy}
-            for p in db.query(AdaptationPattern).filter(AdaptationPattern.persona_id == persona.id).all()
+            for p in db.query(AdaptationPattern).filter(
+                AdaptationPattern.persona_id == persona.id
+            ).order_by(AdaptationPattern.adaptation_strategy, AdaptationPattern.id).all()
         ]
         narration_signals_this = narration_analysis.get("linguistic_signals") or []
         interpretation_result = await interpret_experience_async(
@@ -205,7 +215,9 @@ async def process_developmental_text(
 
     # 5. Pattern accumulation (step 5) - recomputed from ALL of the persona's
     # interpretations, same recompute-from-scratch philosophy as step 4.
-    all_interpretations = db.query(Interpretation).filter(Interpretation.persona_id == persona.id).all()
+    all_interpretations = db.query(Interpretation).filter(
+        Interpretation.persona_id == persona.id
+    ).order_by(Interpretation.age_at_event, Interpretation.created_at, Interpretation.id).all()
     interpretation_dicts = [
         {
             "id": i.id, "source_event_id": i.source_event_id, "age_at_event": i.age_at_event,

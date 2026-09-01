@@ -260,7 +260,7 @@ async def analyze_narration_ai(text: str, persona_name: str, speaker_role: str) 
                 "person. You never diagnose, never address 'the user', and never state a "
                 "hypothesis as settled fact. Respond ONLY with valid JSON."
             ),
-            temperature=0.3,
+            temperature=0.0,
             max_tokens=1200
         )
         return _validate_and_filter(response)

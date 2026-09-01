@@ -296,7 +296,7 @@ async def propose_state_trait_implications_ai(
                 "across two distinct tiers - fast State and slow, evidence-gated Trait. You never "
                 "output a raw score and you never address 'the user'. Respond ONLY with valid JSON."
             ),
-            temperature=0.4,
+            temperature=0.0,
             max_tokens=400
         )
         return _validate_proposal(response)
@@ -622,7 +622,7 @@ async def propose_intervention_state_trait_implications_ai(
                 "slow, evidence-gated Trait. You never output a raw score and you never address "
                 "'the user'. Respond ONLY with valid JSON."
             ),
-            temperature=0.4,
+            temperature=0.0,
             max_tokens=400
         )
         return _validate_proposal(response)

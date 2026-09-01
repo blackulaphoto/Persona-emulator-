@@ -2,4 +2,4 @@
 PYTHONPATH = "/app/backend"
 
 [start]
-cmd = "cd backend && alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+cmd = "cd backend && .venv/bin/alembic upgrade head && .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port $PORT"

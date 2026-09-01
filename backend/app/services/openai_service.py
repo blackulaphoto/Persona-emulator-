@@ -173,8 +173,9 @@ class OpenAIService:
         self,
         prompt: str,
         system_message: str = "You are a helpful assistant.",
-        temperature: float = 0.7,
-        max_tokens: int = 2000
+        temperature: float = 0.0,
+        max_tokens: int = 2000,
+        seed: Optional[int] = 0,
     ) -> Dict[str, Any]:
         """
         Send prompt to GPT-4 and return parsed JSON response.
@@ -204,7 +205,8 @@ class OpenAIService:
                         {"role": "user", "content": prompt}
                     ],
                     temperature=temperature,
-                    max_tokens=max_tokens
+                    max_tokens=max_tokens,
+                    seed=seed,
                 )
                 
                 content = response.choices[0].message.content
@@ -235,9 +237,10 @@ class OpenAIService:
         prompt: str,
         context: str,
         system_message: str = "You are a helpful assistant.",
-        temperature: float = 0.7,
+        temperature: float = 0.0,
         max_tokens: int = 2000,
-        context_token_limit: int = 6000
+        context_token_limit: int = 6000,
+        seed: Optional[int] = 0,
     ) -> Dict[str, Any]:
         """
         Send prompt with context, automatically truncating context if needed.
@@ -262,7 +265,8 @@ class OpenAIService:
             prompt=full_prompt,
             system_message=system_message,
             temperature=temperature,
-            max_tokens=max_tokens
+            max_tokens=max_tokens,
+            seed=seed,
         )
     
     def estimate_cost(self, prompt_tokens: int, completion_tokens: int) -> float:

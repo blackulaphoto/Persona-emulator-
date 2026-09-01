@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 openai_service = OpenAIService(
     api_key=os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_KEY"),
-    model="gpt-4"
+    model="gpt-4o"
 )
 
 BASELINE_SCORE = 50
@@ -269,7 +269,7 @@ Respond ONLY with valid JSON."""
         response = await openai_service.analyze(
             prompt=prompt,
             system_message="You are a developmental psychologist specializing in personality formation and early childhood development. Respond ONLY with valid JSON.",
-            temperature=0.7,
+            temperature=0.0,
             max_tokens=800
         )
 

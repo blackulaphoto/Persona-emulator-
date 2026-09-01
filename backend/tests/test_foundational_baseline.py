@@ -21,6 +21,7 @@ from app.utils.foundational_baseline import (
     TRAIT_MIN,
     TRAIT_MAX,
 )
+from app.utils import foundational_baseline
 
 
 FLAT_RESPONSE = {
@@ -40,6 +41,9 @@ class TestNudgeRemoved:
         import app.utils.foundational_baseline as module
         assert not hasattr(module, "_is_flat_profile")
         assert not hasattr(module, "_apply_signal_nudge")
+
+    def test_baseline_uses_stable_current_analysis_model(self):
+        assert foundational_baseline.openai_service.model == "gpt-4o"
 
     @pytest.mark.asyncio
     async def test_flat_ai_response_returned_exactly_unchanged(self):

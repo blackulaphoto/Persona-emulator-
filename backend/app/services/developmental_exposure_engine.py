@@ -325,7 +325,7 @@ async def extract_exposures_ai(text: str) -> Optional[Dict[str, List[Dict]]]:
                 "text affirmatively describes, respect negation and denial, and never invent "
                 "exposures the text doesn't support. Respond ONLY with valid JSON."
             ),
-            temperature=0.2,  # extraction, not creative generation
+            temperature=0.0,  # canonical extraction, not creative generation
             max_tokens=1200
         )
         return _validate_and_filter(response)

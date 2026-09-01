@@ -373,7 +373,7 @@ async def analyze_intervention(
     response = await openai_service.analyze(
         prompt=prompt,
         system_message="You are a clinical psychologist specializing in therapy outcome research and evidence-based practice. Respond ONLY with valid JSON. Be realistic about therapy limitations.",
-        temperature=0.7,
+        temperature=0.0,
         max_tokens=2000
     )
 
