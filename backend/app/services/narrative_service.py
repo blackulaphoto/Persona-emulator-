@@ -1,9 +1,10 @@
 """
 Narrative Service
 
-Generates comprehensive AI-powered narratives about personas using GPT-4.
+Generates comprehensive AI-powered narratives about personas.
 """
 import time
+import logging
 from typing import Dict, Any, List
 from datetime import datetime
 from sqlalchemy.orm import Session
@@ -22,6 +23,17 @@ from app.models.narration import PersonaBelief
 from app.models.interpretation import Interpretation
 from app.models.protective_factor import ProtectiveFactor
 from app.services.evidence_accumulator import evidence_strength_label
+
+
+logger = logging.getLogger(__name__)
+
+NARRATIVE_MODEL = "gpt-5.6-luna"
+NARRATIVE_MAX_OUTPUT_TOKENS = 8000
+NARRATIVE_REASONING_EFFORT = "low"
+NARRATIVE_SYSTEM_INSTRUCTIONS = (
+    "You are a clinical psychologist writing comprehensive case narratives. "
+    "Generate detailed, empathetic, professional narratives about psychological development."
+)
 
 
 async def generate_persona_narrative(
@@ -94,14 +106,14 @@ async def generate_persona_narrative(
     ).count()
     generation_number = existing_count + 1
 
-    # Build comprehensive prompt for GPT-4
+    # Build the existing comprehensive narrative prompt.
     prompt = _build_narrative_prompt(
         persona, experiences, interventions,
         adaptation_patterns, clinical_pattern_hypotheses, persona_beliefs,
         interpretations, protective_factors,
     )
     
-    # Call GPT-4
+    # Call the Responses API for GPT-5.6 Luna reasoning support.
     try:
         api_key = settings.openai_api_key or os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_KEY")
 
@@ -116,26 +128,29 @@ async def generate_persona_narrative(
         )
 
         client = openai.OpenAI(api_key=api_key, http_client=http_client)
-        response = client.chat.completions.create(
-            model="gpt-4o",  # Use GPT-4o for best results
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are a clinical psychologist writing comprehensive case narratives. Generate detailed, empathetic, professional narratives about psychological development."
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            temperature=0.7,  # Balanced creativity and consistency
-            max_tokens=4000   # Allow for comprehensive narrative
+        response = client.responses.create(
+            model=NARRATIVE_MODEL,
+            instructions=NARRATIVE_SYSTEM_INSTRUCTIONS,
+            input=prompt,
+            reasoning={"effort": NARRATIVE_REASONING_EFFORT},
+            max_output_tokens=NARRATIVE_MAX_OUTPUT_TOKENS,
+        )
+
+        narrative_text = response.output_text
+        if not narrative_text:
+            raise ValueError("OpenAI returned no narrative text")
+
+        usage = response.usage
+        logger.info(
+            "Narrative generation completed model=%s input_tokens=%s output_tokens=%s reasoning_tokens=%s",
+            response.model,
+            getattr(usage, "input_tokens", None),
+            getattr(usage, "output_tokens", None),
+            getattr(getattr(usage, "output_tokens_details", None), "reasoning_tokens", None),
         )
         
-        narrative_text = response.choices[0].message.content
-        
     except Exception as e:
-        raise Exception(f"Failed to generate narrative with GPT-4: {str(e)}")
+        raise Exception(f"Failed to generate narrative with {NARRATIVE_MODEL}: {str(e)}")
     
     # Parse the structured narrative
     sections = _parse_narrative_sections(narrative_text)
@@ -181,7 +196,7 @@ def _build_narrative_prompt(
     protective_factors: List[ProtectiveFactor] = None,
 ) -> str:
     """
-    Build comprehensive prompt for GPT-4 narrative generation.
+    Build the comprehensive narrative-generation prompt.
     """
     adaptation_patterns = adaptation_patterns or []
     clinical_pattern_hypotheses = clinical_pattern_hypotheses or []
