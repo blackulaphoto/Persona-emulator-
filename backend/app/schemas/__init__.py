@@ -20,7 +20,7 @@ class PersonaCreate(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     baseline_age: int = Field(ge=0, le=120)
     baseline_gender: str = Field(min_length=1, max_length=50)
-    baseline_background: str = Field(min_length=1, max_length=1000)
+    baseline_background: str = Field(min_length=1, max_length=2000)
     baseline_personality: Optional[PersonalityTraits] = None
     baseline_attachment_style: Optional[str] = Field(default="secure")
 
@@ -28,7 +28,7 @@ class PersonaCreate(BaseModel):
 class PersonaUpdate(BaseModel):
     """Schema for updating persona details."""
     name: Optional[str] = Field(None, min_length=1, max_length=100)
-    baseline_background: Optional[str] = Field(None, min_length=1, max_length=1000)
+    baseline_background: Optional[str] = Field(None, min_length=1, max_length=2000)
 
 
 class AdaptationPatternSummary(BaseModel):

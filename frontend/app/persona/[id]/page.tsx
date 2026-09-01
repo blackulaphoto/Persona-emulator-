@@ -429,7 +429,7 @@ function EditPersonaModal({ persona, onClose, onSuccess }: {
         <h2 className="text-2xl font-display">Edit Persona</h2>
         <input required maxLength={100} value={name} onChange={(event) => setName(event.target.value)}
           className="w-full px-4 py-3 rounded-lg border-2 border-border" aria-label="Persona name" />
-        <textarea required maxLength={1000} rows={6} value={background}
+        <textarea required maxLength={2000} rows={6} value={background}
           onChange={(event) => setBackground(event.target.value)}
           className="w-full px-4 py-3 rounded-lg border-2 border-border resize-none"
           aria-label="Persona background" />
