@@ -14,8 +14,9 @@ from app.utils.foundational_baseline import (
     infer_foundational_signals
 )
 from app.services.developmental_pipeline import process_developmental_text
+from app.services.developmental_exposure_engine import extract_developmental_exposures_async
 from app.services.api_projection import persona_projection
-from app.services.attachment_engine import dimensions_for_style
+from app.services.attachment_engine import derive_baseline_attachment, dimensions_for_style
 from app.schemas import PersonaCreate, PersonaUpdate, PersonaResponse
 from app.services.preview_access import enforce_preview_persona_limit
 
@@ -58,9 +59,16 @@ async def create_persona(
             gender=persona_data.baseline_gender
         )
     
-    # Create persona
-    baseline_attachment_style = persona_data.baseline_attachment_style or "secure"
-    baseline_attachment_dimensions = dimensions_for_style(baseline_attachment_style)
+    # Derive attachment from the same canonical background features when the
+    # case author did not explicitly supply a starting style.
+    background_extraction = await extract_developmental_exposures_async(early_environment)
+    if persona_data.baseline_attachment_style:
+        baseline_attachment_style = persona_data.baseline_attachment_style
+        baseline_attachment_dimensions = dimensions_for_style(baseline_attachment_style)
+    else:
+        baseline_attachment = derive_baseline_attachment(background_extraction)
+        baseline_attachment_style = baseline_attachment["style"]
+        baseline_attachment_dimensions = baseline_attachment["dimensions"]
     persona = Persona(
         user_id=user_id,  # Add Firebase UID
         name=persona_data.name,
@@ -103,6 +111,8 @@ async def create_persona(
             pipeline_result = await process_developmental_text(
                 db, persona, persona.baseline_background,
                 source="backstory", age=persona.baseline_age,
+                canonical_extraction=background_extraction,
+                update_attachment=False,
             )
             persona.current_trauma_markers = pipeline_result["trauma_markers"]
             db.commit()

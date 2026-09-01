@@ -102,6 +102,8 @@ async def process_developmental_text(
     age: int,
     source_event_id: Optional[str] = None,
     speaker_role: str = "case_author",
+    canonical_extraction: Optional[Dict] = None,
+    update_attachment: bool = True,
 ) -> Dict:
     """
     Args:
@@ -130,7 +132,7 @@ async def process_developmental_text(
         value from real evidence_strength without a second DB round trip.
     """
     # 1. Exposure extraction (step 2)
-    extraction = await extract_developmental_exposures_async(text)
+    extraction = canonical_extraction or await extract_developmental_exposures_async(text)
     exposure_rows, protective_rows = build_exposure_and_protective_rows(
         persona.id, extraction, source=source, source_event_id=source_event_id,
         age_at_exposure=age, speaker_role=speaker_role,
@@ -286,19 +288,23 @@ async def process_developmental_text(
         interpretation_row.trait_implications = trait_changes or None
 
         persona.current_state = apply_state_update(persona.current_state, state_changes)
-        persona.current_attachment_dimensions = apply_attachment_update(persona.current_attachment_dimensions, state_changes, strategy)
+        if update_attachment:
+            persona.current_attachment_dimensions = apply_attachment_update(
+                persona.current_attachment_dimensions, state_changes, strategy
+            )
         persona.current_personality = apply_trait_update(
             persona.current_personality, trait_changes, gate_open=trait_gate_open(pattern_state)
         )
         db.flush()
 
-    persona.current_attachment_dimensions = apply_attachment_exposure(
-        persona.current_attachment_dimensions, [_exposure_dict(e) for e in exposure_rows]
-    )
-    persona.current_attachment_dimensions = apply_attachment_protection(
-        persona.current_attachment_dimensions, [_protective_dict(p) for p in protective_rows]
-    )
-    persona.current_attachment_style = derive_attachment_style(persona.current_attachment_dimensions)
+    if update_attachment:
+        persona.current_attachment_dimensions = apply_attachment_exposure(
+            persona.current_attachment_dimensions, [_exposure_dict(e) for e in exposure_rows]
+        )
+        persona.current_attachment_dimensions = apply_attachment_protection(
+            persona.current_attachment_dimensions, [_protective_dict(p) for p in protective_rows]
+        )
+        persona.current_attachment_style = derive_attachment_style(persona.current_attachment_dimensions)
 
     # 7. Project the display list - the single writer to current_trauma_markers.
     trauma_markers = project_current_trauma_markers(accumulated_evidence)

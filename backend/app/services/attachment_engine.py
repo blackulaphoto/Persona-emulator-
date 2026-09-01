@@ -32,6 +32,22 @@ def derive_attachment_style(dimensions: Optional[Dict[str, float]]) -> str:
     return "secure"
 
 
+def derive_baseline_attachment(extraction: Optional[Dict]) -> Dict[str, object]:
+    """Derive starting attachment from canonical background evidence.
+
+    Neutral/low-information input stays at the existing secure baseline; only
+    explicit attachment-domain features move the dimensions.
+    """
+    extraction = extraction or {}
+    dimensions = apply_attachment_exposure(
+        dimensions_for_style("secure"), extraction.get("exposures") or []
+    )
+    dimensions = apply_attachment_protection(
+        dimensions, extraction.get("protective_factors") or []
+    )
+    return {"style": derive_attachment_style(dimensions), "dimensions": dimensions}
+
+
 def _move(value: float, direction: str, magnitude: str, invert: bool = False) -> float:
     if invert:
         direction = {"increase": "decrease", "decrease": "increase"}.get(direction, direction)

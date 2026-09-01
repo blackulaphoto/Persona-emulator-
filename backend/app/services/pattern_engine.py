@@ -826,16 +826,8 @@ async def upsert_adaptation_pattern_rows(db, persona_id: str, accumulated: Dict[
     persona's complete Interpretation history on every call, so this updates
     existing AdaptationPattern rows in place by adaptation_strategy (the
     controlled-vocabulary grouping key) rather than inserting duplicates.
-    Renaming only happens if the pattern is still "emerging" - once a
-    pattern is established, keep its name stable rather than letting a
-    fresh AI naming call quietly relabel it on every new experience.
-
-    async, and calls name_pattern_ai directly (with a heuristic fallback on
-    failure) rather than the sync name_pattern wrapper - name_pattern
-    detects a running event loop and silently degrades to the heuristic
-    namer to stay safe when misused, but this function IS meant to run
-    inside an async route, so taking that safety fallback unconditionally
-    would mean production never gets an AI-generated name at all.
+    The controlled adaptation key is the identity and its checked-in label is
+    stable. Freeform prose remains downstream and may describe it differently.
 
     Does not commit - caller controls the transaction.
     """
@@ -861,10 +853,7 @@ async def upsert_adaptation_pattern_rows(db, persona_id: str, accumulated: Dict[
             if row.status == "emerging" and state.get("representative_belief"):
                 row.description = state["representative_belief"]
         else:
-            belief_statements = [state.get("representative_belief")] if state.get("representative_belief") else []
-            pattern_name = await name_pattern_ai(persona_name, strategy, belief_statements)
-            if not pattern_name:
-                pattern_name = name_pattern_heuristic(strategy)
+            pattern_name = name_pattern_heuristic(strategy)
             db.add(AdaptationPattern(
                 persona_id=persona_id,
                 pattern_name=pattern_name,
