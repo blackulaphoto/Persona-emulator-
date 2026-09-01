@@ -335,7 +335,7 @@ async def extract_exposures_ai(text: str) -> Optional[Dict[str, List[Dict]]]:
 
 
 # ============================================================
-# Keyword fallback path (AI unavailable only)
+# Deterministic canonical extraction
 # ============================================================
 
 NEGATION_CUES = (
@@ -360,7 +360,7 @@ def _is_negated(text_lower: str, match_start: int) -> bool:
 
 def extract_exposures_keyword(text: str) -> Dict[str, List[Dict]]:
     """
-    Keyword-matching fallback, used only if the AI path fails. Includes a
+    Canonical taxonomy matcher. Includes a
     negation-window check so "I was not abused" does not fire the same false
     positive the old backstory_symptom_mapper.py had - but this is still an
     approximation, not real language understanding.
@@ -406,12 +406,11 @@ def extract_exposures_keyword(text: str) -> Dict[str, List[Dict]]:
 # ============================================================
 
 async def extract_developmental_exposures_async(text: str) -> Dict[str, List[Dict]]:
-    """Primary entry point. Tries the AI path; falls back to keyword-only on failure."""
-    result = await extract_exposures_ai(text)
-    if result is not None:
-        return result
+    """Return stable canonical features derived from the checked-in taxonomy.
 
-    logger.info("Using keyword fallback for exposure extraction")
+    The model-facing extractor remains available for prose-oriented callers and
+    audits, but it no longer decides which canonical evidence records exist.
+    """
     return extract_exposures_keyword(text)
 
 
