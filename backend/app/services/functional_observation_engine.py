@@ -149,7 +149,7 @@ async def extract_observations_ai(text: str, persona_name: str) -> Optional[List
                 "relationships, work, substance use - distinct from dated historical events. "
                 "You never diagnose and never address 'the user'. Respond ONLY with valid JSON."
             ),
-            temperature=0.3,
+            temperature=0.0,
             max_tokens=1000
         )
         return _validate_and_filter(response)

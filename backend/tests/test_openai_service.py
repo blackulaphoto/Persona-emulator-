@@ -85,6 +85,9 @@ async def test_openai_service_analyze_success():
         assert result["immediate_effects"]["trait_changes"]["anxiety"] == 5
         assert "trust_issues" in result["long_term_patterns"]
         assert result["reasoning"] == "Divorce at age 10 increases anxiety"
+        request = mock_instance.chat.completions.create.call_args.kwargs
+        assert request["temperature"] == 0.0
+        assert request["seed"] == 0
 
 
 @pytest.mark.asyncio

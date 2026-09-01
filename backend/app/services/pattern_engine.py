@@ -253,7 +253,7 @@ async def interpret_experience_ai(
                 "confidence comes from reasoning harder about the evidence you do have, not "
                 "from filling gaps with plausible-sounding fiction. Respond ONLY with valid JSON."
             ),
-            temperature=0.5,
+            temperature=0.0,
             max_tokens=600
         )
         validated = _validate_interpretation(response)
@@ -417,7 +417,7 @@ async def interpret_reparative_experience_ai(
                 "user', and you never invent a concrete event, relationship, or circumstance "
                 "that was not given to you in the prompt. Respond ONLY with valid JSON."
             ),
-            temperature=0.5,
+            temperature=0.0,
             max_tokens=400,
         )
         validated = _validate_reparative_interpretation(response, valid_prior_strategies)
