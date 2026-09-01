@@ -75,10 +75,8 @@ export default function CreateStartingPersonPage() {
         baseline_background: background,
         ...(attachment ? { baseline_attachment_style: attachment } : {}),
       })
-      // Rubix.dc.html's own flow routes here into Build Their Life once that
-      // surface exists; the persona dashboard is the real, working
-      // destination in the meantime.
-      router.push(`/persona/${persona.id}`)
+      // Continue directly into the life-building workflow.
+      router.push(`/persona/${persona.id}/build`)
     } catch (err: any) {
       console.error('Failed to create persona:', err)
       if (err?.message?.includes('403')) {
