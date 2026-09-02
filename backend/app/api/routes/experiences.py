@@ -169,21 +169,16 @@ async def add_experience(
     """
     Add a life experience to a persona and analyze its psychological impact.
     """
-    # Get persona and verify ownership
+    # Get persona and verify ownership. A persona that exists but isn't
+    # owned by this caller must 404 identically to one that doesn't exist
+    # at all - matching every other persona-scoped route in this codebase
+    # (personas.py, timeline.py, remix.py) - never a silent fall-through.
     persona = db.query(Persona).filter(
         Persona.id == persona_id,
         Persona.user_id == user_id
     ).first()
     if not persona:
-        persona = db.query(Persona).filter(Persona.id == persona_id).first()
-        if persona:
-            logger.warning(
-                "Persona %s not owned by user %s. Proceeding without ownership check.",
-                persona_id,
-                user_id
-            )
-        else:
-            raise HTTPException(status_code=404, detail="Persona not found")
+        raise HTTPException(status_code=404, detail="Persona not found")
 
     # Validate age - allow any age from 0 to 120 to support adding childhood experiences
     if experience_data.age_at_event < 0 or experience_data.age_at_event > 120:

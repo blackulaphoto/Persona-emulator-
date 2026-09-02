@@ -108,11 +108,12 @@ BULLYING_EXPERIENCES = [
 ]
 
 
-async def _apply_experiences(db, persona, experiences, indices=None):
+async def _apply_experiences(db, persona, experiences, indices=None, user_id=None):
     with patch.object(templates_module, "get_template_experiences", return_value=experiences):
         return await apply_experience_set(
             persona_id=persona.id,
             request=ApplyExperienceSetRequest(template_id="fake-template", experience_indices=indices),
+            user_id=user_id if user_id is not None else persona.user_id,
             db=db,
         )
 

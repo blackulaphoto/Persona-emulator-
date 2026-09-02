@@ -33,21 +33,16 @@ async def add_intervention(
     """
     Add a therapeutic intervention to a persona and analyze its efficacy.
     """
-    # Get persona and verify ownership
+    # Get persona and verify ownership. A persona that exists but isn't
+    # owned by this caller must 404 identically to one that doesn't exist
+    # at all - matching every other persona-scoped route in this codebase
+    # (personas.py, timeline.py, remix.py) - never a silent fall-through.
     persona = db.query(Persona).filter(
         Persona.id == persona_id,
         Persona.user_id == user_id
     ).first()
     if not persona:
-        persona = db.query(Persona).filter(Persona.id == persona_id).first()
-        if persona:
-            logger.warning(
-                "Persona %s not owned by user %s. Proceeding without ownership check.",
-                persona_id,
-                user_id
-            )
-        else:
-            raise HTTPException(status_code=404, detail="Persona not found")
+        raise HTTPException(status_code=404, detail="Persona not found")
 
     # Validate age - allow any age from 0 to 120 to support adding childhood interventions
     if intervention_data.age_at_intervention < 0 or intervention_data.age_at_intervention > 120:
