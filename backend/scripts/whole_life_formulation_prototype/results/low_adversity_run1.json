@@ -1,0 +1,1200 @@
+{
+  "fixture": "low_adversity",
+  "run_index": 1,
+  "elapsed_seconds": 40.2,
+  "status": "ok",
+  "formulation": {
+    "schema_version": "v2.2-final-stability-pass",
+    "baseline_personality": {
+      "openness": {
+        "value": 0.68,
+        "evidence": [
+          {
+            "experience_id": null,
+            "intervention_id": null,
+            "background_span": "Subject describes being an even-keeled, curious child who got along easily with peers and adults alike, with no notable behavioral concerns reported at any point in school.",
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.68,
+        "reasoning": "Curiosity is directly described, although there is limited evidence about imaginative or intellectual breadth."
+      },
+      "conscientiousness": {
+        "value": 0.67,
+        "evidence": [
+          {
+            "experience_id": null,
+            "intervention_id": null,
+            "background_span": "Subject describes a mild tendency toward perfectionism in schoolwork but nothing that caused distress.",
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.7,
+        "reasoning": "Mild schoolwork perfectionism supports above-average conscientiousness without evidence for rigidity or impairment."
+      },
+      "extraversion": {
+        "value": 0.62,
+        "evidence": [
+          {
+            "experience_id": "lo_e01",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": null,
+            "intervention_id": null,
+            "background_span": "Subject describes being an even-keeled, curious child who got along easily with peers and adults alike, with no notable behavioral concerns reported at any point in school.",
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.66,
+        "reasoning": "Early friendship formation and ease with peers and adults support social approachability, but do not establish highly elevated sociability or activity."
+      },
+      "agreeableness": {
+        "value": 0.72,
+        "evidence": [
+          {
+            "experience_id": "lo_e03",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.72,
+        "reasoning": "Steady friendships and reconciliation after a misunderstanding suggest cooperation and relational responsiveness."
+      },
+      "neuroticism": {
+        "value": 0.25,
+        "evidence": [
+          {
+            "experience_id": "lo_e02",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": null,
+            "intervention_id": null,
+            "background_span": "Subject describes being an even-keeled, curious child who got along easily with peers and adults alike, with no notable behavioral concerns reported at any point in school.",
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.76,
+        "reasoning": "The subject is described as even-keeled, experienced bereavement without fear, and managed college transition smoothly; available evidence supports low emotional volatility."
+      }
+    },
+    "current_personality": {
+      "openness": {
+        "value": 0.68,
+        "evidence": [
+          {
+            "experience_id": "lo_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.48,
+        "reasoning": "No later evidence indicates a meaningful change from the curious childhood disposition."
+      },
+      "conscientiousness": {
+        "value": 0.68,
+        "evidence": [
+          {
+            "experience_id": "lo_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": null,
+            "intervention_id": null,
+            "background_span": "Subject describes a mild tendency toward perfectionism in schoolwork but nothing that caused distress.",
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.52,
+        "reasoning": "Graduation and stable employment are consistent with maintained conscientious functioning, though occupational detail is limited."
+      },
+      "extraversion": {
+        "value": 0.63,
+        "evidence": [
+          {
+            "experience_id": "lo_e03",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.5,
+        "reasoning": "Longstanding friendships and a stable relationship support continued social engagement."
+      },
+      "agreeableness": {
+        "value": 0.73,
+        "evidence": [
+          {
+            "experience_id": "lo_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.55,
+        "reasoning": "Repair after conflict and mutually integrated family relationships are consistent with sustained cooperativeness."
+      },
+      "neuroticism": {
+        "value": 0.24,
+        "evidence": [
+          {
+            "experience_id": "lo_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.57,
+        "reasoning": "Smooth transitions, stable work, and stable partnership provide no indication of elevated chronic emotional reactivity."
+      }
+    },
+    "personality_deltas": [
+      {
+        "trait": "openness",
+        "from_value": 0.68,
+        "to_value": 0.68,
+        "direction": "no_change",
+        "magnitude": "none",
+        "evidence": [
+          {
+            "experience_id": null,
+            "intervention_id": null,
+            "background_span": "Subject describes being an even-keeled, curious child who got along easily with peers and adults alike, with no notable behavioral concerns reported at any point in school.",
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "The record contains no specific experience indicating a meaningful change."
+      },
+      {
+        "trait": "conscientiousness",
+        "from_value": 0.67,
+        "to_value": 0.68,
+        "direction": "increase",
+        "magnitude": "none",
+        "evidence": [
+          {
+            "experience_id": "lo_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "Graduation and employment are consistent with continuity rather than a meaningful trait shift."
+      },
+      {
+        "trait": "extraversion",
+        "from_value": 0.62,
+        "to_value": 0.63,
+        "direction": "increase",
+        "magnitude": "none",
+        "evidence": [
+          {
+            "experience_id": "lo_e03",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "Friendship involvement is consistent with the baseline disposition but does not establish a meaningful delta."
+      },
+      {
+        "trait": "agreeableness",
+        "from_value": 0.72,
+        "to_value": 0.73,
+        "direction": "increase",
+        "magnitude": "none",
+        "evidence": [
+          {
+            "experience_id": "lo_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "Reconciliation supports continuity of relational cooperation rather than a distinct trait change."
+      },
+      {
+        "trait": "neuroticism",
+        "from_value": 0.25,
+        "to_value": 0.24,
+        "direction": "decrease",
+        "magnitude": "none",
+        "evidence": [
+          {
+            "experience_id": "lo_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "Smooth transition is consistent with stable low reactivity, not a meaningful decrease."
+      }
+    ],
+    "baseline_attachment": {
+      "style": "secure",
+      "style_evidence": [
+        {
+          "experience_id": null,
+          "intervention_id": null,
+          "background_span": "Subject describes never doubting that either parent would show up when needed.",
+          "subject_role": "self"
+        },
+        {
+          "experience_id": null,
+          "intervention_id": null,
+          "background_span": "Both parents were consistently present and are described as warm, calm, and even-tempered.",
+          "subject_role": "caregiver"
+        },
+        {
+          "experience_id": "lo_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "style_confidence": 0.76,
+      "attachment_anxiety": {
+        "value": 0.18,
+        "evidence": [
+          {
+            "experience_id": null,
+            "intervention_id": null,
+            "background_span": "Subject describes never doubting that either parent would show up when needed.",
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.84
+      },
+      "attachment_avoidance": {
+        "value": 0.16,
+        "evidence": [
+          {
+            "experience_id": null,
+            "intervention_id": null,
+            "background_span": "Both parents were consistently present and are described as warm, calm, and even-tempered.",
+            "subject_role": "caregiver"
+          },
+          {
+            "experience_id": "lo_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.76
+      },
+      "relational_security": {
+        "value": 0.82,
+        "evidence": [
+          {
+            "experience_id": null,
+            "intervention_id": null,
+            "background_span": "The family was financially comfortable and Subject describes childhood as unremarkable in a positive sense - routine, predictable, and without major disruption.",
+            "subject_role": "self"
+          },
+          {
+            "experience_id": null,
+            "intervention_id": null,
+            "background_span": "Subject describes never doubting that either parent would show up when needed.",
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.86
+      }
+    },
+    "current_attachment": {
+      "style": "secure",
+      "style_evidence": [
+        {
+          "experience_id": "lo_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "lo_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "lo_e06",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "lo_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "style_confidence": 0.62,
+      "attachment_anxiety": {
+        "value": 0.16,
+        "evidence": [
+          {
+            "experience_id": "lo_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.63
+      },
+      "attachment_avoidance": {
+        "value": 0.14,
+        "evidence": [
+          {
+            "experience_id": "lo_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.62
+      },
+      "relational_security": {
+        "value": 0.86,
+        "evidence": [
+          {
+            "experience_id": "lo_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": null,
+            "intervention_id": null,
+            "background_span": "Both parents were consistently present and are described as warm, calm, and even-tempered.",
+            "subject_role": "caregiver"
+          }
+        ],
+        "confidence": 0.72
+      }
+    },
+    "attachment_trajectory": [
+      {
+        "period_label": "childhood through adolescence",
+        "direction": "stable",
+        "evidence": [
+          {
+            "experience_id": "lo_e01",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e03",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "Early social ease, sustained friendships, and repair after conflict are consistent with stable relational security."
+      },
+      {
+        "period_label": "college and early adulthood",
+        "direction": "toward_security",
+        "evidence": [
+          {
+            "experience_id": "lo_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "Smooth separation from home, continued family closeness, and formation of a stable partnership are consistent with secure relational functioning."
+      }
+    ],
+    "current_state": {
+      "trust": {
+        "value": 0.84,
+        "evidence": [
+          {
+            "experience_id": "lo_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": null,
+            "intervention_id": null,
+            "background_span": "Subject describes never doubting that either parent would show up when needed.",
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.72
+      },
+      "threat_sensitivity": {
+        "value": 0.2,
+        "evidence": [
+          {
+            "experience_id": "lo_e02",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.58
+      },
+      "mood": {
+        "value": 0.72,
+        "evidence": [
+          {
+            "experience_id": "lo_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.55
+      },
+      "regulation": {
+        "value": 0.8,
+        "evidence": [
+          {
+            "experience_id": "lo_e02",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.68
+      },
+      "avoidance": {
+        "value": 0.15,
+        "evidence": [
+          {
+            "experience_id": "lo_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.58
+      },
+      "relational_security": {
+        "value": 0.85,
+        "evidence": [
+          {
+            "experience_id": "lo_e03",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.7
+      }
+    },
+    "developmental_patterns": [
+      {
+        "id": "pattern_relational_repair",
+        "canonical_family": "relational_repair",
+        "human_label": "Successful interpersonal repair",
+        "status": "emerging",
+        "relevance_score": 0.48,
+        "first_emerged": {
+          "experience_id": "lo_e04",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "lo_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [],
+        "confidence": 0.74,
+        "reasoning": "A close friendship conflict was repaired within weeks, suggesting willingness and capacity to restore connection."
+      }
+    ],
+    "beliefs": [
+      {
+        "id": "b1",
+        "human_label": "Reliable others can be counted on",
+        "belief_statement": "Important others are likely to show up when needed.",
+        "formed_from": [
+          {
+            "experience_id": null,
+            "intervention_id": null,
+            "background_span": "Subject describes never doubting that either parent would show up when needed.",
+            "subject_role": "self"
+          }
+        ],
+        "restated_by": [
+          {
+            "experience_id": "lo_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.88
+      },
+      {
+        "id": "b2",
+        "human_label": "Conflict can be repaired",
+        "belief_statement": "A misunderstanding does not necessarily end a close relationship; repair is possible.",
+        "formed_from": [
+          {
+            "experience_id": "lo_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "restated_by": [
+          {
+            "experience_id": "lo_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.74
+      }
+    ],
+    "protective_factors": [
+      {
+        "id": "pf1",
+        "canonical_family": "reliable_relationship",
+        "human_label": "Consistent parental availability",
+        "domains_buffered": [
+          "attachment_security",
+          "emotional_safety",
+          "stability",
+          "emotional_regulation",
+          "intimacy"
+        ],
+        "active_from": {
+          "experience_id": null,
+          "intervention_id": null,
+          "background_span": "Both parents were consistently present and are described as warm, calm, and even-tempered.",
+          "subject_role": "caregiver"
+        },
+        "active_to": null,
+        "confidence": 0.9
+      },
+      {
+        "id": "pf2",
+        "canonical_family": "community_or_belonging",
+        "human_label": "Sustained friendship and team belonging",
+        "domains_buffered": [
+          "social_belonging",
+          "emotional_safety",
+          "identity"
+        ],
+        "active_from": {
+          "experience_id": "lo_e03",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "active_to": null,
+        "confidence": 0.78
+      },
+      {
+        "id": "pf3",
+        "canonical_family": "corrective_experience",
+        "human_label": "Successful relational repair",
+        "domains_buffered": [
+          "attachment_security",
+          "emotional_regulation",
+          "intimacy"
+        ],
+        "active_from": {
+          "experience_id": "lo_e04",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "active_to": null,
+        "confidence": 0.72
+      },
+      {
+        "id": "pf4",
+        "canonical_family": "mastery_or_competence",
+        "human_label": "Educational and occupational continuity",
+        "domains_buffered": [
+          "competence",
+          "autonomy",
+          "stability",
+          "identity"
+        ],
+        "active_from": {
+          "experience_id": "lo_e06",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "active_to": null,
+        "confidence": 0.7
+      }
+    ],
+    "causal_chains": [
+      {
+        "id": "cc1",
+        "description": "Consistent caregiving appears to have supported expectation of reliability, which generalized into stable peer and intimate relationships.",
+        "steps": [
+          {
+            "event_citation": {
+              "experience_id": null,
+              "intervention_id": null,
+              "background_span": "Both parents were consistently present and are described as warm, calm, and even-tempered.",
+              "subject_role": "caregiver"
+            },
+            "mechanism": "Repeated caregiver availability may have supported trust and relational security."
+          },
+          {
+            "event_citation": {
+              "experience_id": "lo_e03",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "Sustained team friendships provided repeated opportunities to enact and confirm belonging."
+          },
+          {
+            "event_citation": {
+              "experience_id": "lo_e07",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "A stable long-term relationship is consistent with carrying forward expectations of dependable connection."
+          }
+        ],
+        "confidence": 0.78
+      },
+      {
+        "id": "cc2",
+        "description": "A manageable interpersonal rupture followed by reconciliation may have strengthened a belief that closeness can survive misunderstanding.",
+        "steps": [
+          {
+            "event_citation": {
+              "experience_id": "lo_e04",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "Successful repair supplied direct evidence that conflict need not permanently terminate connection."
+          },
+          {
+            "event_citation": {
+              "experience_id": "lo_e07",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "Later stable partnership is consistent with continued engagement rather than withdrawal after relational difficulty."
+          }
+        ],
+        "confidence": 0.65
+      }
+    ],
+    "hypotheses": [
+      {
+        "id": "hypothesis_resilient_trajectory",
+        "canonical_family": "resilient_trajectory",
+        "human_label": "Resilient trajectory",
+        "status": "supported",
+        "evidence_strength": 0.82,
+        "supporting_evidence": [
+          {
+            "experience_id": "lo_e02",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "lo_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [],
+        "competing_explanations": [
+          "Low exposure to major adversity may explain the stable course",
+          "The record may underrepresent unreported internal distress"
+        ],
+        "reasoning": "Derived status 'supported' from evidence_strength=0.82 with 5 supporting and 0 contradicting citation(s)."
+      }
+    ],
+    "contradictions": [],
+    "unresolved_questions": [
+      "How did the subject respond to significant stressors not represented in the record?",
+      "How are emotional needs and disagreements handled within the current long-term relationship?",
+      "Did schoolwork perfectionism remain mild in adulthood, or did it generalize to work or relationships?",
+      "What is the subject's current mood, functioning, and broader social network beyond family and partner?"
+    ],
+    "change_points": [],
+    "overall_confidence": 0.78
+  },
+  "pattern_scorecard_raw": {
+    "loss_and_bereavement": {
+      "relevance_score": 0.22,
+      "confidence": 0.72,
+      "human_label": "Ordinary family bereavement with shared grieving",
+      "reasoning": "A grandfather's death was meaningful but described as sad rather than frightening, with no evidence of persistent disruption.",
+      "supporting_evidence": [
+        {
+          "experience_id": "lo_e02",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": []
+    },
+    "identity_reconstruction": {
+      "relevance_score": 0.08,
+      "confidence": 0.7,
+      "human_label": "Little evidence of identity disruption",
+      "reasoning": "The record shows continuity across education, work, family closeness, and partnership.",
+      "supporting_evidence": [],
+      "contradicting_evidence": [
+        {
+          "experience_id": "lo_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "lo_e06",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ]
+    },
+    "relational_repair": {
+      "relevance_score": 0.48,
+      "confidence": 0.74,
+      "human_label": "Successful interpersonal repair",
+      "reasoning": "A close friendship conflict was repaired within weeks, suggesting willingness and capacity to restore connection.",
+      "supporting_evidence": [
+        {
+          "experience_id": "lo_e04",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": []
+    },
+    "avoidant_withdrawal": {
+      "relevance_score": 0.06,
+      "confidence": 0.76,
+      "human_label": "Minimal evidence of relational withdrawal",
+      "reasoning": "The subject maintained friendships, family closeness, and a long-term relationship.",
+      "supporting_evidence": [],
+      "contradicting_evidence": [
+        {
+          "experience_id": "lo_e03",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "lo_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ]
+    },
+    "risk_seeking_dysregulation": {
+      "relevance_score": 0.03,
+      "confidence": 0.82,
+      "human_label": "No supported risk-dysregulation pattern",
+      "reasoning": "No experience describes dangerous risk-taking or marked dysregulation.",
+      "supporting_evidence": [],
+      "contradicting_evidence": [
+        {
+          "experience_id": null,
+          "intervention_id": null,
+          "background_span": "Subject describes being an even-keeled, curious child who got along easily with peers and adults alike, with no notable behavioral concerns reported at any point in school.",
+          "subject_role": "self"
+        }
+      ]
+    },
+    "caregiving_role_reversal": {
+      "relevance_score": 0.02,
+      "confidence": 0.86,
+      "human_label": "No supported caregiving role reversal",
+      "reasoning": "The available caregiver history describes consistently present, supportive parents rather than a reversal of roles.",
+      "supporting_evidence": [],
+      "contradicting_evidence": [
+        {
+          "experience_id": null,
+          "intervention_id": null,
+          "background_span": "Both parents were consistently present and are described as warm, calm, and even-tempered.",
+          "subject_role": "caregiver"
+        }
+      ]
+    },
+    "achievement_or_competence_compensation": {
+      "relevance_score": 0.18,
+      "confidence": 0.54,
+      "human_label": "Mild competence orientation without clear compensation",
+      "reasoning": "Schoolwork perfectionism and successful graduation suggest competence investment, but there is no evidence that achievement compensated for insecurity or adversity.",
+      "supporting_evidence": [
+        {
+          "experience_id": null,
+          "intervention_id": null,
+          "background_span": "Subject describes a mild tendency toward perfectionism in schoolwork but nothing that caused distress.",
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": null,
+          "intervention_id": null,
+          "background_span": "Subject describes childhood as unremarkable in a positive sense - routine, predictable, and without major disruption.",
+          "subject_role": "self"
+        }
+      ]
+    },
+    "hypervigilant_monitoring": {
+      "relevance_score": 0.04,
+      "confidence": 0.8,
+      "human_label": "No supported hypervigilant monitoring",
+      "reasoning": "The subject reports predictability and low threat across development, without evidence of scanning for danger.",
+      "supporting_evidence": [],
+      "contradicting_evidence": [
+        {
+          "experience_id": null,
+          "intervention_id": null,
+          "background_span": "The family was financially comfortable and Subject describes childhood as unremarkable in a positive sense - routine, predictable, and without major disruption.",
+          "subject_role": "self"
+        }
+      ]
+    },
+    "prosocial_reinvention": {
+      "relevance_score": 0.12,
+      "confidence": 0.51,
+      "human_label": "Stable prosocial participation rather than reinvention",
+      "reasoning": "Soccer friendships and relationship maintenance show prosocial engagement, but no major reinvention after adversity is described.",
+      "supporting_evidence": [
+        {
+          "experience_id": "lo_e03",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "lo_e06",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ]
+    },
+    "substance_coping": {
+      "relevance_score": 0.01,
+      "confidence": 0.9,
+      "human_label": "No supported substance-coping pattern",
+      "reasoning": "No substance use or substance-related coping experience is recorded.",
+      "supporting_evidence": [],
+      "contradicting_evidence": []
+    }
+  },
+  "hypothesis_scorecard_raw": {
+    "adjustment_reaction": {
+      "evidence_strength": 0.08,
+      "confidence": 0.82,
+      "supporting_evidence": [],
+      "contradicting_evidence": [
+        {
+          "experience_id": "lo_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "lo_e06",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "Ordinary developmental transitions managed with established family and peer support",
+        "Stable temperament and predictable context"
+      ]
+    },
+    "complicated_grief_pattern": {
+      "evidence_strength": 0.04,
+      "confidence": 0.9,
+      "supporting_evidence": [],
+      "contradicting_evidence": [
+        {
+          "experience_id": "lo_e02",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "Expected grief response within a supportive family",
+        "Limited information about the duration of grief"
+      ]
+    },
+    "attachment_insecurity_pattern": {
+      "evidence_strength": 0.06,
+      "confidence": 0.88,
+      "supporting_evidence": [],
+      "contradicting_evidence": [
+        {
+          "experience_id": null,
+          "intervention_id": null,
+          "background_span": "Subject describes never doubting that either parent would show up when needed.",
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "lo_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "Secure attachment-related development",
+        "Limited observation of attachment behavior under severe relational stress"
+      ]
+    },
+    "substance_use_vulnerability": {
+      "evidence_strength": 0.01,
+      "confidence": 0.92,
+      "supporting_evidence": [],
+      "contradicting_evidence": [],
+      "competing_explanations": [
+        "No substance-related evidence is available",
+        "Absence of recorded use does not establish lifetime absence"
+      ]
+    },
+    "identity_disruption_pattern": {
+      "evidence_strength": 0.05,
+      "confidence": 0.85,
+      "supporting_evidence": [],
+      "contradicting_evidence": [
+        {
+          "experience_id": "lo_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "lo_e06",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "Continuous identity development through education and work",
+        "Insufficient detail about private identity concerns"
+      ]
+    },
+    "resilient_trajectory": {
+      "evidence_strength": 0.82,
+      "confidence": 0.8,
+      "supporting_evidence": [
+        {
+          "experience_id": "lo_e02",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "lo_e04",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "lo_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "lo_e06",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "lo_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [],
+      "competing_explanations": [
+        "Low exposure to major adversity may explain the stable course",
+        "The record may underrepresent unreported internal distress"
+      ]
+    }
+  },
+  "validation_findings": [],
+  "regression_findings": [],
+  "diagnosis_leak_findings": []
+}

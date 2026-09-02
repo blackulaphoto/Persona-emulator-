@@ -67,6 +67,15 @@ class Persona(Base):
     # operator. "self_authored": explicitly-confirmed autobiographical mode -
     # must be set deliberately, never inferred from who is typing.
     narrative_mode = Column(String, nullable=False, default="case_subject")
+
+    # "v1" (default) | "v2" - which engine's output is authoritative for this
+    # persona's current psychological state. No automatic backfill/migration:
+    # a persona stays "v1" until Analyze Life V2 is explicitly run on it at
+    # least once (see app/services/whole_life_formulation/persistence_service.py).
+    # Once "v2", whole_life_formulations is the source of truth and the V1
+    # interpretation/exposure machinery is never authoritative again for this
+    # persona, even though it may still run in the background unchanged.
+    formulation_engine_version = Column(String(10), nullable=False, default="v1")
     
     # Metadata
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
@@ -93,3 +102,6 @@ class Persona(Base):
     clinical_pattern_hypotheses = relationship("ClinicalPatternHypothesis", back_populates="persona", cascade="all, delete-orphan")
     interpretations = relationship("Interpretation", back_populates="persona", cascade="all, delete-orphan", foreign_keys="Interpretation.persona_id")
     functional_observations = relationship("FunctionalObservation", back_populates="persona", cascade="all, delete-orphan")
+
+    # Whole-Life Formulation V2 (see app/models/whole_life_formulation.py)
+    whole_life_formulations = relationship("WholeLifeFormulation", back_populates="persona", cascade="all, delete-orphan")

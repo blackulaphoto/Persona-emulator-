@@ -16,6 +16,7 @@ from app.models.adaptation_pattern import AdaptationPattern
 from app.models.clinical_pattern_hypothesis import ClinicalPatternHypothesis
 from app.models.interpretation import Interpretation
 from app.models.functional_observation import FunctionalObservation
+from app.models.whole_life_formulation import WholeLifeFormulation, FormulationValidationReport
 
 __all__ = [
     "User",
@@ -37,4 +38,6 @@ __all__ = [
     "ClinicalPatternHypothesis",
     "Interpretation",
     "FunctionalObservation",
+    "WholeLifeFormulation",
+    "FormulationValidationReport",
 ]

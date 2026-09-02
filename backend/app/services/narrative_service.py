@@ -101,6 +101,21 @@ async def generate_persona_narrative(
         ProtectiveFactor.persona_id == persona_id
     ).order_by(ProtectiveFactor.active_from_age, ProtectiveFactor.created_at).all()
 
+    # Whole-Life Formulation V2 - PERSISTENCE PHASE data plumbing. Only ever
+    # fetched/passed for a persona whose Analyze Life V2 has actually run at
+    # least once (formulation_engine_version == "v2"); a V1 persona's
+    # narrative generation is byte-for-byte unchanged. See
+    # _build_narrative_prompt's docstring for what this does and doesn't add.
+    whole_life_formulation_v2_json = None
+    if persona.formulation_engine_version == "v2":
+        from app.models import WholeLifeFormulation
+        latest_formulation = db.query(WholeLifeFormulation).filter(
+            WholeLifeFormulation.persona_id == persona_id,
+            WholeLifeFormulation.status == "accepted",
+        ).order_by(WholeLifeFormulation.generation_number.desc()).first()
+        if latest_formulation:
+            whole_life_formulation_v2_json = latest_formulation.formulation_json
+
     # Count existing narratives for generation number
     existing_count = db.query(PersonaNarrative).filter(
         PersonaNarrative.persona_id == persona_id
@@ -112,6 +127,7 @@ async def generate_persona_narrative(
         persona, experiences, interventions,
         adaptation_patterns, clinical_pattern_hypotheses, persona_beliefs,
         interpretations, protective_factors,
+        whole_life_formulation_v2=whole_life_formulation_v2_json,
     )
     
     # Call the Responses API for GPT-5.6 Luna reasoning support.
@@ -186,6 +202,52 @@ async def generate_persona_narrative(
     return narrative
 
 
+def _format_whole_life_formulation_v2_section(formulation_json: Dict[str, Any]) -> str:
+    """
+    PERSISTENCE PHASE - data plumbing only, not a prompt redesign. Everything
+    else in this prompt (personality/attachment/patterns/hypotheses/beliefs/
+    protective factors) already comes from the legacy projection tables,
+    which a V2 persona's Analyze Life V2 keeps populated (see
+    app/services/whole_life_formulation/projections.py) - so this section
+    only adds what has NO projection-table home at all: causal chains,
+    contradictions, unresolved questions, and hypotheses' competing
+    explanations. Luna decides what to do with it; nothing here tells it how.
+    """
+    lines = ["\n\nWHOLE-LIFE FORMULATION V2 - ADDITIONAL CONTEXT (not present in the sections above):"]
+
+    causal_chains = formulation_json.get("causal_chains") or []
+    if causal_chains:
+        lines.append("\nCausal chains identified by the formulation engine:")
+        for chain in causal_chains:
+            lines.append(f"- {chain.get('description', '')}")
+
+    contradictions = formulation_json.get("contradictions") or []
+    if contradictions:
+        lines.append("\nContradictions the formulation engine explicitly held rather than resolving:")
+        for c in contradictions:
+            lines.append(f"- {c.get('description', '')}")
+
+    unresolved = formulation_json.get("unresolved_questions") or []
+    if unresolved:
+        lines.append("\nQuestions the formulation engine explicitly could not answer from the evidence available:")
+        for q in unresolved:
+            lines.append(f"- {q}")
+
+    competing = [
+        (h.get("human_label", ""), exp)
+        for h in (formulation_json.get("hypotheses") or [])
+        for exp in (h.get("competing_explanations") or [])
+    ]
+    if competing:
+        lines.append("\nCompeting explanations the formulation engine weighed for its hypotheses:")
+        for label, exp in competing:
+            lines.append(f"- ({label}) {exp}")
+
+    if len(lines) == 1:
+        return ""  # nothing to add
+    return "\n".join(lines)
+
+
 def _build_narrative_prompt(
     persona: Persona,
     experiences: List[Experience],
@@ -195,9 +257,17 @@ def _build_narrative_prompt(
     persona_beliefs: List[PersonaBelief] = None,
     interpretations: List[Interpretation] = None,
     protective_factors: List[ProtectiveFactor] = None,
+    whole_life_formulation_v2: Dict[str, Any] = None,
 ) -> str:
     """
     Build the comprehensive narrative-generation prompt.
+
+    whole_life_formulation_v2, when provided, is the latest accepted
+    WholeLifeFormulation.formulation_json for this persona (only ever passed
+    when persona.formulation_engine_version == "v2" - see
+    generate_persona_narrative). It supplements, it does not replace, the
+    existing projection-table-derived sections below - "prove data plumbing
+    only," not a Narrative V2 prompt redesign.
     """
     adaptation_patterns = adaptation_patterns or []
     clinical_pattern_hypotheses = clinical_pattern_hypotheses or []
@@ -538,6 +608,9 @@ Write a psychologically accurate developmental narrative that:
 - Never write "there isn't enough information to say" as a substitute for reasoning from what's actually there - if the pattern data above is genuinely empty, reason confidently from the objective experience timeline instead
 
 Begin the narrative:"""
+
+    if whole_life_formulation_v2:
+        prompt += _format_whole_life_formulation_v2_section(whole_life_formulation_v2)
 
     return prompt
 

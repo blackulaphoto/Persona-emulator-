@@ -1,0 +1,1929 @@
+{
+  "fixture": "complex",
+  "run_index": 4,
+  "elapsed_seconds": 51.7,
+  "status": "ok",
+  "formulation": {
+    "schema_version": "v2.2-final-stability-pass",
+    "baseline_personality": {
+      "openness": {
+        "value": 0.45,
+        "evidence": [
+          {
+            "experience_id": "cx_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.62,
+        "reasoning": "Excelling in debate suggests intellectual engagement and willingness to develop complex arguments, although the broader description emphasizes structure over spontaneity."
+      },
+      "conscientiousness": {
+        "value": 0.86,
+        "evidence": [
+          {
+            "experience_id": "cx_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e14",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.86,
+        "reasoning": "Competitive academic success, an honors graduation, and extensive preparation in a new management role support a strongly organized and achievement-oriented baseline."
+      },
+      "extraversion": {
+        "value": 0.42,
+        "evidence": [
+          {
+            "experience_id": "cx_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e16",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.53,
+        "reasoning": "Debate success and later mentoring show capacity for public engagement, while the available history does not establish a broadly high level of social stimulation-seeking."
+      },
+      "agreeableness": {
+        "value": 0.67,
+        "evidence": [
+          {
+            "experience_id": "cx_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e13",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.66,
+        "reasoning": "Helping siblings during parental conflict and coordinating care for the father indicate responsibility toward close others and cooperative commitment."
+      },
+      "neuroticism": {
+        "value": 0.61,
+        "evidence": [
+          {
+            "experience_id": "cx_e01",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e14",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.62,
+        "reasoning": "Early separation distress and intense uncertainty-management through overpreparation suggest elevated sensitivity to threat or uncertainty, without evidence of pervasive impairment."
+      }
+    },
+    "current_personality": {
+      "openness": {
+        "value": 0.54,
+        "evidence": [
+          {
+            "experience_id": "cx_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e16",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.58,
+        "reasoning": "Debate achievement and choosing a mentoring role suggest continued intellectual curiosity and openness to generative social roles."
+      },
+      "conscientiousness": {
+        "value": 0.88,
+        "evidence": [
+          {
+            "experience_id": "cx_e13",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e14",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e16",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.86,
+        "reasoning": "Sustained caregiving coordination, careful management preparation, and structured mentoring support a consistently high level of conscientiousness."
+      },
+      "extraversion": {
+        "value": 0.5,
+        "evidence": [
+          {
+            "experience_id": "cx_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e16",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.52,
+        "reasoning": "The subject has repeatedly engaged effectively in interpersonal and public-facing roles, though the record does not show a strongly stimulation-seeking social style."
+      },
+      "agreeableness": {
+        "value": 0.74,
+        "evidence": [
+          {
+            "experience_id": "cx_e13",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e15",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e16",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.75,
+        "reasoning": "Family caregiving, receiving and participating in extended-family support, and mentoring first-generation students indicate enduring concern for others."
+      },
+      "neuroticism": {
+        "value": 0.52,
+        "evidence": [
+          {
+            "experience_id": "cx_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e14",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e15",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.58,
+        "reasoning": "Job loss, management stress, and intense grief show meaningful emotional reactivity, while later stability and functioning suggest some reduction or effective management of uncertainty sensitivity."
+      }
+    },
+    "personality_deltas": [
+      {
+        "trait": "openness",
+        "from_value": 0.45,
+        "to_value": 0.54,
+        "direction": "increase",
+        "magnitude": "mild",
+        "evidence": [
+          {
+            "experience_id": "cx_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e16",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "Public intellectual achievement followed much later by purposeful mentoring suggests modest expansion from a primarily structured orientation toward broader generativity."
+      },
+      {
+        "trait": "agreeableness",
+        "from_value": 0.67,
+        "to_value": 0.74,
+        "direction": "increase",
+        "magnitude": "mild",
+        "evidence": [
+          {
+            "experience_id": "cx_e13",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e16",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "Repeated caregiving and mentoring roles provide evidence of strengthened prosocial commitment."
+      },
+      {
+        "trait": "neuroticism",
+        "from_value": 0.61,
+        "to_value": 0.52,
+        "direction": "decrease",
+        "magnitude": "mild",
+        "evidence": [
+          {
+            "experience_id": "cx_e12",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e15",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "A trusted stable partnership and the ability to remain connected through intense bereavement suggest improved emotional security and regulation, while residual uncertainty sensitivity remains."
+      }
+    ],
+    "baseline_attachment": {
+      "style": "anxious",
+      "style_evidence": [
+        {
+          "experience_id": "cx_e01",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e02",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e02",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "style_confidence": 0.61,
+      "attachment_anxiety": {
+        "value": 0.62,
+        "evidence": [
+          {
+            "experience_id": "cx_e01",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e02",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.72
+      },
+      "attachment_avoidance": {
+        "value": 0.46,
+        "evidence": [
+          {
+            "experience_id": "cx_e02",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.61
+      },
+      "relational_security": {
+        "value": 0.52,
+        "evidence": [
+          {
+            "experience_id": "cx_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e11",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.59
+      }
+    },
+    "current_attachment": {
+      "style": "secure",
+      "style_evidence": [
+        {
+          "experience_id": "cx_e12",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e15",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e12",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "style_confidence": 0.67,
+      "attachment_anxiety": {
+        "value": 0.38,
+        "evidence": [
+          {
+            "experience_id": "cx_e12",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e15",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.67
+      },
+      "attachment_avoidance": {
+        "value": 0.31,
+        "evidence": [
+          {
+            "experience_id": "cx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e12",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.67
+      },
+      "relational_security": {
+        "value": 0.76,
+        "evidence": [
+          {
+            "experience_id": "cx_e12",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e15",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e16",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.78
+      }
+    },
+    "attachment_trajectory": [
+      {
+        "period_label": "early childhood",
+        "direction": "toward_insecurity",
+        "evidence": [
+          {
+            "experience_id": "cx_e01",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e02",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "School separation distress and disruption of a close friendship indicate early sensitivity to relational loss and unfamiliar settings."
+      },
+      {
+        "period_label": "middle childhood",
+        "direction": "toward_security",
+        "evidence": [
+          {
+            "experience_id": "cx_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "The aunt's recovery provided a corrective experience that frightening relational events could resolve."
+      },
+      {
+        "period_label": "adolescence and early adulthood",
+        "direction": "toward_insecurity",
+        "evidence": [
+          {
+            "experience_id": "cx_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "Feeling responsible for family stability and becoming guarded after betrayal likely increased protective monitoring in relationships."
+      },
+      {
+        "period_label": "adulthood",
+        "direction": "toward_security",
+        "evidence": [
+          {
+            "experience_id": "cx_e11",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e12",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e15",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "A steady partnership, unexpectedly easy trust, and supported bereavement indicate durable relational security."
+      }
+    ],
+    "current_state": {
+      "trust": {
+        "value": 0.75,
+        "evidence": [
+          {
+            "experience_id": "cx_e12",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e15",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.72
+      },
+      "threat_sensitivity": {
+        "value": 0.45,
+        "evidence": [
+          {
+            "experience_id": "cx_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e14",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.56
+      },
+      "mood": {
+        "value": 0.68,
+        "evidence": [
+          {
+            "experience_id": "cx_e15",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e16",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.62
+      },
+      "regulation": {
+        "value": 0.74,
+        "evidence": [
+          {
+            "experience_id": "cx_e13",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e15",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.67
+      },
+      "avoidance": {
+        "value": 0.3,
+        "evidence": [
+          {
+            "experience_id": "cx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e12",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.64
+      },
+      "relational_security": {
+        "value": 0.79,
+        "evidence": [
+          {
+            "experience_id": "cx_e12",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e15",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e16",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.76
+      }
+    },
+    "developmental_patterns": [
+      {
+        "id": "pattern_loss_and_bereavement",
+        "canonical_family": "loss_and_bereavement",
+        "human_label": "bereavement with supported adaptation",
+        "status": "established",
+        "relevance_score": 0.64,
+        "first_emerged": {
+          "experience_id": "cx_e15",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "cx_e15",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [],
+        "confidence": 0.7,
+        "reasoning": "The mother's death produced intense grief, but family support made it bearable."
+      },
+      {
+        "id": "pattern_identity_reconstruction",
+        "canonical_family": "identity_reconstruction",
+        "human_label": "identity expansion through achievement and mentoring",
+        "status": "emerging",
+        "relevance_score": 0.48,
+        "first_emerged": {
+          "experience_id": "cx_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "cx_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e16",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [],
+        "confidence": 0.51,
+        "reasoning": "Leaving the home state for university and later mentoring suggest development of roles beyond the original family context."
+      },
+      {
+        "id": "pattern_relational_repair",
+        "canonical_family": "relational_repair",
+        "human_label": "rebuilding trust through a stable partnership",
+        "status": "emerging",
+        "relevance_score": 0.55,
+        "first_emerged": {
+          "experience_id": "cx_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "cx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e11",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e12",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [],
+        "confidence": 0.63,
+        "reasoning": "Guardedness after betrayal was followed by a steady relationship in which trust became easier."
+      },
+      {
+        "id": "pattern_caregiving_role_reversal",
+        "canonical_family": "caregiving_role_reversal",
+        "human_label": "situational responsibility for family stability",
+        "status": "emerging",
+        "relevance_score": 0.42,
+        "first_emerged": {
+          "experience_id": "cx_e06",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "cx_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e13",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [],
+        "confidence": 0.59,
+        "reasoning": "The subject felt responsible for calming siblings during parental conflict and later coordinated care for the father."
+      },
+      {
+        "id": "pattern_achievement_or_competence_compensation",
+        "canonical_family": "achievement_or_competence_compensation",
+        "human_label": "competence used to manage uncertainty",
+        "status": "historically_weakened",
+        "relevance_score": 0.62,
+        "first_emerged": {
+          "experience_id": "cx_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "cx_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e14",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [],
+        "confidence": 0.7,
+        "reasoning": "Debate success, academic achievement, career advancement, and overpreparation suggest competence became an important way of establishing security and control."
+      },
+      {
+        "id": "pattern_hypervigilant_monitoring",
+        "canonical_family": "hypervigilant_monitoring",
+        "human_label": "watchful preparation around uncertainty",
+        "status": "emerging",
+        "relevance_score": 0.55,
+        "first_emerged": {
+          "experience_id": "cx_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "cx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e14",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [],
+        "confidence": 0.61,
+        "reasoning": "The subject describes being watchful and repeatedly overprepared, with heightened concern following relational betrayal and job loss."
+      },
+      {
+        "id": "pattern_prosocial_reinvention",
+        "canonical_family": "prosocial_reinvention",
+        "human_label": "generative mentoring identity",
+        "status": "emerging",
+        "relevance_score": 0.58,
+        "first_emerged": {
+          "experience_id": "cx_e16",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "cx_e16",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [],
+        "confidence": 0.72,
+        "reasoning": "Mentoring first-generation students appears to transform earlier self-reliance into support for others."
+      }
+    ],
+    "beliefs": [
+      {
+        "id": "b01",
+        "human_label": "frightening events can resolve",
+        "belief_statement": "Even frightening situations may turn out okay.",
+        "formed_from": [
+          {
+            "experience_id": "cx_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "restated_by": [],
+        "confidence": 0.78
+      },
+      {
+        "id": "b02",
+        "human_label": "preparation creates safety",
+        "belief_statement": "When circumstances are uncertain, careful preparation is necessary to remain secure and competent.",
+        "formed_from": [
+          {
+            "experience_id": "cx_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e14",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "restated_by": [
+          {
+            "experience_id": "cx_e16",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.74
+      },
+      {
+        "id": "b03",
+        "human_label": "trust should be selective",
+        "belief_statement": "Trust is safest when it is earned through consistent behavior rather than assumed immediately.",
+        "formed_from": [
+          {
+            "experience_id": "cx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "restated_by": [
+          {
+            "experience_id": "cx_e12",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.76
+      }
+    ],
+    "protective_factors": [
+      {
+        "id": "pf01",
+        "canonical_family": "reliable_relationship",
+        "human_label": "stable marital partnership",
+        "domains_buffered": [
+          "attachment_security",
+          "emotional_safety",
+          "intimacy",
+          "stability"
+        ],
+        "active_from": {
+          "experience_id": "cx_e11",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "active_to": null,
+        "confidence": 0.82
+      },
+      {
+        "id": "pf02",
+        "canonical_family": "mentor_or_role_model",
+        "human_label": "warm aunt as secondary caregiver",
+        "domains_buffered": [
+          "attachment_security",
+          "emotional_safety",
+          "social_belonging"
+        ],
+        "active_from": {
+          "experience_id": "cx_e01",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "caregiver"
+        },
+        "active_to": {
+          "experience_id": "cx_e04",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "caregiver"
+        },
+        "confidence": 0.78
+      },
+      {
+        "id": "pf03",
+        "canonical_family": "mastery_or_competence",
+        "human_label": "academic and professional competence",
+        "domains_buffered": [
+          "competence",
+          "autonomy",
+          "identity",
+          "stability"
+        ],
+        "active_from": {
+          "experience_id": "cx_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "active_to": null,
+        "confidence": 0.81
+      },
+      {
+        "id": "pf04",
+        "canonical_family": "community_or_belonging",
+        "human_label": "extended-family support during bereavement",
+        "domains_buffered": [
+          "emotional_safety",
+          "social_belonging",
+          "emotional_regulation"
+        ],
+        "active_from": {
+          "experience_id": "cx_e15",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "other"
+        },
+        "active_to": null,
+        "confidence": 0.74
+      },
+      {
+        "id": "pf05",
+        "canonical_family": "corrective_experience",
+        "human_label": "trusting relationship after betrayal",
+        "domains_buffered": [
+          "attachment_security",
+          "intimacy",
+          "emotional_safety"
+        ],
+        "active_from": {
+          "experience_id": "cx_e11",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "active_to": null,
+        "confidence": 0.8
+      }
+    ],
+    "causal_chains": [
+      {
+        "id": "cc01",
+        "description": "Early relational disruption contributed to selective guardedness, which was later revised through a reliable partnership.",
+        "steps": [
+          {
+            "event_citation": {
+              "experience_id": "cx_e02",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "Losing a close friendship during a move increased outsider feelings and sensitivity to relational disruption."
+          },
+          {
+            "event_citation": {
+              "experience_id": "cx_e08",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "Partner infidelity reinforced cautious trust and relationship monitoring."
+          },
+          {
+            "event_citation": {
+              "experience_id": "cx_e12",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "An easy-to-trust marriage supplied a corrective experience that supported greater relational security."
+          }
+        ],
+        "confidence": 0.77
+      },
+      {
+        "id": "cc02",
+        "description": "Uncertainty was repeatedly managed through competence, preparation, and eventually prosocial guidance of others.",
+        "steps": [
+          {
+            "event_citation": {
+              "experience_id": "cx_e06",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "Feeling responsible for calming siblings encouraged active management of stressful situations."
+          },
+          {
+            "event_citation": {
+              "experience_id": "cx_e07",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "Competitive educational success demonstrated preparation as an effective route to autonomy."
+          },
+          {
+            "event_citation": {
+              "experience_id": "cx_e14",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "Overpreparing for management meetings shows continued use of competence to regulate uncertainty."
+          },
+          {
+            "event_citation": {
+              "experience_id": "cx_e16",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "Mentoring converts individually developed preparation into support for people facing similar educational barriers."
+          }
+        ],
+        "confidence": 0.82
+      },
+      {
+        "id": "cc03",
+        "description": "Loss and threat were buffered by recovery experiences and supportive relationships rather than leading to sustained relational withdrawal.",
+        "steps": [
+          {
+            "event_citation": {
+              "experience_id": "cx_e04",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "The aunt's recovery established that frightening events can have tolerable outcomes."
+          },
+          {
+            "event_citation": {
+              "experience_id": "cx_e13",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "The subject responded to the father's heart attack with organized caregiving."
+          },
+          {
+            "event_citation": {
+              "experience_id": "cx_e15",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "Intense grief was made bearable through extended-family support."
+          }
+        ],
+        "confidence": 0.75
+      }
+    ],
+    "hypotheses": [
+      {
+        "id": "hypothesis_adjustment_reaction",
+        "canonical_family": "adjustment_reaction",
+        "human_label": "Adjustment reaction",
+        "status": "candidate",
+        "evidence_strength": 0.36,
+        "supporting_evidence": [
+          {
+            "experience_id": "cx_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e15",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "cx_e12",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e16",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "competing_explanations": [
+          "ordinary responses to major life stressors",
+          "longstanding conscientiousness and uncertainty sensitivity"
+        ],
+        "reasoning": "Derived status 'candidate' from evidence_strength=0.36 with 2 supporting and 2 contradicting citation(s)."
+      },
+      {
+        "id": "hypothesis_attachment_insecurity_pattern",
+        "canonical_family": "attachment_insecurity_pattern",
+        "human_label": "Attachment insecurity pattern",
+        "status": "candidate",
+        "evidence_strength": 0.49,
+        "supporting_evidence": [
+          {
+            "experience_id": "cx_e01",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e02",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "cx_e12",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e15",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "competing_explanations": [
+          "temperamental caution",
+          "specific relational betrayal rather than generalized insecurity"
+        ],
+        "reasoning": "Derived status 'candidate' from evidence_strength=0.49 with 3 supporting and 2 contradicting citation(s)."
+      },
+      {
+        "id": "hypothesis_resilient_trajectory",
+        "canonical_family": "resilient_trajectory",
+        "human_label": "Resilient trajectory",
+        "status": "supported",
+        "evidence_strength": 0.83,
+        "supporting_evidence": [
+          {
+            "experience_id": "cx_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e12",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e15",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e16",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "cx_e02",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "cx_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "competing_explanations": [
+          "stable temperament and family resources",
+          "achievement-based coping that may conceal costs"
+        ],
+        "reasoning": "Derived status 'supported' from evidence_strength=0.83 with 5 supporting and 2 contradicting citation(s)."
+      }
+    ],
+    "contradictions": [
+      {
+        "id": "ct01",
+        "description": "The subject became more guarded after relational betrayal but later reported that trusting the spouse was unexpectedly easy.",
+        "involved_claim_ids": [
+          "b03",
+          "pf01",
+          "cc01"
+        ]
+      },
+      {
+        "id": "ct02",
+        "description": "The subject shows elevated preparation and threat sensitivity, yet the broader trajectory includes effective adaptation, stable partnership, and prosocial engagement.",
+        "involved_claim_ids": [
+          "b02",
+          "cc02",
+          "cc03"
+        ]
+      }
+    ],
+    "unresolved_questions": [
+      "How persistent was the grief after the mother's death, and how did it affect daily functioning over time?",
+      "Did overpreparation create exhaustion or interfere with flexibility in work or relationships?",
+      "How did the subject experience the father's emotional reserve and the mother's night-shift absence beyond the recorded events?",
+      "Were there later relationship conflicts or losses that changed the current attachment dimensions?",
+      "What personal meaning does mentoring hold for the subject apart from compensating for limited early guidance?",
+      "How did the five-month period of unemployment affect self-worth, mood, and close relationships?"
+    ],
+    "change_points": [
+      {
+        "experience_id": "cx_e01",
+        "age": 5,
+        "personality_changes": [],
+        "attachment_changes": [
+          {
+            "dimension": "attachment_anxiety",
+            "direction": "increase",
+            "magnitude": "moderate"
+          }
+        ],
+        "state_changes": [
+          {
+            "dimension": "threat_sensitivity",
+            "direction": "increase",
+            "magnitude": "moderate"
+          }
+        ],
+        "reasoning": "The month of crying and refusing separation marks a specific increase in separation-related distress at school entry, partially buffered by the aunt's involvement.",
+        "evidence": [
+          {
+            "experience_id": "cx_e01",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ]
+      },
+      {
+        "experience_id": "cx_e04",
+        "age": 11,
+        "personality_changes": [],
+        "attachment_changes": [
+          {
+            "dimension": "relational_security",
+            "direction": "increase",
+            "magnitude": "moderate"
+          }
+        ],
+        "state_changes": [
+          {
+            "dimension": "threat_sensitivity",
+            "direction": "decrease",
+            "magnitude": "mild"
+          }
+        ],
+        "reasoning": "The aunt's full recovery became an explicitly remembered corrective experience that frightening events could resolve.",
+        "evidence": [
+          {
+            "experience_id": "cx_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ]
+      },
+      {
+        "experience_id": "cx_e08",
+        "age": 19,
+        "personality_changes": [],
+        "attachment_changes": [
+          {
+            "dimension": "attachment_avoidance",
+            "direction": "increase",
+            "magnitude": "moderate"
+          }
+        ],
+        "state_changes": [
+          {
+            "dimension": "trust",
+            "direction": "decrease",
+            "magnitude": "moderate"
+          },
+          {
+            "dimension": "avoidance",
+            "direction": "increase",
+            "magnitude": "moderate"
+          }
+        ],
+        "reasoning": "The subject explicitly reports becoming noticeably more guarded after the partner's infidelity, supporting a specific change in relational trust and protective distance.",
+        "evidence": [
+          {
+            "experience_id": "cx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ]
+      },
+      {
+        "experience_id": "cx_e12",
+        "age": 29,
+        "personality_changes": [],
+        "attachment_changes": [
+          {
+            "dimension": "attachment_anxiety",
+            "direction": "decrease",
+            "magnitude": "moderate"
+          },
+          {
+            "dimension": "attachment_avoidance",
+            "direction": "decrease",
+            "magnitude": "moderate"
+          },
+          {
+            "dimension": "relational_security",
+            "direction": "increase",
+            "magnitude": "substantial"
+          }
+        ],
+        "state_changes": [
+          {
+            "dimension": "trust",
+            "direction": "increase",
+            "magnitude": "substantial"
+          },
+          {
+            "dimension": "avoidance",
+            "direction": "decrease",
+            "magnitude": "moderate"
+          }
+        ],
+        "reasoning": "The subject describes trust in this partner as unexpectedly easy, making the marriage a concrete corrective relational experience after earlier betrayal.",
+        "evidence": [
+          {
+            "experience_id": "cx_e12",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ]
+      },
+      {
+        "experience_id": "cx_e15",
+        "age": 41,
+        "personality_changes": [],
+        "attachment_changes": [
+          {
+            "dimension": "relational_security",
+            "direction": "increase",
+            "magnitude": "mild"
+          }
+        ],
+        "state_changes": [
+          {
+            "dimension": "mood",
+            "direction": "decrease",
+            "magnitude": "substantial"
+          },
+          {
+            "dimension": "regulation",
+            "direction": "increase",
+            "magnitude": "mild"
+          }
+        ],
+        "reasoning": "The mother's death caused intense grief, while extended-family support made the experience bearable; this represents a major short-term mood shift alongside maintained relational regulation.",
+        "evidence": [
+          {
+            "experience_id": "cx_e15",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ]
+      },
+      {
+        "experience_id": "cx_e16",
+        "age": 48,
+        "personality_changes": [
+          {
+            "trait": "agreeableness",
+            "direction": "increase",
+            "magnitude": "mild"
+          },
+          {
+            "trait": "openness",
+            "direction": "increase",
+            "magnitude": "mild"
+          }
+        ],
+        "attachment_changes": [],
+        "state_changes": [
+          {
+            "dimension": "relational_security",
+            "direction": "increase",
+            "magnitude": "mild"
+          }
+        ],
+        "reasoning": "Beginning sustained mentoring reflects a specific shift toward generativity and prosocial identity, with connection used to support others.",
+        "evidence": [
+          {
+            "experience_id": "cx_e16",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ]
+      }
+    ],
+    "overall_confidence": 0.72
+  },
+  "pattern_scorecard_raw": {
+    "loss_and_bereavement": {
+      "relevance_score": 0.64,
+      "confidence": 0.7,
+      "human_label": "bereavement with supported adaptation",
+      "reasoning": "The mother's death produced intense grief, but family support made it bearable.",
+      "supporting_evidence": [
+        {
+          "experience_id": "cx_e15",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": []
+    },
+    "identity_reconstruction": {
+      "relevance_score": 0.48,
+      "confidence": 0.51,
+      "human_label": "identity expansion through achievement and mentoring",
+      "reasoning": "Leaving the home state for university and later mentoring suggest development of roles beyond the original family context.",
+      "supporting_evidence": [
+        {
+          "experience_id": "cx_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e16",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": []
+    },
+    "relational_repair": {
+      "relevance_score": 0.55,
+      "confidence": 0.63,
+      "human_label": "rebuilding trust through a stable partnership",
+      "reasoning": "Guardedness after betrayal was followed by a steady relationship in which trust became easier.",
+      "supporting_evidence": [
+        {
+          "experience_id": "cx_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e11",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e12",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": []
+    },
+    "avoidant_withdrawal": {
+      "relevance_score": 0.22,
+      "confidence": 0.58,
+      "human_label": "limited protective guardedness",
+      "reasoning": "Relationship guardedness after infidelity is present, but later trust and marriage argue against a dominant withdrawal pattern.",
+      "supporting_evidence": [
+        {
+          "experience_id": "cx_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "cx_e12",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ]
+    },
+    "risk_seeking_dysregulation": {
+      "relevance_score": 0.06,
+      "confidence": 0.83,
+      "human_label": "not supported by the available record",
+      "reasoning": "No recorded experience describes risk-seeking or dysregulated behavior.",
+      "supporting_evidence": [],
+      "contradicting_evidence": []
+    },
+    "caregiving_role_reversal": {
+      "relevance_score": 0.42,
+      "confidence": 0.59,
+      "human_label": "situational responsibility for family stability",
+      "reasoning": "The subject felt responsible for calming siblings during parental conflict and later coordinated care for the father.",
+      "supporting_evidence": [
+        {
+          "experience_id": "cx_e06",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e13",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": []
+    },
+    "achievement_or_competence_compensation": {
+      "relevance_score": 0.62,
+      "confidence": 0.7,
+      "human_label": "competence used to manage uncertainty",
+      "reasoning": "Debate success, academic achievement, career advancement, and overpreparation suggest competence became an important way of establishing security and control.",
+      "supporting_evidence": [
+        {
+          "experience_id": "cx_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e14",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": []
+    },
+    "hypervigilant_monitoring": {
+      "relevance_score": 0.55,
+      "confidence": 0.61,
+      "human_label": "watchful preparation around uncertainty",
+      "reasoning": "The subject describes being watchful and repeatedly overprepared, with heightened concern following relational betrayal and job loss.",
+      "supporting_evidence": [
+        {
+          "experience_id": "cx_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e10",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e14",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": []
+    },
+    "prosocial_reinvention": {
+      "relevance_score": 0.58,
+      "confidence": 0.72,
+      "human_label": "generative mentoring identity",
+      "reasoning": "Mentoring first-generation students appears to transform earlier self-reliance into support for others.",
+      "supporting_evidence": [
+        {
+          "experience_id": "cx_e16",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": []
+    },
+    "substance_coping": {
+      "relevance_score": 0.04,
+      "confidence": 0.86,
+      "human_label": "not supported by the available record",
+      "reasoning": "No recorded experience describes substance use or substance-based coping.",
+      "supporting_evidence": [],
+      "contradicting_evidence": []
+    }
+  },
+  "hypothesis_scorecard_raw": {
+    "adjustment_reaction": {
+      "evidence_strength": 0.36,
+      "confidence": 0.55,
+      "supporting_evidence": [
+        {
+          "experience_id": "cx_e10",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e15",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "cx_e12",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e16",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "ordinary responses to major life stressors",
+        "longstanding conscientiousness and uncertainty sensitivity"
+      ]
+    },
+    "complicated_grief_pattern": {
+      "evidence_strength": 0.14,
+      "confidence": 0.75,
+      "supporting_evidence": [],
+      "contradicting_evidence": [
+        {
+          "experience_id": "cx_e15",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "supported normative bereavement",
+        "preexisting family attachment and caregiving patterns"
+      ]
+    },
+    "attachment_insecurity_pattern": {
+      "evidence_strength": 0.49,
+      "confidence": 0.68,
+      "supporting_evidence": [
+        {
+          "experience_id": "cx_e01",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e02",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "cx_e12",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e15",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "temperamental caution",
+        "specific relational betrayal rather than generalized insecurity"
+      ]
+    },
+    "substance_use_vulnerability": {
+      "evidence_strength": 0.03,
+      "confidence": 0.9,
+      "supporting_evidence": [],
+      "contradicting_evidence": [],
+      "competing_explanations": [
+        "no substance-related evidence is available"
+      ]
+    },
+    "identity_disruption_pattern": {
+      "evidence_strength": 0.29,
+      "confidence": 0.54,
+      "supporting_evidence": [
+        {
+          "experience_id": "cx_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e16",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "cx_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e12",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "normal adult role development",
+        "generativity built on stable identity rather than disruption"
+      ]
+    },
+    "resilient_trajectory": {
+      "evidence_strength": 0.83,
+      "confidence": 0.84,
+      "supporting_evidence": [
+        {
+          "experience_id": "cx_e04",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e12",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e15",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e16",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "cx_e02",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "cx_e10",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "stable temperament and family resources",
+        "achievement-based coping that may conceal costs"
+      ]
+    }
+  },
+  "validation_findings": [
+    {
+      "claim_type": "pattern",
+      "claim_id": "pattern_caregiving_role_reversal",
+      "rule_violated": "actor_tag_consistency",
+      "detail": "caregiving_role_reversal pattern grounded only in self-tagged citations",
+      "severity": "flag"
+    }
+  ],
+  "regression_findings": [],
+  "diagnosis_leak_findings": []
+}
