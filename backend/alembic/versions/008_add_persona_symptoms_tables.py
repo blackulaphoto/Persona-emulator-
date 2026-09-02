@@ -1,7 +1,7 @@
 """Add persona_symptoms and symptom_history tables
 
 Revision ID: add_persona_symptoms_tables
-Revises: 007_add_persona_foundational_baseline
+Revises: 007_add_foundational_baseline
 Create Date: 2025-12-29
 
 """
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = 'add_persona_symptoms_tables'
-down_revision = '007_add_persona_foundational_baseline'
+down_revision = '007_add_foundational_baseline'
 branch_labels = None
 depends_on = None
 

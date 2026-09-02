@@ -1,6 +1,6 @@
 """add persona foundational baseline fields
 
-Revision ID: 007_add_persona_foundational_baseline
+Revision ID: 007_add_foundational_baseline
 Revises: 6e28795dc8ca
 Create Date: 2025-12-21
 
@@ -11,8 +11,15 @@ from alembic import op
 import sqlalchemy as sa
 
 
-# revision identifiers, used by Alembic.
-revision: str = '007_add_persona_foundational_baseline'
+# revision identifiers, used by Alembic. Shortened from
+# '007_add_persona_foundational_baseline' (37 chars) - alembic_version.
+# version_num is a hardcoded VARCHAR(32) with no config hook to widen it
+# (see alembic.ddl.impl.DefaultImpl.version_table_impl); SQLite never
+# enforced that length, Postgres does (StringDataRightTruncation), so any
+# revision id over 32 chars only ever worked by accident on SQLite. Every
+# revision id in this project exceeding 32 chars is shortened the same way
+# in this change - see the sibling revisions this touches.
+revision: str = '007_add_foundational_baseline'
 down_revision: Union[str, Sequence[str], None] = '6e28795dc8ca'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

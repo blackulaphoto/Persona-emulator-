@@ -11,14 +11,17 @@ Base.metadata.create_all().
 Scoped to only these two genuinely new columns - state_profile_snapshot is
 already owned by migration 009 and is not touched here.
 
-Revision ID: 014_add_timeline_snapshot_attachment
-Revises: 013_add_experience_sequence_index
+Revision ID: 014_add_snapshot_attachment
+Revises: 013_add_sequence_index
 """
 from alembic import op
 import sqlalchemy as sa
 
-revision = "014_add_timeline_snapshot_attachment"
-down_revision = "013_add_experience_sequence_index"
+# Shortened from '014_add_timeline_snapshot_attachment' (36 chars) - see
+# 007's revision comment for why (alembic_version.version_num is
+# VARCHAR(32) in Postgres).
+revision = "014_add_snapshot_attachment"
+down_revision = "013_add_sequence_index"
 branch_labels = None
 depends_on = None
 

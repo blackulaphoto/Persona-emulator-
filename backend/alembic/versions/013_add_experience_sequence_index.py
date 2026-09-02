@@ -1,12 +1,15 @@
 """Add stable same-age experience ordering.
 
-Revision ID: 013_add_experience_sequence_index
+Revision ID: 013_add_sequence_index
 Revises: 012_add_attachment_dimensions
 """
 from alembic import op
 import sqlalchemy as sa
 
-revision = "013_add_experience_sequence_index"
+# Shortened from '013_add_experience_sequence_index' (33 chars) - see 007's
+# revision comment for why (alembic_version.version_num is VARCHAR(32) in
+# Postgres).
+revision = "013_add_sequence_index"
 down_revision = "012_add_attachment_dimensions"
 branch_labels = None
 depends_on = None
