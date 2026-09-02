@@ -1,5 +1,16 @@
 """
 Experience API routes.
+
+KNOWN INTEGRATION CONSTRAINT (Whole-Life Formulation V2): these routes
+(add_experience / add_experiences_batch / update_experience /
+delete_experience) always run V1's per-experience developmental pipeline,
+even for a persona whose formulation_engine_version is "v2". They do not
+trigger Analyze Life V2. For a persona already analyzed with V2, a factual
+edit made here (add/edit/delete) means the persona's whole_life_formulations
+row is stale relative to the new facts until POST
+/api/v1/personas/{persona_id}/analyze-v2 is explicitly re-run - see
+app/api/routes/formulation_v2.py's module docstring. Not fixed here; tracked
+as a follow-up.
 """
 import logging
 from fastapi import APIRouter, Depends, HTTPException

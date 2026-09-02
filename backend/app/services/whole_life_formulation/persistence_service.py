@@ -60,6 +60,20 @@ logger = logging.getLogger(__name__)
 
 MAX_MODEL_RETRIES = 1  # one clean retry on a rejected formulation, per the locked spec
 
+# Explicit, checked-in identifier for the Whole-Life Formulation V2
+# persistence engine itself - deliberately independent of
+# FormulationResult.final.schema_version (the model-output JSON schema's
+# own version, e.g. "v2.2-final-stability-pass" from
+# formulation_service.FORMULATION_SCHEMA_VERSION). The two track different
+# things and must not be derived from one another: the LLM call's JSON
+# schema can change (a strict_schema.py tweak) without the persistence
+# engine changing, and vice versa. Bump this only when
+# enforcement/persistence/projection/snapshot behavior in this module
+# changes in a way worth distinguishing on whole_life_formulations rows.
+# Matches Persona.formulation_engine_version's own "v2" convention (set
+# below on acceptance).
+WHOLE_LIFE_FORMULATION_ENGINE_VERSION = "v2"
+
 
 @dataclass
 class AnalyzeLifeV2Result:
@@ -140,7 +154,7 @@ def analyze_life_v2(db: Session, persona: Persona) -> AnalyzeLifeV2Result:
 
             formulation_row = WholeLifeFormulation(
                 persona_id=persona.id,
-                engine_version=f.schema_version,
+                engine_version=WHOLE_LIFE_FORMULATION_ENGINE_VERSION,
                 schema_version=f.schema_version,
                 generation_number=next_generation,
                 generated_at=datetime.utcnow(),

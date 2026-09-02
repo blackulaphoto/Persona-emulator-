@@ -16,6 +16,17 @@ projections.py's module docstring).
 Not wired into the frontend "Analyze Life" button in this phase - "prove
 data plumbing only." Exercised directly (QA script / API client) against the
 allowlist while WHOLE_LIFE_FORMULATION_V2 is enabled.
+
+KNOWN INTEGRATION CONSTRAINT: for a persona already analyzed with V2,
+experiences.py's add/edit/delete routes still run only the V1 developmental
+pipeline (see that module's own docstring) - they never call analyze_life_v2.
+This means a factual edit (adding, editing, or deleting an experience) made
+after a V2 analysis leaves that persona's whole_life_formulations row stale
+relative to the new facts, with no automatic re-trigger. The caller is
+responsible for re-running POST /{persona_id}/analyze-v2 after any such edit
+to bring the V2 formulation current again. This is a known limitation of the
+current integration, not addressed in this cleanup pass - deliberately out
+of scope here.
 """
 import logging
 
