@@ -1,13 +1,13 @@
 """Add developmental attachment dimensions.
 
 Revision ID: 012_add_attachment_dimensions
-Revises: 011_add_persona_baseline_personality
+Revises: 011_add_baseline_personality
 """
 from alembic import op
 import sqlalchemy as sa
 
 revision = "012_add_attachment_dimensions"
-down_revision = "011_add_persona_baseline_personality"
+down_revision = "011_add_baseline_personality"
 branch_labels = None
 depends_on = None
 

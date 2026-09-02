@@ -15,7 +15,7 @@ yet at migration time. Both branches below are correct:
   - table absent (fresh DB): skip - create_all() will create the table with
     this column already on it, since it is now part of the model.
 
-Revision ID: 010_add_hypothesis_previous_strength
+Revision ID: 010_add_hypothesis_prev_str
 Revises: 009_add_state_trait_columns
 Create Date: 2026-08-25
 """
@@ -25,8 +25,10 @@ from alembic import op
 import sqlalchemy as sa
 
 
-# revision identifiers, used by Alembic.
-revision: str = '010_add_hypothesis_previous_strength'
+# revision identifiers, used by Alembic. Shortened from
+# '010_add_hypothesis_previous_strength' (36 chars) - see 007's revision
+# comment for why (alembic_version.version_num is VARCHAR(32) in Postgres).
+revision: str = '010_add_hypothesis_prev_str'
 down_revision: Union[str, Sequence[str], None] = '009_add_state_trait_columns'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
