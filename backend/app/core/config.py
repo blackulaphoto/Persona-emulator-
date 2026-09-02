@@ -3,18 +3,23 @@ from functools import lru_cache
 from typing import List, Optional
 import os
 
-from pydantic import Field, AliasChoices
+from pydantic import Field, AliasChoices, model_validator
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
     """Application settings from environment variables."""
-    
+
     # Application
     app_name: str = "Persona Evolution Simulator"
-    
-    # Database
-    database_url: str = Field(default="sqlite:///./dev.db", env="DATABASE_URL")
+
+    # Database. No hardcoded default here - see _resolve_database_url below,
+    # which fails closed in production instead of silently defaulting to
+    # local SQLite (confirmed live: production had a real Postgres service
+    # provisioned but never actually connected, and was quietly writing to
+    # and losing data from ./dev.db - a file on the deploy container's own
+    # ephemeral filesystem - on every redeploy).
+    database_url: Optional[str] = Field(default=None, env="DATABASE_URL")
     
     # OpenAI (optional to allow service startup without key). Accept OPENAI_API_KEY or OPENAI_KEY.
     openai_api_key: str | None = Field(
@@ -61,6 +66,36 @@ class Settings(BaseSettings):
         env="FEATURE_REMIX_TIMELINE"
     )
     
+    @model_validator(mode="after")
+    def _resolve_database_url(self) -> "Settings":
+        """
+        DEVELOPMENT/TEST (ENVIRONMENT != "production"): DATABASE_URL unset
+        falls back to local SQLite, same as always.
+
+        PRODUCTION: DATABASE_URL unset fails application startup loudly,
+        before a single request is ever served - production must never
+        silently create/use an ephemeral local SQLite file. This is the
+        exact failure mode confirmed live: a real Postgres service was
+        provisioned in the Railway project but never actually referenced by
+        this service, so the app had been quietly running on
+        sqlite:///./dev.db - a file on the deploy container's own ephemeral
+        filesystem, with no persistent volume - losing all data on every
+        redeploy.
+        """
+        if self.database_url:
+            return self
+        if self.environment.strip().lower() == "production":
+            raise ValueError(
+                "DATABASE_URL is required when ENVIRONMENT=production. Refusing to start "
+                "with no database configured - production must never silently fall back to "
+                "sqlite:///./dev.db (that file lives on the deploy container's own ephemeral "
+                "filesystem and does not survive a redeploy). Set DATABASE_URL to a real "
+                "database connection string (e.g. a Railway Postgres reference variable) "
+                "before deploying."
+            )
+        self.database_url = "sqlite:///./dev.db"
+        return self
+
     @property
     def additional_cors_origins(self) -> List[str]:
         """
