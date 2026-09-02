@@ -34,7 +34,14 @@ def upgrade() -> None:
                 'baseline_initialized',
                 sa.Boolean(),
                 nullable=False,
-                server_default=sa.text('0')
+                # sa.text('0') compiles to a bare integer literal, which
+                # SQLite accepts for a boolean-affinity column but Postgres
+                # rejects (DatatypeMismatch: column is boolean, default
+                # expression is integer). sa.false() is the dialect-agnostic
+                # construct - compiles to `0` for SQLite and `false` for
+                # Postgres automatically. Confirmed failing against real
+                # Postgres before this fix; confirmed passing after.
+                server_default=sa.false()
             )
         )
 
