@@ -15,8 +15,17 @@ class PersonalitySnapshot(Base):
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     persona_id = Column(String, ForeignKey("personas.id"), nullable=False)
-    experience_id = Column(String, ForeignKey("experiences.id"), nullable=True)
-    intervention_id = Column(String, ForeignKey("interventions.id"), nullable=True)
+    # ondelete='CASCADE' on these two: Persona.experiences and Persona.snapshots
+    # are independent cascade="all, delete-orphan" relationships on Persona, with
+    # no ORM relationship() connecting Experience/Intervention to
+    # PersonalitySnapshot - so SQLAlchemy's unit-of-work has no way to order a
+    # delete-persona flush so snapshot rows go first. SQLite never enforced the
+    # FK, so this was silently fine there; Postgres enforces it strictly and
+    # rejected every persona delete with ForeignKeyViolation once a persona
+    # had any snapshots - confirmed live. Cascading at the DB level removes the
+    # ordering dependency entirely. See migration that adds these ondeletes.
+    experience_id = Column(String, ForeignKey("experiences.id", ondelete="CASCADE"), nullable=True)
+    intervention_id = Column(String, ForeignKey("interventions.id", ondelete="CASCADE"), nullable=True)
     
     age = Column(Integer, nullable=False)
     
