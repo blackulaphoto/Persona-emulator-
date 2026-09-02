@@ -1,7 +1,7 @@
 """Persona model representing a simulated person."""
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Integer, Text, DateTime, Boolean, ForeignKey, JSON
+from sqlalchemy import Column, String, Integer, Text, DateTime, Boolean, JSON
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -14,7 +14,15 @@ class Persona(Base):
     __tablename__ = "personas"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)  # Firebase UID
+    # Firebase UID, not a relational FK - there is no local `users` row per
+    # Firebase user (auth is verified against Firebase on every request,
+    # see app/core/auth.py; nothing in this app ever writes to the `users`
+    # table). A ForeignKey("users.id") was here previously; harmless under
+    # SQLite (which doesn't enforce FKs by default) but Postgres enforces
+    # them strictly, and rejected every real persona create with
+    # ForeignKeyViolation once Postgres was actually connected - confirmed
+    # live. See migration that drops fk_personas_user_id.
+    user_id = Column(String, nullable=False, index=True)
     
     # Basic info
     name = Column(String, nullable=False)
@@ -75,7 +83,6 @@ class Persona(Base):
     timeline_snapshots = relationship("TimelineSnapshot", back_populates="persona", cascade="all, delete-orphan")
     narratives = relationship("PersonaNarrative", back_populates="persona", cascade="all, delete-orphan")
     detailed_symptoms = relationship("PersonaSymptom", back_populates="persona", cascade="all, delete-orphan")
-    owner = relationship("User", back_populates="personas")
 
     # Human Development Engine (see docs/MIGRATION_MAP.md)
     narration_records = relationship("NarrationRecord", back_populates="persona", cascade="all, delete-orphan")
