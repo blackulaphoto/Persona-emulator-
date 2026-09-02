@@ -246,6 +246,7 @@ async def create_persona_from_template_endpoint(
 async def apply_experience_set(
     persona_id: str,
     request: ApplyExperienceSetRequest,
+    user_id: str = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -265,8 +266,16 @@ async def apply_experience_set(
     - template_id: Template to get experiences from
     - experience_indices: Optional list of indices to apply (default: all)
     """
-    # Validate persona exists (persona.id is String, not UUID)
-    persona = db.query(Persona).filter(Persona.id == persona_id).first()
+    # Get persona and verify ownership. Previously had no auth dependency
+    # and no ownership check at all - any caller could apply a template's
+    # experience set to any persona_id. Now matches every other persona-
+    # scoped route (personas.py, experiences.py, interventions.py): a
+    # persona that exists but isn't owned by this caller 404s identically
+    # to one that doesn't exist at all.
+    persona = db.query(Persona).filter(
+        Persona.id == persona_id,
+        Persona.user_id == user_id,
+    ).first()
     if not persona:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -314,14 +323,11 @@ async def apply_experience_set(
         # Create the experience row first (legacy analysis fields empty) so
         # experience.id exists as source_event_id for the pipeline below -
         # same ordering as app/api/routes/experiences.py::add_experience.
-        # user_id is stamped from the persona's own owner: this route has no
-        # per-request authenticated user (unlike /personas/{id}/experiences),
-        # and Experience.user_id is NOT NULL - a pre-existing gap in this
-        # exact constructor call that silently 500'd every call to this
-        # endpoint before this fix (confirmed empirically), not a behavior
-        # worth preserving.
+        # user_id is stamped from the authenticated caller (now required and
+        # already verified above to equal persona.user_id) - same convention
+        # as experiences.py::add_experience, not persona.user_id directly.
         experience = Experience(
-            user_id=persona.user_id,
+            user_id=user_id,
             persona_id=persona_id,
             sequence_number=sequence_number,
             age_at_event=exp_data["age"],
