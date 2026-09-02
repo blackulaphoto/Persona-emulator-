@@ -65,7 +65,23 @@ class Settings(BaseSettings):
         default=True,  # Enabled by default in dev
         env="FEATURE_REMIX_TIMELINE"
     )
-    
+
+    # Whole-Life Formulation V2 (persistence phase). Defaults false everywhere,
+    # including dev - unlike the other feature flags above, V2 is not
+    # considered production-ready and must be explicitly enabled. Even when
+    # true, only personas/users on the allowlists below get V2 behavior; V1
+    # is untouched for everyone else regardless of this flag's value.
+    whole_life_formulation_v2: bool = Field(default=False, env="WHOLE_LIFE_FORMULATION_V2")
+    # Comma-separated Persona ids (e.g. disposable QA personas).
+    whole_life_formulation_v2_persona_allowlist_raw: Optional[str] = Field(
+        default=None, env="WHOLE_LIFE_FORMULATION_V2_PERSONA_ALLOWLIST"
+    )
+    # Comma-separated Firebase UIDs (e.g. the app owner) - every persona
+    # belonging to an allowlisted user is eligible, not just specific personas.
+    whole_life_formulation_v2_user_allowlist_raw: Optional[str] = Field(
+        default=None, env="WHOLE_LIFE_FORMULATION_V2_USER_ALLOWLIST"
+    )
+
     @model_validator(mode="after")
     def _resolve_database_url(self) -> "Settings":
         """
@@ -109,6 +125,31 @@ class Settings(BaseSettings):
             for origin in self.additional_cors_origins_raw.split(",")
             if origin and origin.strip()
         ]
+
+    @property
+    def whole_life_formulation_v2_persona_allowlist(self) -> set[str]:
+        if not self.whole_life_formulation_v2_persona_allowlist_raw:
+            return set()
+        return {p.strip() for p in self.whole_life_formulation_v2_persona_allowlist_raw.split(",") if p.strip()}
+
+    @property
+    def whole_life_formulation_v2_user_allowlist(self) -> set[str]:
+        if not self.whole_life_formulation_v2_user_allowlist_raw:
+            return set()
+        return {u.strip() for u in self.whole_life_formulation_v2_user_allowlist_raw.split(",") if u.strip()}
+
+    def whole_life_formulation_v2_enabled_for(self, persona_id: str, user_id: str) -> bool:
+        """
+        False unless the global flag is on AND (the persona or its owning
+        user is explicitly allowlisted). The global flag alone is never
+        sufficient - see this field's own docstring above.
+        """
+        if not self.whole_life_formulation_v2:
+            return False
+        return (
+            persona_id in self.whole_life_formulation_v2_persona_allowlist
+            or user_id in self.whole_life_formulation_v2_user_allowlist
+        )
 
     @property
     def preview_limit_exempt_user_ids(self) -> set[str]:

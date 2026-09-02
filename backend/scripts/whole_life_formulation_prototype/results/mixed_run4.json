@@ -1,0 +1,1724 @@
+{
+  "fixture": "mixed",
+  "run_index": 4,
+  "elapsed_seconds": 43.9,
+  "status": "ok",
+  "formulation": {
+    "schema_version": "v2.2-final-stability-pass",
+    "baseline_personality": {
+      "openness": {
+        "value": 0.72,
+        "evidence": [
+          {
+            "experience_id": "mx_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.55,
+        "reasoning": "Participation in theater and feeling good at being seen suggest openness to expressive, socially creative experiences."
+      },
+      "conscientiousness": {
+        "value": 0.48,
+        "evidence": [
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.4,
+        "reasoning": "Sustaining a long relationship and building a business suggest persistence, but the available history gives limited direct evidence about organization or rule-following."
+      },
+      "extraversion": {
+        "value": 0.8,
+        "evidence": [
+          {
+            "experience_id": "mx_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.7,
+        "reasoning": "The subject is described as socially eager and later engaged strongly in theater and a close collaborative business partnership."
+      },
+      "agreeableness": {
+        "value": 0.67,
+        "evidence": [
+          {
+            "experience_id": "mx_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.5,
+        "reasoning": "Remaining in a disappointing relationship and forming a stable partnership suggest loyalty and investment in relationships, although the record is limited."
+      },
+      "neuroticism": {
+        "value": 0.76,
+        "evidence": [
+          {
+            "experience_id": "mx_e02",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.7,
+        "reasoning": "Repeated experiences of waiting, disappointment, and worry about being left out suggest elevated interpersonal sensitivity and threat anticipation."
+      }
+    },
+    "current_personality": {
+      "openness": {
+        "value": 0.75,
+        "evidence": [
+          {
+            "experience_id": "mx_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.6,
+        "reasoning": "Expressive theater involvement and creating a business with a friend support maintained openness and initiative."
+      },
+      "conscientiousness": {
+        "value": 0.62,
+        "evidence": [
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.5,
+        "reasoning": "Ending an unsatisfying relationship and sustaining a business partnership suggest increased self-direction and follow-through."
+      },
+      "extraversion": {
+        "value": 0.8,
+        "evidence": [
+          {
+            "experience_id": "mx_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.7,
+        "reasoning": "The subject continued to seek visibility and collaborative connection through theater and business."
+      },
+      "agreeableness": {
+        "value": 0.7,
+        "evidence": [
+          {
+            "experience_id": "mx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.55,
+        "reasoning": "The subject accepted a friend's concern, pursued a more reciprocal relationship standard, and maintained a stable collaborative partnership."
+      },
+      "neuroticism": {
+        "value": 0.68,
+        "evidence": [
+          {
+            "experience_id": "mx_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.58,
+        "reasoning": "Interpersonal disappointment remains relevant, but later boundary-setting and stable collaboration suggest some reduction in vulnerability compared with childhood."
+      }
+    },
+    "personality_deltas": [
+      {
+        "trait": "conscientiousness",
+        "from_value": 0.48,
+        "to_value": 0.62,
+        "direction": "increase",
+        "magnitude": "moderate",
+        "evidence": [
+          {
+            "experience_id": "mx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "The subject moved from prolonged tolerance of repeated disappointment toward deliberate relationship termination and sustained partnership-building."
+      },
+      {
+        "trait": "neuroticism",
+        "from_value": 0.76,
+        "to_value": 0.68,
+        "direction": "decrease",
+        "magnitude": "mild",
+        "evidence": [
+          {
+            "experience_id": "mx_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "The subject's decision to stop expecting an unreliable parent and later belief in deserving better suggest somewhat greater emotional self-protection."
+      }
+    ],
+    "baseline_attachment": {
+      "style": "anxious",
+      "style_evidence": [
+        {
+          "experience_id": "mx_e02",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "style_confidence": 0.6,
+      "attachment_anxiety": {
+        "value": 0.82,
+        "evidence": [
+          {
+            "experience_id": "mx_e02",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.78
+      },
+      "attachment_avoidance": {
+        "value": 0.2,
+        "evidence": [
+          {
+            "experience_id": "mx_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.6
+      },
+      "relational_security": {
+        "value": 0.35,
+        "evidence": [
+          {
+            "experience_id": "mx_e02",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e03",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.65
+      }
+    },
+    "current_attachment": {
+      "style": "anxious",
+      "style_evidence": [
+        {
+          "experience_id": "mx_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "style_confidence": 0.55,
+      "attachment_anxiety": {
+        "value": 0.62,
+        "evidence": [
+          {
+            "experience_id": "mx_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.62
+      },
+      "attachment_avoidance": {
+        "value": 0.28,
+        "evidence": [
+          {
+            "experience_id": "mx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.55
+      },
+      "relational_security": {
+        "value": 0.65,
+        "evidence": [
+          {
+            "experience_id": "mx_e03",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.68
+      }
+    },
+    "attachment_trajectory": [
+      {
+        "period_label": "early childhood through adolescence",
+        "direction": "toward_insecurity",
+        "evidence": [
+          {
+            "experience_id": "mx_e01",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e02",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "Parental separation and repeated unpredictable paternal contact likely increased concern about being forgotten or left."
+      },
+      {
+        "period_label": "late adolescence through early adulthood",
+        "direction": "stable",
+        "evidence": [
+          {
+            "experience_id": "mx_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "The subject continued to pursue closeness but tolerated repeated disappointment, suggesting persistent rather than rapidly changing insecurity."
+      },
+      {
+        "period_label": "adulthood to age 33",
+        "direction": "toward_security",
+        "evidence": [
+          {
+            "experience_id": "mx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "Ending a one-sided relationship and experiencing a stable working relationship provide evidence of stronger boundaries and reciprocal connection."
+      }
+    ],
+    "current_state": {
+      "trust": {
+        "value": 0.62,
+        "evidence": [
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.6
+      },
+      "threat_sensitivity": {
+        "value": 0.58,
+        "evidence": [
+          {
+            "experience_id": "mx_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.55
+      },
+      "mood": {
+        "value": 0.62,
+        "evidence": [
+          {
+            "experience_id": "mx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.48
+      },
+      "regulation": {
+        "value": 0.62,
+        "evidence": [
+          {
+            "experience_id": "mx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.52
+      },
+      "avoidance": {
+        "value": 0.3,
+        "evidence": [
+          {
+            "experience_id": "mx_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.5
+      },
+      "relational_security": {
+        "value": 0.68,
+        "evidence": [
+          {
+            "experience_id": "mx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.62
+      }
+    },
+    "developmental_patterns": [
+      {
+        "id": "pattern_identity_reconstruction",
+        "canonical_family": "identity_reconstruction",
+        "human_label": "Reconstruction of relational worth and visibility",
+        "status": "established",
+        "relevance_score": 0.62,
+        "first_emerged": {
+          "experience_id": "mx_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "mx_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [],
+        "confidence": 0.68,
+        "reasoning": "The subject moved from feeling overlooked and accepting a one-sided relationship toward feeling good at being seen and deserving better."
+      },
+      {
+        "id": "pattern_relational_repair",
+        "canonical_family": "relational_repair",
+        "human_label": "Movement toward reciprocal relationships",
+        "status": "established",
+        "relevance_score": 0.72,
+        "first_emerged": {
+          "experience_id": "mx_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "mx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "mx_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.75,
+        "reasoning": "A friend helped the subject reconsider a disappointing relationship, followed by a stable adult partnership."
+      },
+      {
+        "id": "pattern_achievement_or_competence_compensation",
+        "canonical_family": "achievement_or_competence_compensation",
+        "human_label": "Competence supporting visibility and self-worth",
+        "status": "emerging",
+        "relevance_score": 0.48,
+        "first_emerged": {
+          "experience_id": "mx_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "mx_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [],
+        "confidence": 0.55,
+        "reasoning": "Theater provided a valued experience of being seen, and later business ownership offered a stable competence-based role."
+      },
+      {
+        "id": "pattern_hypervigilant_monitoring",
+        "canonical_family": "hypervigilant_monitoring",
+        "human_label": "Monitoring for relational unreliability",
+        "status": "emerging",
+        "relevance_score": 0.55,
+        "first_emerged": {
+          "experience_id": "mx_e02",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "mx_e02",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.7,
+        "reasoning": "Waiting for a missed visit, worrying about being forgotten, and later deciding not to expect the father suggest attention to signs of abandonment."
+      },
+      {
+        "id": "pattern_prosocial_reinvention",
+        "canonical_family": "prosocial_reinvention",
+        "human_label": "Prosocial identity development through creative community",
+        "status": "established",
+        "relevance_score": 0.65,
+        "first_emerged": {
+          "experience_id": "mx_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "mx_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [],
+        "confidence": 0.7,
+        "reasoning": "Theater and a close friendship became routes to visibility, belonging, and constructive adult collaboration."
+      }
+    ],
+    "beliefs": [
+      {
+        "id": "b1",
+        "human_label": "Fear of being forgotten",
+        "belief_statement": "People may leave or forget me unless I remain engaging and keep relationships light.",
+        "formed_from": [
+          {
+            "experience_id": "mx_e02",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "restated_by": [
+          {
+            "experience_id": "mx_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.78
+      },
+      {
+        "id": "b2",
+        "human_label": "Worth requires being seen",
+        "belief_statement": "Being visible and socially valued helps establish that I matter.",
+        "formed_from": [
+          {
+            "experience_id": "mx_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "restated_by": [
+          {
+            "experience_id": "mx_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.7
+      },
+      {
+        "id": "b3",
+        "human_label": "Reciprocity is deserved",
+        "belief_statement": "I deserve relationships in which care and effort are mutual rather than repeatedly disappointing.",
+        "formed_from": [
+          {
+            "experience_id": "mx_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "restated_by": [
+          {
+            "experience_id": "mx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.85
+      }
+    ],
+    "protective_factors": [
+      {
+        "id": "pf1",
+        "canonical_family": "reliable_relationship",
+        "human_label": "Reliable maternal presence",
+        "domains_buffered": [
+          "attachment_security",
+          "emotional_safety",
+          "stability"
+        ],
+        "active_from": {
+          "experience_id": "mx_e01",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "caregiver"
+        },
+        "active_to": null,
+        "confidence": 0.75
+      },
+      {
+        "id": "pf2",
+        "canonical_family": "reliable_relationship",
+        "human_label": "Grandmother's predictable support",
+        "domains_buffered": [
+          "emotional_safety",
+          "emotional_regulation",
+          "stability"
+        ],
+        "active_from": {
+          "experience_id": "mx_e03",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "other"
+        },
+        "active_to": null,
+        "confidence": 0.8
+      },
+      {
+        "id": "pf3",
+        "canonical_family": "community_or_belonging",
+        "human_label": "Theater community",
+        "domains_buffered": [
+          "identity",
+          "social_belonging",
+          "competence"
+        ],
+        "active_from": {
+          "experience_id": "mx_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "active_to": null,
+        "confidence": 0.78
+      },
+      {
+        "id": "pf4",
+        "canonical_family": "corrective_experience",
+        "human_label": "Stable adult collaboration",
+        "domains_buffered": [
+          "attachment_security",
+          "social_belonging",
+          "competence",
+          "autonomy"
+        ],
+        "active_from": {
+          "experience_id": "mx_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "active_to": null,
+        "confidence": 0.82
+      }
+    ],
+    "causal_chains": [
+      {
+        "id": "cc1",
+        "description": "Unpredictable paternal availability contributed to abandonment sensitivity, which later shaped tolerance of disappointing closeness before stronger boundaries developed.",
+        "steps": [
+          {
+            "event_citation": {
+              "experience_id": "mx_e02",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "A missed birthday visit and prolonged waiting could heighten monitoring for relational absence."
+          },
+          {
+            "event_citation": {
+              "experience_id": "mx_e07",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "The subject remained in a one-sided relationship despite repeated disappointments, consistent with trying to preserve connection."
+          },
+          {
+            "event_citation": {
+              "experience_id": "mx_e08",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "Ending the relationship marked a shift toward reciprocity and self-protective boundaries."
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "id": "cc2",
+        "description": "Social exclusion and feeling overlooked were followed by creative visibility and later collaborative competence, supporting a more secure and valued adult identity.",
+        "steps": [
+          {
+            "event_citation": {
+              "experience_id": "mx_e04",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "Bullying was associated with withdrawal and social devaluation."
+          },
+          {
+            "event_citation": {
+              "experience_id": "mx_e05",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "Theater supplied recognition and a successful avenue for being seen."
+          },
+          {
+            "event_citation": {
+              "experience_id": "mx_e09",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "A stable business partnership extended belonging and competence into adulthood."
+          }
+        ],
+        "confidence": 0.78
+      }
+    ],
+    "hypotheses": [
+      {
+        "id": "hypothesis_adjustment_reaction",
+        "canonical_family": "adjustment_reaction",
+        "human_label": "Adjustment reaction",
+        "status": "candidate",
+        "evidence_strength": 0.58,
+        "supporting_evidence": [
+          {
+            "experience_id": "mx_e01",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e02",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "competing_explanations": [
+          "Long-standing temperament-based sensitivity to exclusion",
+          "Effects of repeated relational inconsistency"
+        ],
+        "reasoning": "Derived status 'candidate' from evidence_strength=0.58 with 2 supporting and 1 contradicting citation(s)."
+      },
+      {
+        "id": "hypothesis_attachment_insecurity_pattern",
+        "canonical_family": "attachment_insecurity_pattern",
+        "human_label": "Attachment insecurity pattern",
+        "status": "supported",
+        "evidence_strength": 0.82,
+        "supporting_evidence": [
+          {
+            "experience_id": "mx_e02",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "mx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "competing_explanations": [
+          "Temperamental worry about exclusion",
+          "Developmental effects of bullying"
+        ],
+        "reasoning": "Derived status 'supported' from evidence_strength=0.82 with 3 supporting and 2 contradicting citation(s)."
+      },
+      {
+        "id": "hypothesis_identity_disruption_pattern",
+        "canonical_family": "identity_disruption_pattern",
+        "human_label": "Identity disruption pattern",
+        "status": "candidate",
+        "evidence_strength": 0.55,
+        "supporting_evidence": [
+          {
+            "experience_id": "mx_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "competing_explanations": [
+          "Normal adolescent identity development",
+          "Adaptive movement toward competence and belonging"
+        ],
+        "reasoning": "Derived status 'candidate' from evidence_strength=0.55 with 3 supporting and 1 contradicting citation(s)."
+      },
+      {
+        "id": "hypothesis_resilient_trajectory",
+        "canonical_family": "resilient_trajectory",
+        "human_label": "Resilient trajectory",
+        "status": "supported",
+        "evidence_strength": 0.78,
+        "supporting_evidence": [
+          {
+            "experience_id": "mx_e03",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "mx_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "competing_explanations": [
+          "Social opportunity and friendship may account for improvement",
+          "Selective recording of successful experiences"
+        ],
+        "reasoning": "Derived status 'supported' from evidence_strength=0.78 with 4 supporting and 1 contradicting citation(s)."
+      }
+    ],
+    "contradictions": [],
+    "unresolved_questions": [
+      "How does the subject currently experience intimacy outside work or friendship?",
+      "Whether worry about being left remains active in current close relationships is unclear.",
+      "The record does not establish current mood, daily functioning, or coping under acute stress.",
+      "It is unclear whether the theater partnership remains active and how broadly current support extends."
+    ],
+    "change_points": [
+      {
+        "experience_id": "mx_e02",
+        "age": 7,
+        "personality_changes": [],
+        "attachment_changes": [
+          {
+            "dimension": "attachment_anxiety",
+            "direction": "increase",
+            "magnitude": "substantial"
+          }
+        ],
+        "state_changes": [
+          {
+            "dimension": "threat_sensitivity",
+            "direction": "increase",
+            "magnitude": "substantial"
+          }
+        ],
+        "reasoning": "Waiting for an expected caregiver visit and learning that it would not occur plausibly intensified sensitivity to relational absence.",
+        "evidence": [
+          {
+            "experience_id": "mx_e02",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ]
+      },
+      {
+        "experience_id": "mx_e05",
+        "age": 14,
+        "personality_changes": [
+          {
+            "trait": "extraversion",
+            "direction": "increase",
+            "magnitude": "moderate"
+          }
+        ],
+        "attachment_changes": [
+          {
+            "dimension": "relational_security",
+            "direction": "increase",
+            "magnitude": "moderate"
+          }
+        ],
+        "state_changes": [
+          {
+            "dimension": "mood",
+            "direction": "increase",
+            "magnitude": "moderate"
+          }
+        ],
+        "reasoning": "Theater provided a repeated social role in which the subject felt competent and visible, countering earlier social marginalization.",
+        "evidence": [
+          {
+            "experience_id": "mx_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ]
+      },
+      {
+        "experience_id": "mx_e06",
+        "age": 17,
+        "personality_changes": [],
+        "attachment_changes": [
+          {
+            "dimension": "attachment_anxiety",
+            "direction": "decrease",
+            "magnitude": "mild"
+          },
+          {
+            "dimension": "attachment_avoidance",
+            "direction": "increase",
+            "magnitude": "mild"
+          }
+        ],
+        "state_changes": [
+          {
+            "dimension": "trust",
+            "direction": "decrease",
+            "magnitude": "moderate"
+          }
+        ],
+        "reasoning": "The decision to stop expecting the father to attend future events suggests a specific shift from hopeful monitoring toward defensive disengagement.",
+        "evidence": [
+          {
+            "experience_id": "mx_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ]
+      },
+      {
+        "experience_id": "mx_e08",
+        "age": 22,
+        "personality_changes": [
+          {
+            "trait": "conscientiousness",
+            "direction": "increase",
+            "magnitude": "moderate"
+          }
+        ],
+        "attachment_changes": [
+          {
+            "dimension": "attachment_anxiety",
+            "direction": "decrease",
+            "magnitude": "moderate"
+          },
+          {
+            "dimension": "relational_security",
+            "direction": "increase",
+            "magnitude": "moderate"
+          }
+        ],
+        "state_changes": [
+          {
+            "dimension": "regulation",
+            "direction": "increase",
+            "magnitude": "moderate"
+          },
+          {
+            "dimension": "avoidance",
+            "direction": "decrease",
+            "magnitude": "mild"
+          }
+        ],
+        "reasoning": "Ending a two-year disappointing relationship after accepting a friend's concern indicates stronger boundaries, self-worth, and intentional relationship selection.",
+        "evidence": [
+          {
+            "experience_id": "mx_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ]
+      },
+      {
+        "experience_id": "mx_e09",
+        "age": 28,
+        "personality_changes": [
+          {
+            "trait": "conscientiousness",
+            "direction": "increase",
+            "magnitude": "mild"
+          }
+        ],
+        "attachment_changes": [
+          {
+            "dimension": "relational_security",
+            "direction": "increase",
+            "magnitude": "moderate"
+          }
+        ],
+        "state_changes": [
+          {
+            "dimension": "trust",
+            "direction": "increase",
+            "magnitude": "moderate"
+          },
+          {
+            "dimension": "relational_security",
+            "direction": "increase",
+            "magnitude": "moderate"
+          }
+        ],
+        "reasoning": "The subject describes this close, stable working relationship as the most stable of their life, providing a corrective experience of dependable collaboration.",
+        "evidence": [
+          {
+            "experience_id": "mx_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ]
+      }
+    ],
+    "overall_confidence": 0.68
+  },
+  "pattern_scorecard_raw": {
+    "loss_and_bereavement": {
+      "relevance_score": 0.18,
+      "confidence": 0.7,
+      "human_label": "Limited loss-related disruption",
+      "reasoning": "The record describes separation and relational disappointment, but no death or clear bereavement experience.",
+      "supporting_evidence": [],
+      "contradicting_evidence": [
+        {
+          "experience_id": "mx_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ]
+    },
+    "identity_reconstruction": {
+      "relevance_score": 0.62,
+      "confidence": 0.68,
+      "human_label": "Reconstruction of relational worth and visibility",
+      "reasoning": "The subject moved from feeling overlooked and accepting a one-sided relationship toward feeling good at being seen and deserving better.",
+      "supporting_evidence": [
+        {
+          "experience_id": "mx_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": []
+    },
+    "relational_repair": {
+      "relevance_score": 0.72,
+      "confidence": 0.75,
+      "human_label": "Movement toward reciprocal relationships",
+      "reasoning": "A friend helped the subject reconsider a disappointing relationship, followed by a stable adult partnership.",
+      "supporting_evidence": [
+        {
+          "experience_id": "mx_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "mx_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ]
+    },
+    "avoidant_withdrawal": {
+      "relevance_score": 0.24,
+      "confidence": 0.65,
+      "human_label": "Limited withdrawal under social stress",
+      "reasoning": "Withdrawal occurred during bullying, but the broader pattern is socially eager and connection-seeking.",
+      "supporting_evidence": [
+        {
+          "experience_id": "mx_e04",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "mx_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ]
+    },
+    "risk_seeking_dysregulation": {
+      "relevance_score": 0.08,
+      "confidence": 0.8,
+      "human_label": "Little evidence of risk-seeking dysregulation",
+      "reasoning": "The recorded experiences do not describe impulsive risk-taking or marked behavioral dysregulation.",
+      "supporting_evidence": [],
+      "contradicting_evidence": [
+        {
+          "experience_id": "mx_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ]
+    },
+    "caregiving_role_reversal": {
+      "relevance_score": 0.2,
+      "confidence": 0.72,
+      "human_label": "Limited evidence of role reversal",
+      "reasoning": "Maternal strain is described, but the experiences do not show the subject assuming a caregiving role toward the caregiver.",
+      "supporting_evidence": [],
+      "contradicting_evidence": [
+        {
+          "experience_id": "mx_e03",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ]
+    },
+    "achievement_or_competence_compensation": {
+      "relevance_score": 0.48,
+      "confidence": 0.55,
+      "human_label": "Competence supporting visibility and self-worth",
+      "reasoning": "Theater provided a valued experience of being seen, and later business ownership offered a stable competence-based role.",
+      "supporting_evidence": [
+        {
+          "experience_id": "mx_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": []
+    },
+    "hypervigilant_monitoring": {
+      "relevance_score": 0.55,
+      "confidence": 0.7,
+      "human_label": "Monitoring for relational unreliability",
+      "reasoning": "Waiting for a missed visit, worrying about being forgotten, and later deciding not to expect the father suggest attention to signs of abandonment.",
+      "supporting_evidence": [
+        {
+          "experience_id": "mx_e02",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e06",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "mx_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ]
+    },
+    "prosocial_reinvention": {
+      "relevance_score": 0.65,
+      "confidence": 0.7,
+      "human_label": "Prosocial identity development through creative community",
+      "reasoning": "Theater and a close friendship became routes to visibility, belonging, and constructive adult collaboration.",
+      "supporting_evidence": [
+        {
+          "experience_id": "mx_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": []
+    },
+    "substance_coping": {
+      "relevance_score": 0.04,
+      "confidence": 0.9,
+      "human_label": "No recorded substance-coping pattern",
+      "reasoning": "No substance use or substance-based coping is recorded.",
+      "supporting_evidence": [],
+      "contradicting_evidence": [
+        {
+          "experience_id": "mx_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ]
+    }
+  },
+  "hypothesis_scorecard_raw": {
+    "adjustment_reaction": {
+      "evidence_strength": 0.58,
+      "confidence": 0.62,
+      "supporting_evidence": [
+        {
+          "experience_id": "mx_e01",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e02",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "mx_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "Long-standing temperament-based sensitivity to exclusion",
+        "Effects of repeated relational inconsistency"
+      ]
+    },
+    "complicated_grief_pattern": {
+      "evidence_strength": 0.05,
+      "confidence": 0.9,
+      "supporting_evidence": [],
+      "contradicting_evidence": [
+        {
+          "experience_id": "mx_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "Relational disappointment without bereavement",
+        "Attachment-related abandonment sensitivity"
+      ]
+    },
+    "attachment_insecurity_pattern": {
+      "evidence_strength": 0.82,
+      "confidence": 0.82,
+      "supporting_evidence": [
+        {
+          "experience_id": "mx_e02",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e06",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "mx_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "Temperamental worry about exclusion",
+        "Developmental effects of bullying"
+      ]
+    },
+    "substance_use_vulnerability": {
+      "evidence_strength": 0.03,
+      "confidence": 0.92,
+      "supporting_evidence": [],
+      "contradicting_evidence": [
+        {
+          "experience_id": "mx_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "No substance-related information is available"
+      ]
+    },
+    "identity_disruption_pattern": {
+      "evidence_strength": 0.55,
+      "confidence": 0.62,
+      "supporting_evidence": [
+        {
+          "experience_id": "mx_e04",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "mx_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "Normal adolescent identity development",
+        "Adaptive movement toward competence and belonging"
+      ]
+    },
+    "resilient_trajectory": {
+      "evidence_strength": 0.78,
+      "confidence": 0.8,
+      "supporting_evidence": [
+        {
+          "experience_id": "mx_e03",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "mx_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "mx_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "Social opportunity and friendship may account for improvement",
+        "Selective recording of successful experiences"
+      ]
+    }
+  },
+  "validation_findings": [],
+  "regression_findings": [],
+  "diagnosis_leak_findings": []
+}

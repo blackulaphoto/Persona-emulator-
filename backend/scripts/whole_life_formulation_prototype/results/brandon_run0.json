@@ -1,0 +1,2441 @@
+{
+  "fixture": "brandon",
+  "run_index": 0,
+  "elapsed_seconds": 61.6,
+  "status": "ok",
+  "formulation": {
+    "schema_version": "v2.2-final-stability-pass",
+    "baseline_personality": {
+      "openness": {
+        "value": 0.86,
+        "evidence": [
+          {
+            "experience_id": "brandon_e02",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.76,
+        "reasoning": "Early travel and later sustained engagement with photography, art, and AI development support high openness."
+      },
+      "conscientiousness": {
+        "value": 0.38,
+        "evidence": [
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.57,
+        "reasoning": "The record shows periods of crime and heavy drug involvement, but also later sustained event promotion, a long photography career, treatment training, and case-management work."
+      },
+      "extraversion": {
+        "value": 0.88,
+        "evidence": [
+          {
+            "experience_id": "brandon_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.83,
+        "reasoning": "Youth ministry, event promotion, nightlife work, and public-facing photography are consistent with strong social approach and stimulation-seeking."
+      },
+      "agreeableness": {
+        "value": 0.62,
+        "evidence": [
+          {
+            "experience_id": "brandon_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.61,
+        "reasoning": "Leadership in a youth group, fundraisers, and helping work in substance-use treatment suggest prosocial motivation, while the record also includes rebellion and crime."
+      },
+      "neuroticism": {
+        "value": 0.69,
+        "evidence": [
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.62,
+        "reasoning": "Major losses and prolonged drug-use periods suggest substantial emotional reactivity or vulnerability, although the available record does not directly measure trait-level neuroticism."
+      }
+    },
+    "current_personality": {
+      "openness": {
+        "value": 0.9,
+        "evidence": [
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.77,
+        "reasoning": "A long creative career followed by AI development supports continued high openness."
+      },
+      "conscientiousness": {
+        "value": 0.62,
+        "evidence": [
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.67,
+        "reasoning": "Sustaining freelance photography for roughly 20 years and completing RADT training while entering case management indicate greater organized, goal-directed functioning than during the earlier drug-involved period."
+      },
+      "extraversion": {
+        "value": 0.86,
+        "evidence": [
+          {
+            "experience_id": "brandon_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.8,
+        "reasoning": "The subject repeatedly chose socially visible, relational, and collaborative roles."
+      },
+      "agreeableness": {
+        "value": 0.7,
+        "evidence": [
+          {
+            "experience_id": "brandon_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.68,
+        "reasoning": "Fundraising and later substance-use treatment work provide evidence of cooperative and helping-oriented behavior."
+      },
+      "neuroticism": {
+        "value": 0.66,
+        "evidence": [
+          {
+            "experience_id": "brandon_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.55,
+        "reasoning": "The death of a highly significant partner followed by another prolonged period of drug use indicates continuing vulnerability, while rehabilitation and employment indicate some current regulation."
+      }
+    },
+    "personality_deltas": [
+      {
+        "trait": "conscientiousness",
+        "from_value": 0.38,
+        "to_value": 0.62,
+        "direction": "increase",
+        "magnitude": "moderate",
+        "evidence": [
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "Entering rehab, earning RADT credentials, becoming a case manager, and developing AI applications indicate increased structured, goal-directed functioning."
+      },
+      {
+        "trait": "agreeableness",
+        "from_value": 0.62,
+        "to_value": 0.7,
+        "direction": "increase",
+        "magnitude": "mild",
+        "evidence": [
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "Treatment work provides evidence of a more explicitly helping-oriented role than the earlier crime and drug-involved period."
+      }
+    ],
+    "baseline_attachment": {
+      "style": "fearful_avoidant",
+      "style_evidence": [
+        {
+          "experience_id": "brandon_e01",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e06",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e06",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "style_confidence": 0.46,
+      "attachment_anxiety": {
+        "value": 0.62,
+        "evidence": [
+          {
+            "experience_id": "brandon_e01",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.48
+      },
+      "attachment_avoidance": {
+        "value": 0.6,
+        "evidence": [
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.46
+      },
+      "relational_security": {
+        "value": 0.43,
+        "evidence": [
+          {
+            "experience_id": "brandon_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.44
+      }
+    },
+    "current_attachment": {
+      "style": "anxious",
+      "style_evidence": [
+        {
+          "experience_id": "brandon_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e10",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e10",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "style_confidence": 0.5,
+      "attachment_anxiety": {
+        "value": 0.65,
+        "evidence": [
+          {
+            "experience_id": "brandon_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.55
+      },
+      "attachment_avoidance": {
+        "value": 0.48,
+        "evidence": [
+          {
+            "experience_id": "brandon_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.5
+      },
+      "relational_security": {
+        "value": 0.55,
+        "evidence": [
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.5
+      }
+    },
+    "attachment_trajectory": [
+      {
+        "period_label": "adoption and early childhood",
+        "direction": "toward_insecurity",
+        "evidence": [
+          {
+            "experience_id": "brandon_e01",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "Placement for adoption is a potentially important early separation, but the record does not establish its subjective impact."
+      },
+      {
+        "period_label": "church involvement in adolescence",
+        "direction": "toward_security",
+        "evidence": [
+          {
+            "experience_id": "brandon_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "A pastor and youth group became a major part of the subject's life, providing structured belonging."
+      },
+      {
+        "period_label": "loss and adolescent drug involvement",
+        "direction": "toward_insecurity",
+        "evidence": [
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "The death of Audrey coincided with withdrawal from church and movement into crime and drugs during a serious romantic relationship."
+      },
+      {
+        "period_label": "adult creative and helping roles",
+        "direction": "toward_security",
+        "evidence": [
+          {
+            "experience_id": "brandon_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "Mentorship, sustained creative work, treatment employment, and AI development supplied roles, competence, and social connection."
+      },
+      {
+        "period_label": "loss of Hillary and later rehabilitation",
+        "direction": "stable",
+        "evidence": [
+          {
+            "experience_id": "brandon_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "reasoning": "The partner's death and subsequent drug use suggest renewed vulnerability, while rehabilitation and treatment work suggest partial restoration rather than a clearly established endpoint."
+      }
+    ],
+    "current_state": {
+      "trust": {
+        "value": 0.5,
+        "evidence": [
+          {
+            "experience_id": "brandon_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.43
+      },
+      "threat_sensitivity": {
+        "value": 0.58,
+        "evidence": [
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.45
+      },
+      "mood": {
+        "value": 0.43,
+        "evidence": [
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.48
+      },
+      "regulation": {
+        "value": 0.56,
+        "evidence": [
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.58
+      },
+      "avoidance": {
+        "value": 0.5,
+        "evidence": [
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.45
+      },
+      "relational_security": {
+        "value": 0.55,
+        "evidence": [
+          {
+            "experience_id": "brandon_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.52
+      }
+    },
+    "developmental_patterns": [
+      {
+        "id": "pattern_loss_and_bereavement",
+        "canonical_family": "loss_and_bereavement",
+        "human_label": "Major relational loss shaping later adaptation",
+        "status": "established",
+        "relevance_score": 0.78,
+        "first_emerged": {
+          "experience_id": "brandon_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [],
+        "confidence": 0.76,
+        "reasoning": "Audrey's death was followed by withdrawal from church and heavy movement into crime and drugs; Hillary's later death was followed by another prolonged period of drug use."
+      },
+      {
+        "id": "pattern_identity_reconstruction",
+        "canonical_family": "identity_reconstruction",
+        "human_label": "Reconstruction through creative and helping roles",
+        "status": "established",
+        "relevance_score": 0.82,
+        "first_emerged": {
+          "experience_id": "brandon_e04",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "brandon_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [],
+        "confidence": 0.73,
+        "reasoning": "The subject moved across youth ministry, crime and drugs, event promotion, photography, treatment work, and AI development, indicating repeated reorganization of identity."
+      },
+      {
+        "id": "pattern_relational_repair",
+        "canonical_family": "relational_repair",
+        "human_label": "Repair through mentorship, work, and treatment relationships",
+        "status": "established",
+        "relevance_score": 0.66,
+        "first_emerged": {
+          "experience_id": "brandon_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "brandon_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "brandon_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.62,
+        "reasoning": "A mentor introduced event promotion, Karen provided an opportunity at her bar, and the subject later entered a helping role in substance-use treatment."
+      },
+      {
+        "id": "pattern_avoidant_withdrawal",
+        "canonical_family": "avoidant_withdrawal",
+        "human_label": "Intermittent emotional and community withdrawal",
+        "status": "emerging",
+        "relevance_score": 0.43,
+        "first_emerged": {
+          "experience_id": "brandon_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "brandon_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.5,
+        "reasoning": "The subject describes being emotionally shut off and gave up church involvement after Audrey's death, but he also repeatedly pursued relationships, groups, nightlife, and helping roles."
+      },
+      {
+        "id": "pattern_risk_seeking_dysregulation",
+        "canonical_family": "risk_seeking_dysregulation",
+        "human_label": "Substantial risk-taking and dysregulated periods",
+        "status": "established",
+        "relevance_score": 0.84,
+        "first_emerged": {
+          "experience_id": "brandon_e03",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "brandon_e03",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.84,
+        "reasoning": "The record explicitly describes trouble, crime, heavy drug involvement, nightlife, and another prolonged period of drug use."
+      },
+      {
+        "id": "pattern_achievement_or_competence_compensation",
+        "canonical_family": "achievement_or_competence_compensation",
+        "human_label": "Competence as a route to stability and identity",
+        "status": "emerging",
+        "relevance_score": 0.58,
+        "first_emerged": {
+          "experience_id": "brandon_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "brandon_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "brandon_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.55,
+        "reasoning": "Event promotion, a long photography career, RADT training, case management, and AI development supplied achievement-based roles after earlier instability."
+      },
+      {
+        "id": "pattern_prosocial_reinvention",
+        "canonical_family": "prosocial_reinvention",
+        "human_label": "Reinvention through service and constructive work",
+        "status": "established",
+        "relevance_score": 0.72,
+        "first_emerged": {
+          "experience_id": "brandon_e04",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "brandon_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.7,
+        "reasoning": "Youth ministry, fundraisers, protecting vulnerable people, treatment case management, and AI development show repeated movement toward socially useful roles."
+      },
+      {
+        "id": "pattern_substance_coping",
+        "canonical_family": "substance_coping",
+        "human_label": "Drug use associated with periods of loss and instability",
+        "status": "established",
+        "relevance_score": 0.86,
+        "first_emerged": {
+          "experience_id": "brandon_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "supporting_evidence": [
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "brandon_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.84,
+        "reasoning": "Heavy drug involvement followed Audrey's death, continued during the relationship and pregnancy period, and recurred for a prolonged period before rehab."
+      }
+    ],
+    "beliefs": [
+      {
+        "id": "belief_1",
+        "human_label": "Protective responsibility",
+        "belief_statement": "People who are vulnerable should be protected.",
+        "formed_from": [
+          {
+            "experience_id": null,
+            "intervention_id": null,
+            "background_span": "protecting people he felt could not protect themselves",
+            "subject_role": "self"
+          }
+        ],
+        "restated_by": [
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.72
+      },
+      {
+        "id": "belief_2",
+        "human_label": "Belonging through contribution",
+        "belief_statement": "A meaningful role in a group or helping setting can provide belonging and direction.",
+        "formed_from": [
+          {
+            "experience_id": "brandon_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "restated_by": [
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.65
+      },
+      {
+        "id": "belief_3",
+        "human_label": "Loss-linked disengagement",
+        "belief_statement": "Major loss may be followed by withdrawal from stabilizing communities and movement toward risky coping.",
+        "formed_from": [
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "restated_by": [
+          {
+            "experience_id": "brandon_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "confidence": 0.68
+      }
+    ],
+    "protective_factors": [
+      {
+        "id": "protective_1",
+        "canonical_family": "reliable_relationship",
+        "human_label": "Supportive family relationships",
+        "domains_buffered": [
+          "attachment_security",
+          "emotional_safety",
+          "stability"
+        ],
+        "active_from": {
+          "experience_id": "brandon_e01",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "active_to": {
+          "experience_id": "brandon_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "confidence": 0.63
+      },
+      {
+        "id": "protective_2",
+        "canonical_family": "mentor_or_role_model",
+        "human_label": "Mentorship and vocational opportunity",
+        "domains_buffered": [
+          "competence",
+          "autonomy",
+          "social_belonging"
+        ],
+        "active_from": {
+          "experience_id": "brandon_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "active_to": null,
+        "confidence": 0.73
+      },
+      {
+        "id": "protective_3",
+        "canonical_family": "mastery_or_competence",
+        "human_label": "Creative and technical mastery",
+        "domains_buffered": [
+          "identity",
+          "competence",
+          "autonomy"
+        ],
+        "active_from": {
+          "experience_id": "brandon_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "active_to": {
+          "experience_id": "brandon_e10",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "confidence": 0.77
+      },
+      {
+        "id": "protective_4",
+        "canonical_family": "community_or_belonging",
+        "human_label": "Church, professional, and treatment communities",
+        "domains_buffered": [
+          "emotional_safety",
+          "social_belonging",
+          "attachment_security"
+        ],
+        "active_from": {
+          "experience_id": "brandon_e04",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "active_to": {
+          "experience_id": "brandon_e10",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "confidence": 0.67
+      },
+      {
+        "id": "protective_5",
+        "canonical_family": "corrective_experience",
+        "human_label": "Constructive helping role after substance use",
+        "domains_buffered": [
+          "identity",
+          "emotional_regulation",
+          "competence"
+        ],
+        "active_from": {
+          "experience_id": "brandon_e10",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        "active_to": null,
+        "confidence": 0.72
+      }
+    ],
+    "causal_chains": [
+      {
+        "id": "chain_1",
+        "description": "Loss was followed by disruption of belonging and risky coping.",
+        "steps": [
+          {
+            "event_citation": {
+              "experience_id": "brandon_e05",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "Audrey's death removed a major attachment figure during adolescence."
+          },
+          {
+            "event_citation": {
+              "experience_id": "brandon_e05",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "The subject gave up church involvement and moved heavily into crime and drugs, suggesting loss-related disruption of stabilizing structure and coping."
+          }
+        ],
+        "confidence": 0.78
+      },
+      {
+        "id": "chain_2",
+        "description": "Mentorship and opportunity redirected risk-taking energy into competence and social roles.",
+        "steps": [
+          {
+            "event_citation": {
+              "experience_id": "brandon_e07",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "While incarcerated, the subject learned event promotion from another man."
+          },
+          {
+            "event_citation": {
+              "experience_id": "brandon_e07",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "Karen allowed him to handle entertainment at her bar, creating a legitimate platform for promotion and leadership."
+          },
+          {
+            "event_citation": {
+              "experience_id": "brandon_e08",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "A camera purchase and move to Los Angeles supported a sustained photography career."
+          }
+        ],
+        "confidence": 0.81
+      },
+      {
+        "id": "chain_3",
+        "description": "A later partner's death was followed by renewed substance-related vulnerability and then vocational reinvention.",
+        "steps": [
+          {
+            "event_citation": {
+              "experience_id": "brandon_e09",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "The death of the subject's most significant romantic partner created a major relational loss."
+          },
+          {
+            "event_citation": {
+              "experience_id": "brandon_e10",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "After another prolonged period of drug use, the subject entered rehab."
+          },
+          {
+            "event_citation": {
+              "experience_id": "brandon_e10",
+              "intervention_id": null,
+              "background_span": null,
+              "subject_role": "self"
+            },
+            "mechanism": "He earned RADT credentials, became a case manager, and began developing AI applications, converting recovery into helping and technical roles."
+          }
+        ],
+        "confidence": 0.8
+      }
+    ],
+    "hypotheses": [
+      {
+        "id": "hypothesis_adjustment_reaction",
+        "canonical_family": "adjustment_reaction",
+        "human_label": "Adjustment reaction",
+        "status": "supported",
+        "evidence_strength": 0.72,
+        "supporting_evidence": [
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "competing_explanations": [
+          "risk-seeking coping",
+          "attachment insecurity pattern",
+          "identity disruption pattern"
+        ],
+        "reasoning": "Derived status 'supported' from evidence_strength=0.72 with 3 supporting and 1 contradicting citation(s)."
+      },
+      {
+        "id": "hypothesis_complicated_grief_pattern",
+        "canonical_family": "complicated_grief_pattern",
+        "human_label": "Complicated grief pattern",
+        "status": "candidate",
+        "evidence_strength": 0.49,
+        "supporting_evidence": [
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "brandon_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "competing_explanations": [
+          "substance-use vulnerability",
+          "developmental identity disruption",
+          "ordinary grief responses complicated by instability"
+        ],
+        "reasoning": "Derived status 'candidate' from evidence_strength=0.49 with 2 supporting and 2 contradicting citation(s)."
+      },
+      {
+        "id": "hypothesis_attachment_insecurity_pattern",
+        "canonical_family": "attachment_insecurity_pattern",
+        "human_label": "Attachment insecurity pattern",
+        "status": "supported",
+        "evidence_strength": 0.6,
+        "supporting_evidence": [
+          {
+            "experience_id": "brandon_e01",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "brandon_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "competing_explanations": [
+          "temperamentally high stimulation seeking",
+          "substance-related instability",
+          "repeated environmental transitions"
+        ],
+        "reasoning": "Derived status 'supported' from evidence_strength=0.60 with 3 supporting and 3 contradicting citation(s)."
+      },
+      {
+        "id": "hypothesis_substance_use_vulnerability",
+        "canonical_family": "substance_use_vulnerability",
+        "human_label": "Substance use vulnerability",
+        "status": "supported",
+        "evidence_strength": 0.9,
+        "supporting_evidence": [
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e06",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "competing_explanations": [
+          "loss-related coping",
+          "social and nightlife reinforcement",
+          "risk-seeking temperament"
+        ],
+        "reasoning": "Derived status 'supported' from evidence_strength=0.90 with 3 supporting and 1 contradicting citation(s)."
+      },
+      {
+        "id": "hypothesis_identity_disruption_pattern",
+        "canonical_family": "identity_disruption_pattern",
+        "human_label": "Identity disruption pattern",
+        "status": "supported",
+        "evidence_strength": 0.76,
+        "supporting_evidence": [
+          {
+            "experience_id": "brandon_e04",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "competing_explanations": [
+          "adaptive exploration",
+          "career diversification",
+          "substance-related disruption"
+        ],
+        "reasoning": "Derived status 'supported' from evidence_strength=0.76 with 4 supporting and 1 contradicting citation(s)."
+      },
+      {
+        "id": "hypothesis_resilient_trajectory",
+        "canonical_family": "resilient_trajectory",
+        "human_label": "Resilient trajectory",
+        "status": "supported",
+        "evidence_strength": 0.78,
+        "supporting_evidence": [
+          {
+            "experience_id": "brandon_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "contradicting_evidence": [
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          },
+          {
+            "experience_id": "brandon_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ],
+        "competing_explanations": [
+          "access to supportive relationships and opportunities",
+          "high openness and social confidence",
+          "recovery-related role restructuring"
+        ],
+        "reasoning": "Derived status 'supported' from evidence_strength=0.78 with 3 supporting and 2 contradicting citation(s)."
+      }
+    ],
+    "contradictions": [
+      {
+        "id": "contradiction_1",
+        "description": "The subject shows both substantial risk-seeking and sustained constructive competence: crime and heavy drug involvement coexist with long-term photography, treatment work, and AI development.",
+        "involved_claim_ids": [
+          "risk_seeking_dysregulation",
+          "achievement_or_competence_compensation",
+          "prosocial_reinvention"
+        ]
+      },
+      {
+        "id": "contradiction_2",
+        "description": "The subject appears vulnerable to loss-related disruption while also repeatedly forming meaningful roles, communities, and relationships.",
+        "involved_claim_ids": [
+          "loss_and_bereavement",
+          "relational_repair",
+          "resilient_trajectory"
+        ]
+      },
+      {
+        "id": "contradiction_3",
+        "description": "The record supports both emotional shutoff and strong social engagement, so avoidance should not be treated as a pervasive interpersonal pattern.",
+        "involved_claim_ids": [
+          "avoidant_withdrawal",
+          "relational_repair"
+        ]
+      }
+    ],
+    "unresolved_questions": [
+      "How did Brandon subjectively experience his adoption and early separations?",
+      "What specific emotional and behavioral changes followed Audrey's death beyond the recorded change in church involvement and drug use?",
+      "What is the current duration and stability of abstinence after rehab?",
+      "How did Hillary's relapse and death affect Brandon's beliefs about intimacy, responsibility, and loss?",
+      "What is the current quality of relationships with Karen, his son, and other family members?",
+      "Were there additional periods of treatment, abstinence, or relapse not included in the record?"
+    ],
+    "change_points": [
+      {
+        "experience_id": "brandon_e05",
+        "age": 15,
+        "personality_changes": [
+          {
+            "trait": "agreeableness",
+            "direction": "decrease",
+            "magnitude": "moderate"
+          },
+          {
+            "trait": "conscientiousness",
+            "direction": "decrease",
+            "magnitude": "substantial"
+          }
+        ],
+        "attachment_changes": [
+          {
+            "dimension": "relational_security",
+            "direction": "decrease",
+            "magnitude": "substantial"
+          },
+          {
+            "dimension": "attachment_avoidance",
+            "direction": "increase",
+            "magnitude": "moderate"
+          }
+        ],
+        "state_changes": [
+          {
+            "dimension": "mood",
+            "direction": "decrease",
+            "magnitude": "substantial"
+          },
+          {
+            "dimension": "regulation",
+            "direction": "decrease",
+            "magnitude": "substantial"
+          },
+          {
+            "dimension": "avoidance",
+            "direction": "increase",
+            "magnitude": "moderate"
+          }
+        ],
+        "reasoning": "Audrey's death was followed by giving up church involvement and moving heavily into crime and drugs, indicating a specific loss-linked disruption in mood, regulation, social security, and constructive functioning.",
+        "evidence": [
+          {
+            "experience_id": "brandon_e05",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ]
+      },
+      {
+        "experience_id": "brandon_e07",
+        "age": 19,
+        "personality_changes": [
+          {
+            "trait": "conscientiousness",
+            "direction": "increase",
+            "magnitude": "moderate"
+          },
+          {
+            "trait": "agreeableness",
+            "direction": "increase",
+            "magnitude": "mild"
+          }
+        ],
+        "attachment_changes": [
+          {
+            "dimension": "relational_security",
+            "direction": "increase",
+            "magnitude": "moderate"
+          }
+        ],
+        "state_changes": [
+          {
+            "dimension": "regulation",
+            "direction": "increase",
+            "magnitude": "moderate"
+          },
+          {
+            "dimension": "avoidance",
+            "direction": "decrease",
+            "magnitude": "mild"
+          }
+        ],
+        "reasoning": "Mentorship during incarceration and Karen's opportunity at her bar redirected the subject toward organized work, leadership, and socially embedded activity.",
+        "evidence": [
+          {
+            "experience_id": "brandon_e07",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ]
+      },
+      {
+        "experience_id": "brandon_e08",
+        "age": 23,
+        "personality_changes": [
+          {
+            "trait": "openness",
+            "direction": "increase",
+            "magnitude": "mild"
+          },
+          {
+            "trait": "conscientiousness",
+            "direction": "increase",
+            "magnitude": "moderate"
+          }
+        ],
+        "attachment_changes": [
+          {
+            "dimension": "relational_security",
+            "direction": "increase",
+            "magnitude": "mild"
+          }
+        ],
+        "state_changes": [
+          {
+            "dimension": "regulation",
+            "direction": "increase",
+            "magnitude": "moderate"
+          },
+          {
+            "dimension": "mood",
+            "direction": "increase",
+            "magnitude": "mild"
+          }
+        ],
+        "reasoning": "Receiving a camera, relocating to Los Angeles, and sustaining freelance photography for roughly 20 years mark a durable creative and vocational reorganization.",
+        "evidence": [
+          {
+            "experience_id": "brandon_e08",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ]
+      },
+      {
+        "experience_id": "brandon_e09",
+        "age": 37,
+        "personality_changes": [],
+        "attachment_changes": [
+          {
+            "dimension": "attachment_anxiety",
+            "direction": "increase",
+            "magnitude": "moderate"
+          },
+          {
+            "dimension": "relational_security",
+            "direction": "decrease",
+            "magnitude": "substantial"
+          }
+        ],
+        "state_changes": [
+          {
+            "dimension": "mood",
+            "direction": "decrease",
+            "magnitude": "substantial"
+          },
+          {
+            "dimension": "threat_sensitivity",
+            "direction": "increase",
+            "magnitude": "moderate"
+          },
+          {
+            "dimension": "regulation",
+            "direction": "decrease",
+            "magnitude": "moderate"
+          }
+        ],
+        "reasoning": "The death of the subject's most significant romantic partner was a major relational loss and preceded another prolonged period of drug use, supporting a meaningful change in relational security and current emotional vulnerability.",
+        "evidence": [
+          {
+            "experience_id": "brandon_e09",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ]
+      },
+      {
+        "experience_id": "brandon_e10",
+        "age": 40,
+        "personality_changes": [
+          {
+            "trait": "conscientiousness",
+            "direction": "increase",
+            "magnitude": "moderate"
+          },
+          {
+            "trait": "agreeableness",
+            "direction": "increase",
+            "magnitude": "mild"
+          }
+        ],
+        "attachment_changes": [
+          {
+            "dimension": "relational_security",
+            "direction": "increase",
+            "magnitude": "moderate"
+          },
+          {
+            "dimension": "attachment_avoidance",
+            "direction": "decrease",
+            "magnitude": "mild"
+          }
+        ],
+        "state_changes": [
+          {
+            "dimension": "regulation",
+            "direction": "increase",
+            "magnitude": "moderate"
+          },
+          {
+            "dimension": "avoidance",
+            "direction": "decrease",
+            "magnitude": "moderate"
+          },
+          {
+            "dimension": "mood",
+            "direction": "increase",
+            "magnitude": "mild"
+          }
+        ],
+        "reasoning": "Rehab, RADT training, case management, and AI development indicate a concrete shift toward structured recovery, helping, competence, and future-oriented engagement, although the durability of this shift remains uncertain.",
+        "evidence": [
+          {
+            "experience_id": "brandon_e10",
+            "intervention_id": null,
+            "background_span": null,
+            "subject_role": "self"
+          }
+        ]
+      }
+    ],
+    "overall_confidence": 0.68
+  },
+  "pattern_scorecard_raw": {
+    "loss_and_bereavement": {
+      "relevance_score": 0.78,
+      "confidence": 0.76,
+      "human_label": "Major relational loss shaping later adaptation",
+      "reasoning": "Audrey's death was followed by withdrawal from church and heavy movement into crime and drugs; Hillary's later death was followed by another prolonged period of drug use.",
+      "supporting_evidence": [
+        {
+          "experience_id": "brandon_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": []
+    },
+    "identity_reconstruction": {
+      "relevance_score": 0.82,
+      "confidence": 0.73,
+      "human_label": "Reconstruction through creative and helping roles",
+      "reasoning": "The subject moved across youth ministry, crime and drugs, event promotion, photography, treatment work, and AI development, indicating repeated reorganization of identity.",
+      "supporting_evidence": [
+        {
+          "experience_id": "brandon_e04",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e10",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": []
+    },
+    "relational_repair": {
+      "relevance_score": 0.66,
+      "confidence": 0.62,
+      "human_label": "Repair through mentorship, work, and treatment relationships",
+      "reasoning": "A mentor introduced event promotion, Karen provided an opportunity at her bar, and the subject later entered a helping role in substance-use treatment.",
+      "supporting_evidence": [
+        {
+          "experience_id": "brandon_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e10",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "brandon_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ]
+    },
+    "avoidant_withdrawal": {
+      "relevance_score": 0.43,
+      "confidence": 0.5,
+      "human_label": "Intermittent emotional and community withdrawal",
+      "reasoning": "The subject describes being emotionally shut off and gave up church involvement after Audrey's death, but he also repeatedly pursued relationships, groups, nightlife, and helping roles.",
+      "supporting_evidence": [
+        {
+          "experience_id": "brandon_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "brandon_e04",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ]
+    },
+    "risk_seeking_dysregulation": {
+      "relevance_score": 0.84,
+      "confidence": 0.84,
+      "human_label": "Substantial risk-taking and dysregulated periods",
+      "reasoning": "The record explicitly describes trouble, crime, heavy drug involvement, nightlife, and another prolonged period of drug use.",
+      "supporting_evidence": [
+        {
+          "experience_id": "brandon_e03",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e10",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "brandon_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ]
+    },
+    "caregiving_role_reversal": {
+      "relevance_score": 0.25,
+      "confidence": 0.35,
+      "human_label": "Limited evidence for protective or helping responsibility",
+      "reasoning": "The subject was drawn to protecting people who could not protect themselves and later became a case manager, but the record does not show childhood caregiving being imposed on him.",
+      "supporting_evidence": [
+        {
+          "experience_id": "brandon_e10",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "brandon_e04",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ]
+    },
+    "achievement_or_competence_compensation": {
+      "relevance_score": 0.58,
+      "confidence": 0.55,
+      "human_label": "Competence as a route to stability and identity",
+      "reasoning": "Event promotion, a long photography career, RADT training, case management, and AI development supplied achievement-based roles after earlier instability.",
+      "supporting_evidence": [
+        {
+          "experience_id": "brandon_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e10",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "brandon_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ]
+    },
+    "hypervigilant_monitoring": {
+      "relevance_score": 0.22,
+      "confidence": 0.3,
+      "human_label": "Insufficient evidence for persistent monitoring",
+      "reasoning": "The record documents anger, rebellion, and fearlessness but does not describe sustained scanning for danger or monitoring of others.",
+      "supporting_evidence": [],
+      "contradicting_evidence": [
+        {
+          "experience_id": "brandon_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ]
+    },
+    "prosocial_reinvention": {
+      "relevance_score": 0.72,
+      "confidence": 0.7,
+      "human_label": "Reinvention through service and constructive work",
+      "reasoning": "Youth ministry, fundraisers, protecting vulnerable people, treatment case management, and AI development show repeated movement toward socially useful roles.",
+      "supporting_evidence": [
+        {
+          "experience_id": "brandon_e04",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e10",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "brandon_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ]
+    },
+    "substance_coping": {
+      "relevance_score": 0.86,
+      "confidence": 0.84,
+      "human_label": "Drug use associated with periods of loss and instability",
+      "reasoning": "Heavy drug involvement followed Audrey's death, continued during the relationship and pregnancy period, and recurred for a prolonged period before rehab.",
+      "supporting_evidence": [
+        {
+          "experience_id": "brandon_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e06",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e10",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "brandon_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ]
+    }
+  },
+  "hypothesis_scorecard_raw": {
+    "adjustment_reaction": {
+      "evidence_strength": 0.72,
+      "confidence": 0.66,
+      "supporting_evidence": [
+        {
+          "experience_id": "brandon_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e10",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "brandon_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "risk-seeking coping",
+        "attachment insecurity pattern",
+        "identity disruption pattern"
+      ]
+    },
+    "complicated_grief_pattern": {
+      "evidence_strength": 0.49,
+      "confidence": 0.48,
+      "supporting_evidence": [
+        {
+          "experience_id": "brandon_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "brandon_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "substance-use vulnerability",
+        "developmental identity disruption",
+        "ordinary grief responses complicated by instability"
+      ]
+    },
+    "attachment_insecurity_pattern": {
+      "evidence_strength": 0.6,
+      "confidence": 0.52,
+      "supporting_evidence": [
+        {
+          "experience_id": "brandon_e01",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "brandon_e04",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e06",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "temperamentally high stimulation seeking",
+        "substance-related instability",
+        "repeated environmental transitions"
+      ]
+    },
+    "substance_use_vulnerability": {
+      "evidence_strength": 0.9,
+      "confidence": 0.9,
+      "supporting_evidence": [
+        {
+          "experience_id": "brandon_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e06",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e10",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "brandon_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "loss-related coping",
+        "social and nightlife reinforcement",
+        "risk-seeking temperament"
+      ]
+    },
+    "identity_disruption_pattern": {
+      "evidence_strength": 0.76,
+      "confidence": 0.72,
+      "supporting_evidence": [
+        {
+          "experience_id": "brandon_e04",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e10",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "brandon_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "adaptive exploration",
+        "career diversification",
+        "substance-related disruption"
+      ]
+    },
+    "resilient_trajectory": {
+      "evidence_strength": 0.78,
+      "confidence": 0.77,
+      "supporting_evidence": [
+        {
+          "experience_id": "brandon_e07",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e08",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e10",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "experience_id": "brandon_e05",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        },
+        {
+          "experience_id": "brandon_e09",
+          "intervention_id": null,
+          "background_span": null,
+          "subject_role": "self"
+        }
+      ],
+      "competing_explanations": [
+        "access to supportive relationships and opportunities",
+        "high openness and social confidence",
+        "recovery-related role restructuring"
+      ]
+    }
+  },
+  "validation_findings": [
+    {
+      "claim_type": "contradiction",
+      "claim_id": "contradiction_1",
+      "rule_violated": "internal_reference",
+      "detail": "involved_claim_ids references unknown claim id 'risk_seeking_dysregulation'",
+      "severity": "reject"
+    },
+    {
+      "claim_type": "contradiction",
+      "claim_id": "contradiction_1",
+      "rule_violated": "internal_reference",
+      "detail": "involved_claim_ids references unknown claim id 'achievement_or_competence_compensation'",
+      "severity": "reject"
+    },
+    {
+      "claim_type": "contradiction",
+      "claim_id": "contradiction_1",
+      "rule_violated": "internal_reference",
+      "detail": "involved_claim_ids references unknown claim id 'prosocial_reinvention'",
+      "severity": "reject"
+    },
+    {
+      "claim_type": "contradiction",
+      "claim_id": "contradiction_2",
+      "rule_violated": "internal_reference",
+      "detail": "involved_claim_ids references unknown claim id 'loss_and_bereavement'",
+      "severity": "reject"
+    },
+    {
+      "claim_type": "contradiction",
+      "claim_id": "contradiction_2",
+      "rule_violated": "internal_reference",
+      "detail": "involved_claim_ids references unknown claim id 'relational_repair'",
+      "severity": "reject"
+    },
+    {
+      "claim_type": "contradiction",
+      "claim_id": "contradiction_2",
+      "rule_violated": "internal_reference",
+      "detail": "involved_claim_ids references unknown claim id 'resilient_trajectory'",
+      "severity": "reject"
+    },
+    {
+      "claim_type": "contradiction",
+      "claim_id": "contradiction_3",
+      "rule_violated": "internal_reference",
+      "detail": "involved_claim_ids references unknown claim id 'avoidant_withdrawal'",
+      "severity": "reject"
+    },
+    {
+      "claim_type": "contradiction",
+      "claim_id": "contradiction_3",
+      "rule_violated": "internal_reference",
+      "detail": "involved_claim_ids references unknown claim id 'relational_repair'",
+      "severity": "reject"
+    }
+  ],
+  "regression_findings": [],
+  "diagnosis_leak_findings": []
+}
